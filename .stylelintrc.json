@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-styled-components"
+  ],
+  "processors": ["stylelint-processor-styled-components"],
+  "rules": {
+    "block-no-empty": true,
+    "color-no-invalid-hex": true,
+    "declaration-block-trailing-semicolon": "always",
+    "no-duplicate-selectors": true,
+    "property-no-unknown": true
+  }
+}
