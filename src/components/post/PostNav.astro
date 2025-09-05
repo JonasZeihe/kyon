@@ -1,0 +1,60 @@
+---
+type Nav = {
+  prev?: { slug: string; title: string }
+  next?: { slug: string; title: string }
+}
+const { prev, next } = Astro.props as Nav
+const BASE = ((import.meta.env.BASE_URL || '/') + '').replace(/\/?$/, '/')
+---
+
+<nav class="postnav">
+  {
+    prev && (
+      <a
+        class="btn prev"
+        href={`${BASE}entries/${encodeURIComponent(prev.slug)}`}
+      >
+        ← {prev.title}
+      </a>
+    )
+  }
+  {
+    next && (
+      <a
+        class="btn next"
+        href={`${BASE}entries/${encodeURIComponent(next.slug)}`}
+      >
+        {next.title} →
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .postnav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--c-border);
+    color: var(--c-text);
+    background: var(--c-surface);
+    text-decoration: none;
+    transition:
+      transform 0.1s ease,
+      box-shadow 0.12s ease,
+      border-color 0.12s ease;
+  }
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-color: color-mix(in oklab, var(--c-border) 50%, var(--c-accent) 50%);
+  }
+</style>

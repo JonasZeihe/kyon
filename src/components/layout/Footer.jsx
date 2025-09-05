@@ -1,5 +1,5 @@
 import React from 'react'
-import styled from 'styled-components'
+import { styled } from 'styled-components'
 import {
   FaLinkedin,
   FaXing,
@@ -11,6 +11,7 @@ import {
 export default function Footer() {
   const scrollToTop = () =>
     document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
+  const year = new Date().getFullYear()
 
   return (
     <FooterWrapper>
@@ -37,6 +38,7 @@ export default function Footer() {
               </ContactItem>
             </ContactList>
           </FooterColumn>
+
           <FooterColumn>
             <FooterTitle>Social Media</FooterTitle>
             <SocialIcons>
@@ -60,13 +62,12 @@ export default function Footer() {
           </FooterColumn>
         </FooterGrid>
       </FooterContent>
+
       <FooterBottom>
-        <Copyright>
-          © {new Date().getFullYear()} Jonas Zeihe. Alle Rechte vorbehalten.
-        </Copyright>
+        <Copyright>© {year} kyon – Jonas Zeihe</Copyright>
         <ScrollToTopButton
           onClick={scrollToTop}
-          aria-label="Nach oben scrollen"
+          aria-label="Nach oben"
           title="Nach oben"
         >
           <FaArrowUp />
@@ -80,8 +81,7 @@ const textColor = ({ theme }) =>
   theme.mode === 'light' ? theme.colors.text.inverse : theme.colors.text.main
 
 const FooterWrapper = styled.footer`
-  background: ${({ theme }) =>
-    theme.gradients?.backgroundDepth || theme.colors.surface.main};
+  background: ${({ theme }) => theme.gradients.backgroundDepth};
   color: ${textColor};
   padding: ${({ theme }) => theme.spacing(5)} ${({ theme }) => theme.spacing(2)};
   width: 100%;
@@ -133,7 +133,6 @@ const ContactItem = styled.li`
   align-items: center;
   gap: ${({ theme }) => theme.spacing(1)};
   font-size: ${({ theme }) => theme.typography.fontSize.body};
-
   svg {
     font-size: 1.15em;
   }
@@ -144,7 +143,6 @@ const ContactLink = styled.a`
   text-decoration: none;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   transition: color 0.23s;
-
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.colors.accent.main};
@@ -163,7 +161,6 @@ const IconLink = styled.a`
   transition:
     color 0.23s,
     transform 0.15s;
-
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.colors.accent.main};
@@ -181,7 +178,6 @@ const FooterBottom = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${textColor};
   gap: ${({ theme }) => theme.spacing(2)};
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing(2)};
@@ -208,7 +204,6 @@ const ScrollToTopButton = styled.button`
   transition:
     background 0.2s,
     transform 0.15s;
-
   &:hover,
   &:focus-visible {
     background: ${({ theme }) =>

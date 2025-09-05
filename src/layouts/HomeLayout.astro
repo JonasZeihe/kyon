@@ -1,0 +1,68 @@
+---
+// src/layouts/HomeLayout.astro
+import BaseLayout from './BaseLayout.astro'
+const { title = 'kyon', intro = '' } = Astro.props
+---
+
+<BaseLayout title={title}>
+  <section class="hero">
+    <slot name="hero">
+      <h1 class="t1">{title}</h1>
+      {intro && <p class="lead">{intro}</p>}
+    </slot>
+  </section>
+
+  <section class="tools">
+    <slot name="tools" />
+  </section>
+
+  <section class="feed">
+    <slot />
+  </section>
+
+  <section class="pagination">
+    <slot name="pagination" />
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: grid;
+    gap: 10px;
+    padding: 6px 0 8px;
+  }
+  .t1 {
+    margin: 0;
+    line-height: 1.08;
+    font-size: clamp(2.1rem, 3.2vw, 2.6rem);
+    letter-spacing: -0.012em;
+    color: var(--c-text);
+  }
+  .lead {
+    margin: 0;
+    opacity: 0.9;
+    max-width: 70ch;
+    color: var(--c-text);
+  }
+  .tools {
+    padding: 6px 0;
+  }
+  .feed {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  @media (min-width: 700px) {
+    .feed {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1100px) {
+    .feed {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .pagination {
+    padding-top: 6px;
+  }
+</style>

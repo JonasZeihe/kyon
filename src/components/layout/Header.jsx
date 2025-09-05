@@ -1,139 +1,76 @@
+// src/components/layout/Header.jsx
 import React, { useReducer, useEffect, useRef, useState } from 'react'
-import styled from 'styled-components'
+import { styled } from 'styled-components'
 import { FiChevronDown, FiChevronUp, FiX, FiMenu } from 'react-icons/fi'
 import SmoothScroller from '../utilities/SmoothScroller'
 import ThemeToggleButton from '../common/ThemeToggleButton'
 
-export default function Header({ navSections = [] }) {
-  const headerRef = useRef()
+export default () => {
   const [activeSection, setActiveSection] = useState(null)
-
-  const initialState = { menuOpen: false, openSubNav: null }
-
-  function reducer(state, action) {
-    switch (action.type) {
-      case 'TOGGLE_MENU':
-        return { ...state, menuOpen: !state.menuOpen, openSubNav: null }
-      case 'TOGGLE_SUBNAV':
-        return {
-          ...state,
-          openSubNav:
-            state.openSubNav === action.payload ? null : action.payload,
-        }
-      case 'CLOSE_MENU':
-        return initialState
-      default:
-        return state
-    }
-  }
-
-  const [state, dispatch] = useReducer(reducer, initialState)
+  const initial = { menuOpen: false, openSubNav: null }
+  const reducer = (s, a) =>
+    a.type === 'TOGGLE_MENU'
+      ? { ...s, menuOpen: !s.menuOpen, openSubNav: null }
+      : a.type === 'TOGGLE_SUBNAV'
+        ? { ...s, openSubNav: s.openSubNav === a.payload ? null : a.payload }
+        : initial
+  const [state, dispatch] = useReducer(reducer, initial)
+  const headerRef = useRef()
 
   useEffect(() => {
-    function handleScroll() {
-      const offsets = navSections.map((section) => ({
-        id: section.id,
-        offsetTop: document.getElementById(section.id)?.offsetTop || 0,
+    const onScroll = () => {
+      const offsets = navSections.map((sec) => ({
+        id: sec.id,
+        offset: document.getElementById(sec.id)?.offsetTop || 0,
       }))
-      const scrollPosition = window.scrollY + window.innerHeight / 2
-      const currentSection = offsets
-        .filter(({ offsetTop }) => scrollPosition >= offsetTop)
-        .pop()
-      if (currentSection?.id !== activeSection) {
-        setActiveSection(currentSection?.id)
-      }
+      const mid = window.scrollY + window.innerHeight / 2
+      const found = offsets.filter((o) => mid >= o.offset).pop()
+      if (found?.id !== activeSection) setActiveSection(found?.id)
     }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
   }, [activeSection, navSections])
 
-  const renderSubNavItems = (children) =>
-    children.map((child) => (
-      <SmoothScroller key={child.id} targetId={child.id}>
-        <SubNavItem $isActive={activeSection === child.id}>
-          {child.label}
-        </SubNavItem>
-      </SmoothScroller>
-    ))
-
-  const renderDesktopNav = () => (
-    <DesktopNav>
-      {navSections.map((section) => {
-        const hasChildren = section.children && section.children.length > 0
-        return (
-          <NavItemWrapper key={section.id}>
-            <SmoothScroller targetId={section.id}>
-              <NavItem $isActive={activeSection === section.id}>
-                {section.label}
-              </NavItem>
-            </SmoothScroller>
-            {hasChildren && (
-              <SubNav>{renderSubNavItems(section.children)}</SubNav>
-            )}
-          </NavItemWrapper>
-        )
-      })}
-    </DesktopNav>
-  )
-
-  const renderMobileNav = () => (
-    <MobileMenu>
-      {navSections.map((section) => {
-        const hasChildren = section.children && section.children.length > 0
-        return (
-          <React.Fragment key={section.id}>
-            <MobileNavItem>
-              <SmoothScroller targetId={section.id}>
-                <NavItem $isActive={activeSection === section.id}>
-                  {section.label}
-                </NavItem>
-              </SmoothScroller>
-              {hasChildren && (
-                <DropdownToggle
-                  onClick={() =>
-                    dispatch({ type: 'TOGGLE_SUBNAV', payload: section.id })
-                  }
-                  aria-label={
-                    state.openSubNav === section.id
-                      ? 'Subnavigation schließen'
-                      : 'Subnavigation öffnen'
-                  }
-                >
-                  {state.openSubNav === section.id ? (
-                    <FiChevronUp size={16} />
-                  ) : (
-                    <FiChevronDown size={16} />
-                  )}
-                </DropdownToggle>
-              )}
-            </MobileNavItem>
-            {hasChildren && (
-              <MobileSubNav $isOpen={state.openSubNav === section.id}>
-                {renderSubNavItems(section.children)}
-              </MobileSubNav>
-            )}
-          </React.Fragment>
-        )
-      })}
-    </MobileMenu>
-  )
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const scrollTop = () => {
+    document.documentElement.scrollTo({ top: 0, behavior: 'smooth' })
     dispatch({ type: 'CLOSE_MENU' })
   }
 
   return (
     <HeaderContainer ref={headerRef}>
       <HeaderContent>
-        <LeftSide>
-          <Logo as="button" type="button" onClick={scrollToTop}>
-            Jonas Zeihe
+        <Left>
+          <Logo as="button" type="button" onClick={scrollTop}>
+            kyon
           </Logo>
-        </LeftSide>
-        <RightSide>
+        </Left>
+        <Right>
           <DesktopOnly>
-            {renderDesktopNav()}
+            <DesktopNav>
+              {navSections.map((section) => {
+                const hasChild = section.children?.length > 0
+                return (
+                  <NavItemWrapper key={section.id}>
+                    <SmoothScroller targetId={section.id}>
+                      <NavItem $isActive={activeSection === section.id}>
+                        {section.label}
+                      </NavItem>
+                    </SmoothScroller>
+                    {hasChild && (
+                      <SubNav>
+                        {section.children.map((child) => (
+                          <SmoothScroller key={child.id} targetId={child.id}>
+                            <SubNavItem $isActive={activeSection === child.id}>
+                              {child.label}
+                            </SubNavItem>
+                          </SmoothScroller>
+                        ))}
+                      </SubNav>
+                    )}
+                  </NavItemWrapper>
+                )
+              })}
+            </DesktopNav>
             <ThemeToggleButton />
           </DesktopOnly>
           <MobileOnly>
@@ -145,12 +82,64 @@ export default function Header({ navSections = [] }) {
               {state.menuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
             </MobileMenuButton>
           </MobileOnly>
-        </RightSide>
+        </Right>
       </HeaderContent>
-      {state.menuOpen && <MobileOnly>{renderMobileNav()}</MobileOnly>}
+      {state.menuOpen && (
+        <MobileOnly>
+          {renderMobileNav(state, navSections, activeSection, dispatch)}
+        </MobileOnly>
+      )}
     </HeaderContainer>
   )
 }
+
+const renderMobileNav = (state, sections, active, dispatch) => (
+  <MobileMenu>
+    {sections.map((section) => {
+      const hasChild = section.children?.length > 0
+      return (
+        <React.Fragment key={section.id}>
+          <MobileNavItem>
+            <SmoothScroller targetId={section.id}>
+              <NavItem $isActive={active === section.id}>
+                {section.label}
+              </NavItem>
+            </SmoothScroller>
+            {hasChild && (
+              <DropdownToggle
+                onClick={() =>
+                  dispatch({ type: 'TOGGLE_SUBNAV', payload: section.id })
+                }
+                aria-label={
+                  state.openSubNav === section.id
+                    ? 'Subnav schließen'
+                    : 'Subnav öffnen'
+                }
+              >
+                {state.openSubNav === section.id ? (
+                  <FiChevronUp size={16} />
+                ) : (
+                  <FiChevronDown size={16} />
+                )}
+              </DropdownToggle>
+            )}
+          </MobileNavItem>
+          {hasChild && (
+            <MobileSubNav $isOpen={state.openSubNav === section.id}>
+              {section.children.map((child) => (
+                <SmoothScroller key={child.id} targetId={child.id}>
+                  <SubNavItem $isActive={active === child.id}>
+                    {child.label}
+                  </SubNavItem>
+                </SmoothScroller>
+              ))}
+            </MobileSubNav>
+          )}
+        </React.Fragment>
+      )
+    })}
+  </MobileMenu>
+)
 
 const HeaderContainer = styled.header`
   position: fixed;
@@ -179,17 +168,15 @@ const HeaderContent = styled.div`
   box-sizing: border-box;
 `
 
-const LeftSide = styled.div`
+const Left = styled.div`
   display: flex;
   align-items: center;
 `
-
-const RightSide = styled.div`
+const Right = styled.div`
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing(3)};
 `
-
 const Logo = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.h3};
   font-family: ${({ theme }) => theme.typography.fontFamily.secondary};
@@ -207,7 +194,6 @@ const Logo = styled.span`
     outline: none;
   }
 `
-
 const DesktopOnly = styled.div`
   display: flex;
   align-items: center;
@@ -216,26 +202,22 @@ const DesktopOnly = styled.div`
     display: none;
   }
 `
-
 const MobileOnly = styled.div`
   display: none;
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: block;
   }
 `
-
 const DesktopNav = styled.nav`
   display: flex;
   gap: ${({ theme }) => theme.spacing(7)};
 `
-
 const NavItemWrapper = styled.div`
   position: relative;
   &:hover > div {
     display: block;
   }
 `
-
 const NavItem = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.h4};
   font-weight: ${({ $isActive, theme }) =>
@@ -250,7 +232,6 @@ const NavItem = styled.div`
     color: ${({ theme }) => theme.colors.accent.base};
   }
 `
-
 const SubNav = styled.div`
   position: absolute;
   top: 100%;
@@ -264,7 +245,6 @@ const SubNav = styled.div`
   display: none;
   z-index: 2;
 `
-
 const SubNavItem = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
@@ -282,7 +262,6 @@ const SubNavItem = styled.div`
     background: ${({ theme }) => theme.colors.surface.hover};
   }
 `
-
 const MobileMenuButton = styled.button`
   background: none;
   border: none;
@@ -298,7 +277,6 @@ const MobileMenuButton = styled.button`
     outline: none;
   }
 `
-
 const MobileMenu = styled.div`
   position: absolute;
   top: 100%;
@@ -311,14 +289,12 @@ const MobileMenu = styled.div`
   border-bottom-left-radius: ${({ theme }) => theme.borderRadius.medium};
   border-bottom-right-radius: ${({ theme }) => theme.borderRadius.medium};
 `
-
 const MobileNavItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: ${({ theme }) => `${theme.spacing(1.5)} 0`};
 `
-
 const DropdownToggle = styled.button`
   background: none;
   border: none;
@@ -333,7 +309,6 @@ const DropdownToggle = styled.button`
     outline: none;
   }
 `
-
 const MobileSubNav = styled.div`
   overflow: hidden;
   transition:

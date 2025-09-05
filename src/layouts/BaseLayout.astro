@@ -1,0 +1,35 @@
+---
+import { ThemeContextProvider } from '../components/context/ThemeContext.jsx'
+import Header from '../components/layout/Header.jsx'
+import Footer from '../components/layout/Footer.jsx'
+const { title = 'kyon', lang = 'de' } = Astro.props
+---
+
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" />
+  </head>
+  <body>
+    <ThemeContextProvider>
+      <Header />
+      <main id="main" class="wrap">
+        <slot />
+      </main>
+      <Footer />
+    </ThemeContextProvider>
+  </body>
+</html>
+
+<style>
+  :root {
+    --wrap: 1200px;
+  }
+  .wrap {
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 28px 20px;
+  }
+</style>

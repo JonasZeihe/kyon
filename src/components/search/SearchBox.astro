@@ -1,0 +1,134 @@
+---
+// src/components/search/SearchBox.astro
+const limit = Number(Astro.props.limit ?? 8)
+---
+
+<div class="searchbox" data-limit={limit}>
+  <input type="search" placeholder="Suche..." autocomplete="off" />
+  <ul class="results" hidden></ul>
+</div>
+
+<style>
+  .searchbox {
+    position: relative;
+  }
+  .searchbox input {
+    padding: 6px 10px;
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    background: var(--c-surface);
+    color: var(--c-text);
+    min-width: 160px;
+  }
+  .searchbox input:focus {
+    outline: none;
+    border-color: var(--c-primary);
+  }
+  .results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 6px 0 0;
+    padding: 6px 0;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 6px;
+    list-style: none;
+    max-height: 280px;
+    overflow: auto;
+    z-index: 10;
+  }
+  .results li {
+    padding: 6px 10px;
+  }
+  .results a {
+    display: flex;
+    justify-content: space-between;
+    color: var(--c-text);
+    text-decoration: none;
+  }
+  .results a:hover {
+    background: var(--c-bg);
+  }
+  .results .meta {
+    opacity: 0.7;
+    font-size: 0.8rem;
+  }
+</style>
+
+<script type="module">
+  ;(() => {
+    const root = document.currentScript?.closest('.searchbox')
+    if (!(root instanceof HTMLElement)) return
+    const inputEl = root.querySelector('input[type="search"]')
+    const listEl = root.querySelector('.results')
+    if (!(inputEl instanceof HTMLInputElement)) return
+    if (!(listEl instanceof HTMLUListElement)) return
+
+    const LIMIT = Number(root.dataset.limit || 8)
+    const BASE = ((import.meta.env.BASE_URL || '/') + '').replace(/\/?$/, '/')
+
+    let cache = null
+    let timer
+
+    inputEl.addEventListener('input', () => {
+      const q = inputEl.value.trim().toLowerCase()
+      if (typeof timer === 'number') window.clearTimeout(timer)
+      if (!q) {
+        listEl.hidden = true
+        listEl.innerHTML = ''
+        return
+      }
+
+      timer = window.setTimeout(async () => {
+        if (!cache) {
+          const res = await fetch(`${BASE}search.json`, {
+            cache: 'force-cache',
+          })
+          cache = await res.json()
+        }
+        const hits = cache
+          .filter(
+            (p) =>
+              p.title.toLowerCase().includes(q) ||
+              p.description.toLowerCase().includes(q) ||
+              (Array.isArray(p.tags) &&
+                p.tags.some((t) => t.toLowerCase().includes(q)))
+          )
+          .slice(0, LIMIT)
+
+        if (hits.length === 0) {
+          listEl.hidden = true
+          listEl.innerHTML = ''
+          return
+        }
+
+        listEl.innerHTML = hits
+          .map((h) => {
+            const t = escapeHtml(h.title || '')
+            const d = h.date ? escapeHtml(h.date) : ''
+            const href = `${BASE}entries/${encodeURIComponent(h.slug)}`
+            return `<li><a href="${href}"><strong>${t}</strong><span class="meta">${d}</span></a></li>`
+          })
+          .join('')
+
+        listEl.hidden = false
+      }, 120)
+    })
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, (ch) =>
+        ch === '&'
+          ? '&amp;'
+          : ch === '<'
+            ? '&lt;'
+            : ch === '>'
+              ? '&gt;'
+              : ch === '"'
+                ? '&quot;'
+                : '&#39;'
+      )
+    }
+  })()
+</script>
