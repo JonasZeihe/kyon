@@ -1,13 +1,17 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from 'next'
+
+const isGH = process.env.GITHUB_ACTIONS === 'true'
+const repo = 'kyon'
+
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compiler: {
     styledComponents: true,
   },
-  experimental: {
-    appDir: true,
-  },
+  output: 'export',
+  images: { unoptimized: true },
+  assetPrefix: isGH ? `/${repo}/` : undefined,
+  basePath: isGH ? `/${repo}` : undefined,
 }
 
 export default nextConfig
