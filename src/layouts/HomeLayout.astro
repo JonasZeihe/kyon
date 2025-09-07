@@ -1,10 +1,10 @@
 ---
 // src/layouts/HomeLayout.astro
-import BaseLayout from './BaseLayout.astro'
+import ThemeLayoutIsland from '../components/islands/ThemeLayoutIsland.astro'
 const { title = 'kyon', intro = '' } = Astro.props
 ---
 
-<BaseLayout title={title}>
+<ThemeLayoutIsland client:load>
   <section class="hero">
     <slot name="hero">
       <h1 class="t1">{title}</h1>
@@ -23,7 +23,7 @@ const { title = 'kyon', intro = '' } = Astro.props
   <section class="pagination">
     <slot name="pagination" />
   </section>
-</BaseLayout>
+</ThemeLayoutIsland>
 
 <style>
   .hero {

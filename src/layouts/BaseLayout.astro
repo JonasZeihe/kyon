@@ -1,7 +1,5 @@
 ---
-import { ThemeContextProvider } from '../components/context/ThemeContext.jsx'
-import Header from '../components/layout/Header.jsx'
-import Footer from '../components/layout/Footer.jsx'
+import ThemeLayoutIsland from '../components/islands/ThemeLayoutIsland.astro'
 const { title = 'kyon', lang = 'de' } = Astro.props
 ---
 
@@ -13,23 +11,10 @@ const { title = 'kyon', lang = 'de' } = Astro.props
     <link rel="icon" href="/favicon.svg" />
   </head>
   <body>
-    <ThemeContextProvider>
-      <Header />
+    <ThemeLayoutIsland client:load>
       <main id="main" class="wrap">
         <slot />
       </main>
-      <Footer />
-    </ThemeContextProvider>
+    </ThemeLayoutIsland>
   </body>
 </html>
-
-<style>
-  :root {
-    --wrap: 1200px;
-  }
-  .wrap {
-    max-width: var(--wrap);
-    margin: 0 auto;
-    padding: 28px 20px;
-  }
-</style>
