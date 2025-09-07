@@ -75,11 +75,8 @@ const variantCSS = (v, t, gutter) => {
 
 const getThemeColor = (color, theme) => {
   if (!color) return null
-  if (/^(#|rgb|hsl|var\(--)/.test(color)) return color
-  const [group, tone] = color.split('.')
-  const g = theme.colors[group] || {}
-  if (tone) return g[tone] ?? theme.colors.text?.[tone] ?? null
-  return g.base ?? g.main ?? null
+  const [group, tone = 'main'] = color.split('.')
+  return theme.colors[group]?.[tone] || theme.colors.text?.[tone] || null
 }
 
 const StyledTypography = styled.span`

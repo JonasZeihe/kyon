@@ -2,6 +2,7 @@ import gradients from './Gradient'
 
 const clamp = (min, max) =>
   `clamp(${min}, calc(${min} + (${max} - ${min}) * ((100vw - 350px) / 1000)), ${max})`
+
 export const typography = {
   fontFamily: {
     primary: "'Geist','Inter','Segoe UI',Arial,sans-serif",
@@ -9,24 +10,25 @@ export const typography = {
     button: "'Geist','Inter','Segoe UI',Arial,sans-serif",
   },
   fontSize: {
-    h1: clamp(2.1, 2.85),
-    h2: clamp(1.6, 2.14),
-    h3: clamp(1.25, 1.44),
-    h4: clamp(1.08, 1.18),
-    body: clamp(1, 1.08),
-    small: clamp(0.92, 1),
+    h1: clamp(2.1, 2.85), // 2.1rem ~33.6px → 2.85rem ~45.6px
+    h2: clamp(1.6, 2.14), // 1.6rem ~25.6px → 2.14rem ~34.2px
+    h3: clamp(1.25, 1.44), // 1.25rem ~20px → 1.44rem ~23px
+    h4: clamp(1.08, 1.18), // 1.08rem ~17.3px → 1.18rem ~18.9px
+    body: clamp(1, 1.08), // 1rem ~16px → 1.08rem ~17.3px
+    small: clamp(0.92, 1), // 0.92rem ~14.7px → 1rem ~16px
   },
   fontWeight: { light: 300, regular: 400, medium: 500, bold: 700 },
   lineHeight: { tight: 1.19, normal: 1.6, relaxed: 1.9 },
   letterSpacing: { tight: '-0.012em', normal: '0', wide: '0.035em' },
 }
+
 export const spacing = (f = 1) => `${8 * f}px`
 export const spacingHalf = (f = 1) => `${4 * f}px`
 export const borderRadius = {
   none: '0',
-  small: '0.25rem',
-  medium: '0.55rem',
-  large: '1rem',
+  small: '0.25rem', // 4px
+  medium: '0.55rem', // 8.8px
+  large: '1rem', // 16px
   pill: '9999px',
 }
 export const boxShadows = {
@@ -67,6 +69,7 @@ const PALETTES = {
       border: '#678CEC',
       surface: '#EEF4FF',
       contrast: '#0B225E',
+
       0: '#F2F6FF',
       1: '#E5EBFF',
       2: '#A9C2FF',
@@ -76,6 +79,7 @@ const PALETTES = {
       5: '#1536A2',
       6: '#0B225E',
     },
+
     secondary: {
       base: '#C3552A',
       hover: '#A6471A',
@@ -84,6 +88,7 @@ const PALETTES = {
       border: '#F39269',
       surface: '#FFF2EA',
       contrast: '#6C2A10',
+
       0: '#FFF2EA',
       1: '#FFE5D5',
       2: '#FFBA96',
@@ -93,6 +98,7 @@ const PALETTES = {
       5: '#7D330F',
       6: '#4D1E08',
     },
+
     accent: {
       base: '#CA21B6',
       hover: '#A01392',
@@ -101,6 +107,7 @@ const PALETTES = {
       border: '#DB7AD1',
       surface: '#FBEAF9',
       contrast: '#5B0A54',
+
       0: '#FBEAF9',
       1: '#F6D9F5',
       2: '#E99FED',
@@ -110,6 +117,7 @@ const PALETTES = {
       5: '#70126A',
       6: '#45124A',
     },
+
     highlight: {
       base: '#FFD600',
       hover: '#EEC400',
@@ -118,6 +126,7 @@ const PALETTES = {
       border: '#EEC23D',
       surface: '#FFFBEF',
       contrast: '#16171D',
+
       0: '#FFFBEF',
       1: '#FFF7E0',
       2: '#FFE37A',
@@ -127,6 +136,7 @@ const PALETTES = {
       5: '#A87100',
       6: '#664200',
     },
+
     neutral: {
       background: '#FAFAFC',
       surface: '#FFFFFF',
@@ -136,6 +146,7 @@ const PALETTES = {
       inverse: '#FFFFFF',
       backdrop: '#E0E3EA',
     },
+
     surface: {
       0: '#FFFFFF',
       1: '#FAFBFF',
@@ -149,6 +160,7 @@ const PALETTES = {
       hover: '#F5F7FA',
       backdrop: '#E6E9F0',
     },
+
     depth: {
       0: '#FFFFFF',
       1: '#F4F5FA',
@@ -160,8 +172,10 @@ const PALETTES = {
       ultraLight: '#F6F8FC',
       dark: '#16171D',
     },
+
     text: { main: '#16171D', inverse: '#FFFFFF', subtle: '#6F7285' },
   },
+
   dark: {
     primary: {
       base: '#3068FF',
@@ -171,6 +185,7 @@ const PALETTES = {
       border: '#4A79E9',
       surface: '#1E1F2B',
       contrast: '#0F214F',
+
       0: '#DCE7FF',
       1: '#B8D0FF',
       2: '#5C8EFF',
@@ -180,6 +195,7 @@ const PALETTES = {
       5: '#1D3A86',
       6: '#0F214F',
     },
+
     secondary: {
       base: '#C3552A',
       hover: '#A6471A',
@@ -188,6 +204,7 @@ const PALETTES = {
       border: '#F49568',
       surface: '#2C1E1B',
       contrast: '#662B12',
+
       0: '#FFE5D5',
       1: '#FFD6C2',
       2: '#FFA784',
@@ -197,6 +214,7 @@ const PALETTES = {
       5: '#7D330F',
       6: '#51210A',
     },
+
     accent: {
       base: '#CA21B6',
       hover: '#A01392',
@@ -205,6 +223,7 @@ const PALETTES = {
       border: '#B574C3',
       surface: '#2B1C2A',
       contrast: '#45124A',
+
       0: '#ECD4F0',
       1: '#E3BDE5',
       2: '#C689D2',
@@ -214,6 +233,7 @@ const PALETTES = {
       5: '#70126A',
       6: '#45124A',
     },
+
     highlight: {
       base: '#B78A00',
       hover: '#D99A00',
@@ -222,6 +242,7 @@ const PALETTES = {
       border: '#F7C133',
       surface: '#332F1C',
       contrast: '#664700',
+
       0: '#FFECA0',
       1: '#FFD666',
       2: '#FFC533',
@@ -231,6 +252,7 @@ const PALETTES = {
       5: '#A27000',
       6: '#664700',
     },
+
     neutral: {
       background: '#1A1B25',
       surface: '#22232F',
@@ -240,6 +262,7 @@ const PALETTES = {
       inverse: '#16171D',
       backdrop: '#15161B',
     },
+
     surface: {
       0: '#1A1B25',
       1: '#181922',
@@ -252,6 +275,7 @@ const PALETTES = {
       hover: '#22232F',
       backdrop: '#15161B',
     },
+
     depth: {
       0: '#1E2030',
       1: '#23263C',
@@ -267,13 +291,13 @@ const PALETTES = {
   },
 }
 
-export const createTheme = (mode = 'light') => {
+const createTheme = (mode) => {
   const colors = PALETTES[mode]
   return {
     mode,
     colors,
-    gradients: gradients({ colors }),
     boxShadow: boxShadows[mode],
+    gradients: gradients({ colors }),
     typography,
     spacing,
     spacingHalf,

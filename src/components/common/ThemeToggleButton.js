@@ -1,10 +1,10 @@
-// src/components/common/ThemeToggleButton.jsx
+// src/components/common/ThemeToggleButton.js
 import React from 'react'
-import { styled } from 'styled-components'
+import styled from 'styled-components'
 import { FiSun, FiMoon } from 'react-icons/fi'
 import { useThemeContext } from '../context/ThemeContext'
 
-export default () => {
+export default function ThemeToggleButton() {
   const { mode, toggleTheme } = useThemeContext()
 
   return (
