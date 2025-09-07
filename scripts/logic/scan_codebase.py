@@ -6,10 +6,21 @@ SRC_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "src"
 )
 OUTPUT_DIR = os.path.dirname(os.path.abspath(__file__))
+IGNORE_DIRS = {
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    ".next",
+    "out",
+    "coverage",
+    ".turbo",
+    ".cache",
+}
 
 
 def build_tree(path, prefix=""):
-    entries = sorted(os.listdir(path))
+    entries = sorted([e for e in os.listdir(path) if e not in IGNORE_DIRS])
     tree_lines = []
     for index, entry in enumerate(entries):
         full_path = os.path.join(path, entry)
@@ -25,6 +36,7 @@ def find_directory_by_name(base_path, target_name):
     if target_name == "src":
         return base_path
     for root, dirs, _ in os.walk(base_path):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         for d in dirs:
             if d == target_name:
                 return os.path.join(root, d)
@@ -33,7 +45,8 @@ def find_directory_by_name(base_path, target_name):
 
 def collect_file_contents(path):
     entries = []
-    for root, _, files in os.walk(path):
+    for root, dirs, files in os.walk(path):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
         for file in sorted(files):
             abs_path = os.path.join(root, file)
             rel_path = os.path.relpath(abs_path, SRC_DIR)
@@ -46,14 +59,47 @@ def collect_file_contents(path):
     return entries
 
 
-def write_output_file(data, folder_name):
+def collect_file_contents_by_types(base_path, extensions):
+    exts = {e.lower() if e.startswith(".") else f".{e.lower()}" for e in extensions}
+    entries = []
+    for root, dirs, files in os.walk(base_path):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        for file in sorted(files):
+            name_lower = file.lower()
+            if any(name_lower.endswith(ext) for ext in exts):
+                abs_path = os.path.join(root, file)
+                rel_path = os.path.relpath(abs_path, SRC_DIR)
+                try:
+                    with open(abs_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                except Exception as e:
+                    content = f"<< Error reading file: {e} >>"
+                entries.append(f"// --- {rel_path} ---\n{content.strip()}\n")
+    return entries
+
+
+def write_output_file(data, label):
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-    filename = f"{timestamp}-{folder_name}.txt"
+    filename = f"{timestamp}-{label}.txt"
     output_path = os.path.join(OUTPUT_DIR, filename)
     with open(output_path, "w", encoding="utf-8") as f:
         for entry in data:
             f.write(entry + "\n\n")
     print(f"\n✅ Written {len(data)} files to {output_path}")
+
+
+def is_type_query(q):
+    return q.startswith(".") or any(
+        part.startswith(".") for part in q.replace(" ", "").split(",")
+    )
+
+
+def parse_extensions(q):
+    parts = [p.strip() for p in q.split(",") if p.strip()]
+    norm = []
+    for p in parts:
+        norm.append(p if p.startswith(".") else f".{p}")
+    return norm
 
 
 def main():
@@ -68,23 +114,38 @@ def main():
         print(line)
 
     while True:
-        folder_name = input(
-            "\n🔍 Enter folder name to scan (or 'exit' to quit): "
+        q = input(
+            "\n🔍 Ordnernamen ODER Dateitypen (.js,.ts,...) eingeben (oder 'exit'): "
         ).strip()
-        if folder_name.lower() == "exit":
+        if q.lower() == "exit":
             break
 
-        target_path = find_directory_by_name(SRC_DIR, folder_name)
-        if not target_path:
-            print(f"⚠️ Folder '{folder_name}' not found. Try again.")
-            continue
-
-        print(f"\n📄 Scanning files under '{folder_name}'...\n")
-        entries = collect_file_contents(target_path)
-        for entry in entries:
-            header = entry.split("\n", 1)[0]
-            print(f" - {header}")
-        write_output_file(entries, folder_name)
+        if is_type_query(q):
+            exts = parse_extensions(q)
+            print(f"\n📄 Scanning by types {', '.join(exts)}...\n")
+            entries = collect_file_contents_by_types(SRC_DIR, exts)
+            if not entries:
+                print("⚠️ Keine passenden Dateien gefunden.")
+                continue
+            for entry in entries:
+                header = entry.split("\n", 1)[0]
+                print(f" - {header}")
+            label = "types-" + "-".join(
+                e.lstrip(".").replace("*", "star") for e in exts
+            )
+            write_output_file(entries, label)
+        else:
+            folder_name = q
+            target_path = find_directory_by_name(SRC_DIR, folder_name)
+            if not target_path:
+                print(f"⚠️ Folder '{folder_name}' not found. Try again.")
+                continue
+            print(f"\n📄 Scanning files under '{folder_name}'...\n")
+            entries = collect_file_contents(target_path)
+            for entry in entries:
+                header = entry.split("\n", 1)[0]
+                print(f" - {header}")
+            write_output_file(entries, folder_name)
 
 
 if __name__ == "__main__":
