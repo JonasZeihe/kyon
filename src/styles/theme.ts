@@ -1,140 +1,10 @@
-import gradients from './Gradient'
-import { DefaultTheme } from 'styled-components'
-
-type ThemeMode = 'light' | 'dark'
-
-type ScaleKeys = '0' | '1' | '2' | '3' | '4' | '5' | '6' | 'main'
-type ColorScale = Record<ScaleKeys, string> & {
-  base: string
-  hover: string
-  active: string
-  disabled: string
-  border: string
-  surface: string
-  contrast: string
-}
-
-type SurfaceScale = {
-  0: string
-  1: string
-  2: string
-  4: string
-  5: string
-  6: string
-  main: string
-  card: string
-  cardAlpha: string
-  hover: string
-  backdrop: string
-}
-
-type DepthScale = {
-  0: string
-  1: string
-  2: string
-  3: string
-  5: string
-  6: string
-  main: string
-  ultraLight: string
-  dark: string
-}
-
-type NeutralScale = {
-  background: string
-  surface: string
-  border: string
-  text: string
-  textSubtle: string
-  inverse: string
-  backdrop: string
-}
-
-type TextScale = {
-  main: string
-  inverse: string
-  subtle: string
-}
-
-type ThemeColors = {
-  primary: ColorScale
-  secondary: ColorScale
-  accent: ColorScale
-  highlight: ColorScale
-  neutral: NeutralScale
-  surface: SurfaceScale
-  depth: DepthScale
-  text: TextScale
-}
-
-type GradientSet = Record<string, string> & { meshPalette: string[] }
-
-type Typography = {
-  fontFamily: { primary: string; secondary: string; button: string }
-  fontSize: {
-    h1: string
-    h2: string
-    h3: string
-    h4: string
-    body: string
-    small: string
-  }
-  fontWeight: { light: number; regular: number; medium: number; bold: number }
-  lineHeight: { tight: number; normal: number; relaxed: number }
-  letterSpacing: { tight: string; normal: string; wide: string }
-}
-
-type BoxShadowScale = {
-  xs: string
-  sm: string
-  md: string
-  lg: string
-  glow: string
-}
-
-type BoxShadows = {
-  light: BoxShadowScale
-  dark: BoxShadowScale
-}
-
-type BorderRadius = {
-  none: string
-  small: string
-  medium: string
-  large: string
-  pill: string
-}
-
-type Breakpoints = {
-  xs: string
-  sm: string
-  md: string
-  lg: string
-  xl: string
-  xxl: string
-}
-
-export type KyonTheme = {
-  mode: ThemeMode
-  colors: ThemeColors
-  boxShadow: BoxShadowScale
-  gradients: GradientSet
-  typography: Typography
-  spacing: (f?: number) => string
-  spacingHalf: (f?: number) => string
-  borderRadius: BorderRadius
-  breakpoints: Breakpoints
-  motionSafe: boolean
-}
-
-declare module 'styled-components' {
-  export interface DefaultTheme extends KyonTheme {}
-}
+// src/styles/theme.ts
+import gradients, { type GradientSet } from './Gradient'
 
 const clamp = (min: number, max: number) =>
-  `clamp(${min}rem, calc(${min}rem + (${max} - ${min}) * ((100vw - 350px) / 1000)), ${max}rem)`
+  `clamp(${min}, calc(${min} + (${max} - ${min}) * ((100vw - 350px) / 1000)), ${max})`
 
-export const typography: Typography = {
+export const typography = {
   fontFamily: {
     primary: "'Geist','Inter','Segoe UI',Arial,sans-serif",
     secondary: "'Geist','Inter','Segoe UI',Arial,sans-serif",
@@ -155,16 +25,14 @@ export const typography: Typography = {
 
 export const spacing = (f = 1) => `${8 * f}px`
 export const spacingHalf = (f = 1) => `${4 * f}px`
-
-export const borderRadius: BorderRadius = {
+export const borderRadius = {
   none: '0',
   small: '0.25rem',
   medium: '0.55rem',
   large: '1rem',
   pill: '9999px',
 }
-
-export const boxShadows: BoxShadows = {
+export const boxShadows = {
   light: {
     xs: '0 1px 2px rgba(60,80,120,0.03)',
     sm: '0 2px 6px rgba(80,110,180,0.08)',
@@ -180,8 +48,7 @@ export const boxShadows: BoxShadows = {
     glow: '0 0 0 2px #79e6f5, 0 4px 24px 0 rgba(77,208,225,0.10)',
   },
 }
-
-export const breakpoints: Breakpoints = {
+export const breakpoints = {
   xs: '350px',
   sm: '600px',
   md: '900px',
@@ -189,13 +56,11 @@ export const breakpoints: Breakpoints = {
   xl: '1440px',
   xxl: '1720px',
 }
-
 const motionSafe =
   typeof window === 'undefined' ||
-  typeof window.matchMedia !== 'function' ||
   window.matchMedia('(prefers-reduced-motion:no-preference)').matches
 
-const PALETTES: Record<ThemeMode, ThemeColors> = {
+const PALETTES = {
   light: {
     primary: {
       base: '#3068FF',
@@ -385,7 +250,6 @@ const PALETTES: Record<ThemeMode, ThemeColors> = {
       main: '#232536',
       4: '#2F333D',
       5: '#101015',
-      6: '#0F1118',
       card: '#1B1C22',
       cardAlpha: 'rgba(27,28,34,0.8)',
       hover: '#22232F',
@@ -406,12 +270,12 @@ const PALETTES: Record<ThemeMode, ThemeColors> = {
   },
 }
 
-const createTheme = (mode: ThemeMode): KyonTheme => {
-  const colors = PALETTES[mode]
+const createTheme = (mode: 'light' | 'dark') => {
+  const colors = (PALETTES as any)[mode]
   return {
     mode,
     colors,
-    boxShadow: boxShadows[mode],
+    boxShadow: (boxShadows as any)[mode],
     gradients: gradients({ colors }) as GradientSet,
     typography,
     spacing,
@@ -422,6 +286,12 @@ const createTheme = (mode: ThemeMode): KyonTheme => {
   }
 }
 
-export const lightTheme: DefaultTheme = createTheme('light')
-export const darkTheme: DefaultTheme = createTheme('dark')
+export const lightTheme = createTheme('light')
+export const darkTheme = createTheme('dark')
 export default lightTheme
+
+export type AppTheme = typeof lightTheme
+
+declare module 'styled-components' {
+  export interface DefaultTheme extends AppTheme {}
+}

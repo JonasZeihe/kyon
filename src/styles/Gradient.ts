@@ -1,35 +1,13 @@
-// src/styles/Gradient.ts
+const HEX_REGEX = /#(?:[\da-f]{3}){1,2}/gi
 
-export type GradientSet = {
-  pageBackground: string
-  backgroundPrimary: string
-  backgroundSecondary: string
-  backgroundAccent: string
-  backgroundDepth: string
-  backgroundSurface: string
-  buttonPrimary: string
-  buttonSecondary: string
-  buttonAccent: string
-  focus: string
-  danger: string
-  info: string
-  hero: string
-  highlightSoft: string
-  dividerSoft: string
-  dividerHard: string
+export type GradientSet = Record<string, string | string[]> & {
   meshPalette: string[]
 }
 
-type ColorsLike = {
-  text?: { main?: string }
-} & Record<string, any>
-
-const HEX_REGEX = /#(?:[\da-f]{3}){1,2}/gi
-
-const createLinear = (from: string, to: string, angle = 135): string =>
+const createLinear = (from: string, to: string, angle = 135) =>
   `linear-gradient(${angle}deg, ${from}, ${to})`
 
-const luminance = (hex: string): number => {
+const luminance = (hex: string) => {
   const norm = hex.replace('#', '').padEnd(6, hex.slice(1))
   const val = (i: number) => parseInt(norm.slice(i, i + 2), 16) / 255
   const lin = (x: number) =>
@@ -37,42 +15,42 @@ const luminance = (hex: string): number => {
   return 0.2126 * lin(val(0)) + 0.7152 * lin(val(2)) + 0.0722 * lin(val(4))
 }
 
-const contrastRatio = (a: string, b: string): number => {
+const contrastRatio = (a: string, b: string) => {
   const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x)
   return (l1 + 0.05) / (l2 + 0.05)
 }
 
+type Colors = Record<string, Record<string, string> & { main?: string }>
+
 const pickColor = (
   group: string,
-  colors: ColorsLike,
-  target: string = 'main',
+  colors: Colors,
+  target = 'main',
   mode: 'light' | 'dark' = 'light'
-): string => {
-  const base = (colors[group] as Record<string, string>) || {}
+) => {
+  const base = colors[group] || {}
   const baseColor =
-    base[target] || base.main || Object.values(base)[0] || '#ccc'
-
+    (base as any)[target] || base.main || Object.values(base)[0] || '#ccc'
   if (mode === 'dark' && contrastRatio(baseColor, '#fff') < 2) {
-    const keys: string[] = ['0', '1', '2', 'main', '4', '5', '6']
+    const keys = ['0', '1', '2', 'main', '4', '5', '6']
     const fallback = keys.find(
-      (k) => base[k] && contrastRatio(base[k], '#fff') >= 2
+      (k) => (base as any)[k] && contrastRatio((base as any)[k], '#fff') >= 2
     )
-    return fallback ? base[fallback] : baseColor
+    return fallback ? (base as any)[fallback] : baseColor
   }
   return baseColor
 }
 
-const extractHex = (gradient: string): string[] =>
-  gradient.match(HEX_REGEX) || []
+const extractHex = (gradient: string) => gradient.match(HEX_REGEX) || []
 
-const cache = new WeakMap<object, GradientSet>()
+let lastColors: Colors | null = null
+let lastResult: GradientSet | null = null
 
-const gradients = ({ colors }: { colors: ColorsLike }): GradientSet => {
-  const cached = cache.get(colors)
-  if (cached) return cached
+const gradients = ({ colors }: { colors: Colors }): GradientSet => {
+  if (lastColors === colors && lastResult) return lastResult
 
   const mode: 'light' | 'dark' =
-    luminance(colors.text?.main || '#000') < 0.5 ? 'dark' : 'light'
+    luminance(colors?.text?.main || '#000') < 0.5 ? 'dark' : 'light'
 
   const g: GradientSet = {
     pageBackground: createLinear(
@@ -155,13 +133,13 @@ const gradients = ({ colors }: { colors: ColorsLike }): GradientSet => {
       pickColor('neutral', colors, 'black', mode),
       90
     ),
-    meshPalette: [] as string[],
+    meshPalette: [],
   }
 
   const meshSource = [
-    ...extractHex(g.backgroundPrimary),
-    ...extractHex(g.backgroundAccent),
-    ...extractHex(g.hero),
+    ...extractHex(g.backgroundPrimary as string),
+    ...extractHex(g.backgroundAccent as string),
+    ...extractHex(g.hero as string),
   ]
 
   const meshBase = meshSource.length
@@ -180,7 +158,8 @@ const gradients = ({ colors }: { colors: ColorsLike }): GradientSet => {
     return `#${darkened}`
   })
 
-  cache.set(colors, g)
+  lastColors = colors
+  lastResult = g
   return g
 }
 

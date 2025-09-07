@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
+import Image from 'next/image'
 import Lightbox from '../lightbox/Lightbox'
 
 type ImageMedia = {
@@ -33,25 +34,19 @@ const MediaGrid = styled.div<{ $variant: Variant }>`
   width: 100%;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing(3)};
-
   ${({ $variant }) => {
     switch ($variant) {
       case 'small':
-        // 3 Spalten, responsive
         return `grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));`
       case 'medium':
-        // 2 Spalten, responsive
         return `grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));`
       default:
-        // 1 Spalte
         return `grid-template-columns: 1fr;`
     }
   }}
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     gap: ${({ theme }) => theme.spacing(1.5)};
   }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     gap: ${({ theme }) => theme.spacing(1)};
   }
@@ -68,27 +63,20 @@ const MediaItemBox = styled.div<{ $isClickable: boolean }>`
   width: 100% !important;
   height: auto !important;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
-
-  img,
-  video {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover;
-    border-radius: ${({ theme }) => theme.borderRadius.medium};
-  }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     &:hover {
       transform: none;
       box-shadow: ${({ theme }) => theme.boxShadow.sm};
     }
-
-    img,
-    video {
-      height: auto !important;
-    }
   }
+`
+
+const ImageWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  overflow: hidden;
 `
 
 const MediaCaption = styled.div`
@@ -98,7 +86,6 @@ const MediaCaption = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     margin-bottom: ${({ theme }) => theme.spacing(2)};
   }
@@ -109,7 +96,8 @@ const VideoWrapper = styled.div`
   padding-top: 56.25%;
   width: 100%;
   height: 0;
-
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  overflow: hidden;
   video {
     position: absolute;
     inset: 0;
@@ -126,7 +114,6 @@ export default function MediaDisplay({
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  // Stabile Abbildung: Indexe im Original -> Indexe im reinen Bilder-Array
   const images = useMemo(
     () => media.filter((m): m is ImageMedia => m.type === 'image'),
     [media]
@@ -168,25 +155,36 @@ export default function MediaDisplay({
               aria-label={`${isImage ? 'Open image' : 'Open video'} ${aria}`}
             >
               {isImage ? (
-                <img src={item.src} alt={aria} />
+                <ImageWrapper>
+                  <Image
+                    src={item.src}
+                    alt={aria}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
+                    style={{ objectFit: 'cover' }}
+                    priority={index === 0}
+                  />
+                </ImageWrapper>
               ) : (
                 <VideoWrapper>
                   <video controls aria-label={aria}>
                     <source src={item.src} type="video/mp4" />
-                    {item.trackSrc && (
-                      <track
-                        src={item.trackSrc}
-                        kind="captions"
-                        srcLang={item.trackLang || 'en'}
-                        label={`${item.trackLang || 'en'} subtitles`}
-                        default
-                      />
-                    )}
-                    Your browser does not support this video format.
+                    <track
+                      src={
+                        item.trackSrc ||
+                        'data:text/vtt,WEBVTT%0A%0A00:00.000%20--%3E%2000:10.000%0A'
+                      }
+                      kind="captions"
+                      srcLang={item.trackLang || 'en'}
+                      label={`${item.trackLang || 'en'} subtitles`}
+                      default
+                    />
                   </video>
                 </VideoWrapper>
               )}
-              {item.caption && <MediaCaption>{item.caption}</MediaCaption>}
+              {'caption' in item && item.caption ? (
+                <MediaCaption>{item.caption}</MediaCaption>
+              ) : null}
             </MediaItemBox>
           )
         })}
