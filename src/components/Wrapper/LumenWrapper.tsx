@@ -66,12 +66,10 @@ const Container = styled.div<ContainerProps>`
     background 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.1s ease;
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     padding: clamp(1rem, 2.5vw, 1.4rem);
     border-radius: ${({ theme }) => theme.borderRadius?.medium || '0.7rem'};
   }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: clamp(0.8rem, 2vw, 1rem);
     max-width: 100%;
@@ -113,5 +111,7 @@ const LumenWrapper = forwardRef<any, LumenWrapperProps>(
     </Container>
   )
 )
+
+LumenWrapper.displayName = 'LumenWrapper'
 
 export default memo(LumenWrapper)

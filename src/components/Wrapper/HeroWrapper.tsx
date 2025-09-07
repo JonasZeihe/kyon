@@ -66,26 +66,24 @@ const Container = styled.div<ContainerProps>`
     background 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.1s ease;
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     padding: clamp(1rem, 2.5vw, 1.4rem);
     border-radius: ${({ theme }) => theme.borderRadius?.medium || '0.7rem'};
   }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: clamp(0.8rem, 2vw, 1rem);
     max-width: 100%;
   }
 `
 
-type LumenWrapperProps = ContainerProps & {
+type HeroWrapperProps = ContainerProps & {
   children: ReactNode
   as?: any
   role?: string
   [key: string]: any
 }
 
-const LumenWrapper = forwardRef<any, LumenWrapperProps>(
+const HeroWrapper = forwardRef<any, HeroWrapperProps>(
   (
     {
       children,
@@ -114,4 +112,6 @@ const LumenWrapper = forwardRef<any, LumenWrapperProps>(
   )
 )
 
-export default memo(LumenWrapper)
+HeroWrapper.displayName = 'HeroWrapper'
+
+export default memo(HeroWrapper)

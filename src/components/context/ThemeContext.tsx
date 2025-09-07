@@ -1,8 +1,17 @@
 // src/components/context/ThemeContext.tsx
 'use client'
 
-import React, { createContext, useContext, useMemo, useState, ReactNode } from 'react'
-import { ThemeProvider as StyledThemeProvider, DefaultTheme } from 'styled-components'
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  ReactNode,
+} from 'react'
+import {
+  ThemeProvider as StyledThemeProvider,
+  DefaultTheme,
+} from 'styled-components'
 import { lightTheme, darkTheme } from '../../styles/theme'
 
 type Mode = 'light' | 'dark'
@@ -18,7 +27,8 @@ const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 export const useThemeContext = () => {
   const ctx = useContext(ThemeContext)
-  if (!ctx) throw new Error('useThemeContext must be used within ThemeContextProvider')
+  if (!ctx)
+    throw new Error('useThemeContext must be used within ThemeContextProvider')
   return ctx
 }
 
@@ -48,7 +58,8 @@ export function ThemeContextProvider({ children }: { children: ReactNode }) {
     return failLoudProxy<DefaultTheme>({ ...base, mode })
   }, [mode])
 
-  const toggleTheme = () => setMode((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  const toggleTheme = () =>
+    setMode((prev) => (prev === 'dark' ? 'light' : 'dark'))
 
   const value = useMemo<ThemeContextValue>(
     () => ({

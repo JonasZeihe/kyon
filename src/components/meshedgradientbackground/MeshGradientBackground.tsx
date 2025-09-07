@@ -1,4 +1,3 @@
-// src/components/meshedgradientbackground/MeshGradientBackground.tsx
 'use client'
 
 import React, { useRef, useEffect, useMemo } from 'react'
@@ -16,14 +15,12 @@ export default function MeshGradientBackground() {
   const ref = useRef<HTMLCanvasElement | null>(null)
   const theme = (useTheme() || {}) as ThemeLike
 
-  const palette = useMemo<string[]>(
-    () =>
-      Array.isArray(theme.gradients?.meshPalette) &&
-      (theme.gradients!.meshPalette!.length ?? 0) > 0
-        ? (theme.gradients!.meshPalette as string[])
-        : ['#A9B1FF', '#E6B1FF', '#FFE3B1', '#B1FFD6'],
-    [theme.gradients?.meshPalette]
-  )
+  const palette = useMemo<string[]>(() => {
+    const p = theme.gradients?.meshPalette
+    return Array.isArray(p) && p.length > 0
+      ? p
+      : ['#A9B1FF', '#E6B1FF', '#FFE3B1', '#B1FFD6']
+  }, [theme.gradients])
 
   useEffect(() => {
     if (ref.current && palette.length) {
@@ -60,7 +57,6 @@ const Canvas = styled.canvas.attrs({ tabIndex: -1 })<{
     saturate(${({ $profile }) => $profile.saturation});
   mix-blend-mode: ${({ theme }) =>
     (theme as any)?.mode === 'dark' ? 'screen' : 'overlay'};
-
   @media (max-width: ${({ theme }) =>
       (theme as any)?.breakpoints?.sm || '600px'}) {
     filter: blur(${({ $profile }) => Math.round($profile.blur * 0.66)}px)
