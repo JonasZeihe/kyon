@@ -1,3 +1,6 @@
+// src/components/Wrapper/SectionWrapper.tsx
+'use client'
+
 import styled, { css } from 'styled-components'
 import LumenWrapper from './LumenWrapper'
 
@@ -21,7 +24,7 @@ const getVerticalSpacing = (theme: any, spacious?: boolean) =>
       `
 
 const SectionWrapper = styled(LumenWrapper).attrs({
-  variant: 'subtle' as const,
+  $variant: 'subtle' as const,
 })<SectionProps>`
   width: 100%;
   max-width: clamp(26rem, 92vw, 72rem);
@@ -32,7 +35,6 @@ const SectionWrapper = styled(LumenWrapper).attrs({
   box-sizing: border-box;
   gap: ${({ theme }) => theme.spacing(2)};
   ${({ theme, $spacious }) => getVerticalSpacing(theme, $spacious)}
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     gap: ${({ theme }) => theme.spacing(1.2)};
     ${({ theme, $spacious }) =>

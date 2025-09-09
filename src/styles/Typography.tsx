@@ -1,3 +1,4 @@
+'use client'
 import React, { ComponentPropsWithoutRef, ReactNode, ElementType } from 'react'
 import styled, { css, DefaultTheme } from 'styled-components'
 
