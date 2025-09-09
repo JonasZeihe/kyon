@@ -1,9 +1,10 @@
+// src/components/Wrapper/CardWrapper.tsx
+'use client'
+
 import styled from 'styled-components'
 import LumenWrapper from './LumenWrapper'
 
-const CardWrapper = styled(LumenWrapper).attrs({
-  variant: 'subtle' as const,
-})`
+const CardWrapper = styled(LumenWrapper).attrs({ $variant: 'subtle' as const })`
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -15,7 +16,6 @@ const CardWrapper = styled(LumenWrapper).attrs({
     transform 0.2s ease,
     filter 0.2s ease,
     box-shadow 0.2s ease;
-
   &:hover,
   &:focus-within {
     transform: translateY(-2px) scale(1.005);
@@ -23,17 +23,14 @@ const CardWrapper = styled(LumenWrapper).attrs({
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
     z-index: 4;
   }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     max-width: 98vw;
     margin: ${({ theme }) => theme.spacing(1)} 0;
   }
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     max-width: 100vw;
     margin: 0;
     border-radius: ${({ theme }) => theme.borderRadius.small};
-
     &:hover,
     &:focus-within {
       transform: scale(1.002);
