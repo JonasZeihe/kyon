@@ -1,5 +1,6 @@
 // src/lib/markdown/mdx.ts
 import { Frontmatter, TOCItem } from '../blog/types'
+import { createRemarkRehypePipeline } from './remark'
 
 const slugify = (value: string) =>
   value
@@ -37,8 +38,24 @@ const estimateReadingTime = (text: string, fallback?: number) => {
   return minutes
 }
 
+export type SerializeResult = {
+  source: string
+  toc: TOCItem[]
+  readingTime: number
+}
+
+export async function serialize(
+  source: string,
+  opts?: { readingTime?: number }
+): Promise<SerializeResult> {
+  const toc = extractTOC(source)
+  const readingTime = estimateReadingTime(source, opts?.readingTime)
+  return { source, toc, readingTime }
+}
+
 export const serializeMarkdown = (source: string, fm: Frontmatter) => {
   const toc = extractTOC(source)
   const readingTime = estimateReadingTime(source, fm.readingTime)
-  return { mdxSource: source, toc, readingTime }
+  const pipeline = createRemarkRehypePipeline()
+  return { mdxSource: source, toc, readingTime, pipeline }
 }

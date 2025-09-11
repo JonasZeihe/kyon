@@ -11,3 +11,13 @@ export const createRemarkRehypePipeline = (): Pipeline => ({
   remarkPlugins: [remarkGfm],
   rehypePlugins: [rehypeSlug],
 })
+
+export const getMdxRuntimeOptions = () => {
+  const p = createRemarkRehypePipeline()
+  return {
+    mdxOptions: {
+      remarkPlugins: p.remarkPlugins,
+      rehypePlugins: p.rehypePlugins,
+    },
+  }
+}

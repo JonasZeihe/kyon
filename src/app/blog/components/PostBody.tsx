@@ -1,17 +1,34 @@
 // src/app/blog/components/PostBody.tsx
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { getMDXComponents } from '@/lib/markdown/mdx-components'
-import { PostFull } from '@/lib/blog/types'
+'use client'
+
+import { useMemo } from 'react'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
-import { toPublicAssetUrl } from '@/lib/blog/fs'
-type Props = { post: PostFull }
-const PostBody = ({ post }: Props) => {
-  const { bodySource, meta } = post
-  const base = toPublicAssetUrl(meta.category, meta.dirName, '')
+import type { PostFull, TOCItem } from '@/lib/blog/types'
+import ArticleTOC from '@/components/blog/ArticleTOC'
+
+type Props = {
+  post: PostFull
+  toc?: TOCItem[]
+}
+
+export default function PostBody({ post, toc }: Props) {
+  const ids = useMemo(
+    () => (toc || post.toc || []).filter((i) => i.depth >= 2).map((i) => i.id),
+    [toc, post.toc]
+  )
+
   return (
-    <MarkdownStyles>
-      <MDXRemote source={bodySource} components={getMDXComponents(base)} />
-    </MarkdownStyles>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
+      {!!(toc || post.toc)?.length && (
+        <div style={{ order: 2 }}>
+          <ArticleTOC items={toc || post.toc || []} />
+        </div>
+      )}
+      <div style={{ order: 1 }}>
+        <MarkdownStyles
+          dangerouslySetInnerHTML={{ __html: post.bodySource || '' }}
+        />
+      </div>
+    </div>
   )
 }
-export default PostBody
