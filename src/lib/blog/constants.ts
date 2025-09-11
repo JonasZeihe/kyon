@@ -1,18 +1,16 @@
+// src/lib/blog/constants.ts
 import path from 'path'
-
 export const SITE_NAME = process.env.SITE_NAME ?? 'Kyon'
-export const SITE_URL = process.env.SITE_URL ?? 'http://localhost:3000'
-
+export const SITE_URL = (
+  process.env.SITE_URL ?? 'http://localhost:3000'
+).replace(/\/+$/, '')
 export const CONTENT_DIR = 'public/content'
 export const POSTS_PER_PAGE = Number(process.env.POSTS_PER_PAGE ?? 12)
-
 export const ENABLE_DRAFTS = process.env.NODE_ENV !== 'production'
 export const ENABLE_MDX = true
 export const ENABLE_SEARCH = true
 export const ENABLE_TAG_PAGES = false
-
 export const REGEX_DIR_PREFIX = /^\d{8}_/
-
 export const ASSET_EXTENSIONS = [
   'webp',
   'png',
@@ -31,20 +29,22 @@ export const IMAGE_EXTENSIONS = [
   'gif',
   'svg',
 ] as const
-
-const repoSegment = process.env.GITHUB_REPOSITORY
-  ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}`
-  : ''
-export const BASE_PATH =
-  process.env.NEXT_PUBLIC_BASE_PATH ??
-  (process.env.GITHUB_PAGES === 'true' ? repoSegment : '')
-export const ASSET_PREFIX = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? BASE_PATH
-
-export const DEFAULT_OG_IMAGE =
-  process.env.DEFAULT_OG_IMAGE ??
-  path.posix.join(ASSET_PREFIX || '/', 'og-default.png')
-
+export const BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH ?? '').replace(
+  /\/+$/,
+  ''
+)
+export const ASSET_PREFIX = (
+  process.env.NEXT_PUBLIC_ASSET_PREFIX ?? BASE_PATH
+).replace(/\/+$/, '')
+export const DEFAULT_OG_IMAGE = path.posix.join(
+  ASSET_PREFIX || '/',
+  'og-default.png'
+)
 export const CONTENT_PUBLIC_BASE = path.posix.join(
   ASSET_PREFIX || '/',
   'content'
 )
+export const FEATURE_BASEPATH_REWRITE =
+  (process.env.FEATURE_BASEPATH_REWRITE ?? 'true') === 'true'
+export const toAbsolute = (p: string) =>
+  `${SITE_URL}${BASE_PATH}${p.startsWith('/') ? p : `/${p}`}`

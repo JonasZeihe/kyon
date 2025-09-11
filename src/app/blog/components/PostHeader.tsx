@@ -3,28 +3,32 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/blog/fs'
-
 type Props = { meta: PostMeta }
-
-export default function PostHeader({ meta }: Props) {
+const f = (v?: string) => {
+  try {
+    return v
+      ? new Date(v).toLocaleDateString('de-DE', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        })
+      : ''
+  } catch {
+    return v || ''
+  }
+}
+const PostHeader = ({ meta }: Props) => {
   const cover = meta.cover
     ? toPublicAssetUrl(meta.category, meta.dirName, meta.cover)
     : null
-  const raw = (meta.updated as any) ?? (meta.date as any)
-  const displayDate =
-    typeof raw === 'string'
-      ? new Date(raw).toLocaleDateString('de-DE')
-      : raw instanceof Date
-        ? raw.toLocaleDateString('de-DE')
-        : String(raw || '')
-
+  const d = f(meta.updated || meta.date)
   return (
     <header style={{ display: 'grid', gap: 16 }}>
       <Typography variant="h1" align="center" color="accent.main">
         {meta.title}
       </Typography>
       <Typography align="center" variant="caption">
-        {displayDate}
+        {d}
       </Typography>
       {cover && (
         <Image
@@ -32,7 +36,7 @@ export default function PostHeader({ meta }: Props) {
           alt={meta.title}
           width={1600}
           height={900}
-          sizes="100vw"
+          sizes="(max-width:768px) 100vw, (max-width:1200px) 90vw, 1200px"
           unoptimized
           style={{ width: '100%', height: 'auto', borderRadius: 12 }}
         />
@@ -56,3 +60,4 @@ export default function PostHeader({ meta }: Props) {
     </header>
   )
 }
+export default PostHeader

@@ -1,109 +1,47 @@
-// src/components/badge/Badge.tsx
+// src/components/button/ThemeToggleButton.tsx
 'use client'
-
-import React from 'react'
-import styled, { useTheme } from 'styled-components'
-import * as Icons from 'react-icons/fa'
-
-type IconKey = keyof typeof Icons
-
-type BadgeProps = {
-  label?: string
-  icon?: IconKey | React.ReactElement
-  background?: string
-  colorLight?: string
-  colorDark?: string
-  className?: string
-  children?: React.ReactNode
-}
-
-const BadgeContainer = styled.span<{ $background: string }>`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${({ theme }) => theme.spacing(0.7)};
-  background-color: ${({ $background }) => $background};
-  color: ${({ theme }) => theme.colors.text.inverse};
+import { FiSun, FiMoon } from 'react-icons/fi'
+import styled from 'styled-components'
+import { useThemeContext } from '@/components/context/ThemeContext'
+type BtnProps = { $isDarkMode: boolean }
+const ToggleButton = styled.button<BtnProps>`
+  background: ${({ theme, $isDarkMode }) =>
+    $isDarkMode ? theme.colors.surface[2] : theme.colors.surface[1]};
+  color: ${({ theme, $isDarkMode }) =>
+    $isDarkMode ? theme.colors.primary[1] : theme.colors.primary[5]};
+  border: none;
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  padding: ${({ theme }) => `${theme.spacing(0.7)} ${theme.spacing(2)}`};
-  font-size: ${({ theme }) => theme.typography.fontSize.body};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  line-height: 1;
-  white-space: nowrap;
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  transition: opacity 0.2s ease-out;
-  user-select: none;
-  cursor: default;
-
-  &:hover {
-    opacity: 0.85;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: ${({ theme }) => `${theme.spacing(0.6)} ${theme.spacing(1.5)}`};
-    font-size: ${({ theme }) => theme.typography.fontSize.small};
-    gap: ${({ theme }) => theme.spacing(0.5)};
-  }
-`
-
-const IconWrapper = styled.span`
+  padding: ${({ theme }) => `${theme.spacing(0.6)} ${theme.spacing(1.6)}`};
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
-  line-height: 0;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: 1rem;
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  font-size: 1.05rem;
+  transition:
+    background 0.23s cubic-bezier(0.48, 0.24, 0.56, 1),
+    color 0.19s,
+    box-shadow 0.23s;
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.primary.base};
+    color: ${({ theme }) => theme.colors.text.inverse};
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    outline: none;
   }
 `
-
-export default function Badge({
-  label,
-  icon,
-  background,
-  colorLight,
-  colorDark,
-  className,
-  children,
-}: BadgeProps) {
-  const theme = useTheme()
-  const isDark = theme.mode === 'dark'
-
-  const fallbackBg = isDark
-    ? theme.colors.primary[3] || theme.colors.primary.base
-    : theme.colors.primary.base
-
-  const resolvedBackground =
-    background || (isDark ? colorDark : colorLight) || fallbackBg
-
-  let IconComp: React.ComponentType | null = null
-  if (typeof icon === 'string' && Icons[icon as IconKey]) {
-    IconComp = Icons[icon as IconKey] as unknown as React.ComponentType
-  } else if (React.isValidElement(icon)) {
-    const Node = () => icon as React.ReactElement
-    IconComp = Node
-  }
-
-  const text =
-    label ?? (typeof children === 'string' ? (children as string) : '')
-
-  if (!text) return null
-
+const ThemeToggleButton = () => {
+  const { mode, toggleTheme } = useThemeContext()
+  const isDark = mode === 'dark'
   return (
-    <BadgeContainer
-      className={className}
-      $background={resolvedBackground}
-      aria-label={text}
+    <ToggleButton
+      onClick={toggleTheme}
+      aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      title={isDark ? 'Helle Ansicht' : 'Dunkle Ansicht'}
+      $isDarkMode={isDark}
     >
-      {IconComp && (
-        <IconWrapper aria-hidden="true">
-          <IconComp />
-        </IconWrapper>
-      )}
-      <span>{text}</span>
-    </BadgeContainer>
+      {isDark ? <FiSun size={19} /> : <FiMoon size={18} />}
+    </ToggleButton>
   )
 }
-
-export type { BadgeProps }
+export default ThemeToggleButton

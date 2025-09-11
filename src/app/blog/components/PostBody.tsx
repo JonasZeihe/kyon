@@ -4,18 +4,14 @@ import { getMDXComponents } from '@/lib/markdown/mdx-components'
 import { PostFull } from '@/lib/blog/types'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
 import { toPublicAssetUrl } from '@/lib/blog/fs'
-
 type Props = { post: PostFull }
-
-export default function PostBody({ post }: Props) {
+const PostBody = ({ post }: Props) => {
   const { bodySource, meta } = post
-  const assetBaseUrl = toPublicAssetUrl(meta.category, meta.dirName, '')
+  const base = toPublicAssetUrl(meta.category, meta.dirName, '')
   return (
     <MarkdownStyles>
-      <MDXRemote
-        source={bodySource}
-        components={getMDXComponents(assetBaseUrl)}
-      />
+      <MDXRemote source={bodySource} components={getMDXComponents(base)} />
     </MarkdownStyles>
   )
 }
+export default PostBody

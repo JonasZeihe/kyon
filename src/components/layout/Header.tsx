@@ -1,152 +1,111 @@
 // src/components/layout/Header.tsx
 'use client'
-
 import React, { useReducer, useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { FiChevronDown, FiChevronUp, FiX, FiMenu } from 'react-icons/fi'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
 import ThemeToggleButton from '@/components/button/ThemeToggleButton'
-
 type NavChild = { id: string; label: string }
 type NavSection = { id: string; label: string; children?: NavChild[] }
-
-type HeaderProps = {
-  navSections?: NavSection[]
-}
-
+type HeaderProps = { navSections?: NavSection[] }
 type State = { menuOpen: boolean; openSubNav: string | null }
 type Action =
   | { type: 'TOGGLE_MENU' }
   | { type: 'TOGGLE_SUBNAV'; payload: string }
   | { type: 'CLOSE_MENU' }
-
-export default function Header({ navSections = [] }: HeaderProps) {
+const Header = ({ navSections = [] }: HeaderProps) => {
   const headerRef = useRef<HTMLElement | null>(null)
   const [activeSection, setActiveSection] = useState<string | null>(null)
-
-  const initialState: State = { menuOpen: false, openSubNav: null }
-  function reducer(state: State, action: Action): State {
-    switch (action.type) {
-      case 'TOGGLE_MENU':
-        return { ...state, menuOpen: !state.menuOpen, openSubNav: null }
-      case 'TOGGLE_SUBNAV':
-        return {
-          ...state,
-          openSubNav:
-            state.openSubNav === action.payload ? null : action.payload,
-        }
-      case 'CLOSE_MENU':
-        return initialState
-      default:
-        return state
-    }
-  }
-  const [state, dispatch] = useReducer(reducer, initialState)
-
+  const initial: State = { menuOpen: false, openSubNav: null }
+  const reducer = (s: State, a: Action): State =>
+    a.type === 'TOGGLE_MENU'
+      ? { ...s, menuOpen: !s.menuOpen, openSubNav: null }
+      : a.type === 'TOGGLE_SUBNAV'
+        ? { ...s, openSubNav: s.openSubNav === a.payload ? null : a.payload }
+        : initial
+  const [state, dispatch] = useReducer(reducer, initial)
   useEffect(() => {
-    const handleScroll = () => {
-      const offsets = navSections.map((section) => ({
-        id: section.id,
-        offsetTop: document.getElementById(section.id)?.offsetTop || 0,
+    const h = () => {
+      const o = navSections.map((v) => ({
+        id: v.id,
+        offsetTop: document.getElementById(v.id)?.offsetTop || 0,
       }))
-      const scrollPosition = window.scrollY + window.innerHeight / 2
-      const currentSection = offsets
-        .filter(({ offsetTop }) => scrollPosition >= offsetTop)
-        .pop()
-      if (currentSection?.id !== activeSection)
-        setActiveSection(currentSection?.id ?? null)
+      const y = window.scrollY + window.innerHeight / 2
+      const c = o.filter((v) => y >= v.offsetTop).pop()
+      if (c?.id !== activeSection) setActiveSection(c?.id ?? null)
     }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', h, { passive: true })
+    return () => window.removeEventListener('scroll', h)
   }, [activeSection, navSections])
-
-  const renderSubNavItems = (children: NavChild[]) =>
-    children.map((child) => (
-      <SmoothScroller key={child.id} targetId={child.id}>
-        <SubNavItem $isActive={activeSection === child.id}>
-          {child.label}
-        </SubNavItem>
+  const sub = (children: NavChild[]) =>
+    children.map((c) => (
+      <SmoothScroller key={c.id} targetId={c.id}>
+        <SubNavItem $isActive={activeSection === c.id}>{c.label}</SubNavItem>
       </SmoothScroller>
     ))
-
-  const renderDesktopNav = () => (
+  const desk = () => (
     <DesktopNav>
-      {navSections.map((section) => {
-        const hasChildren = !!section.children?.length
-        return (
-          <NavItemWrapper key={section.id}>
-            <SmoothScroller targetId={section.id}>
-              <NavItem $isActive={activeSection === section.id}>
-                {section.label}
-              </NavItem>
-            </SmoothScroller>
-            {hasChildren && (
-              <SubNav>{renderSubNavItems(section.children!)}</SubNav>
-            )}
-          </NavItemWrapper>
-        )
-      })}
+      {navSections.map((s) => (
+        <NavItemWrapper key={s.id}>
+          <SmoothScroller targetId={s.id}>
+            <NavItem $isActive={activeSection === s.id}>{s.label}</NavItem>
+          </SmoothScroller>
+          {!!s.children?.length && <SubNav>{sub(s.children!)}</SubNav>}
+        </NavItemWrapper>
+      ))}
     </DesktopNav>
   )
-
-  const renderMobileNav = () => (
+  const mobile = () => (
     <MobileMenu>
-      {navSections.map((section) => {
-        const hasChildren = !!section.children?.length
-        return (
-          <React.Fragment key={section.id}>
-            <MobileNavItem>
-              <SmoothScroller targetId={section.id}>
-                <NavItem $isActive={activeSection === section.id}>
-                  {section.label}
-                </NavItem>
-              </SmoothScroller>
-              {hasChildren && (
-                <DropdownToggle
-                  onClick={() =>
-                    dispatch({ type: 'TOGGLE_SUBNAV', payload: section.id })
-                  }
-                  aria-label={
-                    state.openSubNav === section.id
-                      ? 'Subnavigation schließen'
-                      : 'Subnavigation öffnen'
-                  }
-                >
-                  {state.openSubNav === section.id ? (
-                    <FiChevronUp size={16} />
-                  ) : (
-                    <FiChevronDown size={16} />
-                  )}
-                </DropdownToggle>
-              )}
-            </MobileNavItem>
-            {hasChildren && (
-              <MobileSubNav $isOpen={state.openSubNav === section.id}>
-                {renderSubNavItems(section.children!)}
-              </MobileSubNav>
+      {navSections.map((s) => (
+        <React.Fragment key={s.id}>
+          <MobileNavItem>
+            <SmoothScroller targetId={s.id}>
+              <NavItem $isActive={activeSection === s.id}>{s.label}</NavItem>
+            </SmoothScroller>
+            {!!s.children?.length && (
+              <DropdownToggle
+                onClick={() =>
+                  dispatch({ type: 'TOGGLE_SUBNAV', payload: s.id })
+                }
+                aria-label={
+                  state.openSubNav === s.id
+                    ? 'Subnavigation schließen'
+                    : 'Subnavigation öffnen'
+                }
+              >
+                {state.openSubNav === s.id ? (
+                  <FiChevronUp size={16} />
+                ) : (
+                  <FiChevronDown size={16} />
+                )}
+              </DropdownToggle>
             )}
-          </React.Fragment>
-        )
-      })}
+          </MobileNavItem>
+          {!!s.children?.length && (
+            <MobileSubNav $isOpen={state.openSubNav === s.id}>
+              {sub(s.children!)}
+            </MobileSubNav>
+          )}
+        </React.Fragment>
+      ))}
     </MobileMenu>
   )
-
-  const scrollToTop = () => {
+  const top = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     dispatch({ type: 'CLOSE_MENU' })
   }
-
   return (
     <HeaderContainer ref={headerRef as any}>
       <HeaderContent>
         <LeftSide>
-          <Logo as="button" type="button" onClick={scrollToTop}>
+          <Logo as="button" type="button" onClick={top}>
             Jonas Zeihe
           </Logo>
         </LeftSide>
         <RightSide>
           <DesktopOnly>
-            {renderDesktopNav()}
+            {desk()}
             <ThemeToggleButton />
           </DesktopOnly>
           <MobileOnly>
@@ -160,26 +119,26 @@ export default function Header({ navSections = [] }: HeaderProps) {
           </MobileOnly>
         </RightSide>
       </HeaderContent>
-      {state.menuOpen && <MobileOnly>{renderMobileNav()}</MobileOnly>}
+      {state.menuOpen && <MobileOnly>{mobile()}</MobileOnly>}
     </HeaderContainer>
   )
 }
-
+export default Header
 const HeaderContainer = styled.header`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: ${({ theme }: any) => theme.colors.surface.cardAlpha};
-  backdrop-filter: blur(13px) saturate(1.11);
-  box-shadow: ${({ theme }: any) => theme.boxShadow.md};
-  border-bottom: 1.5px solid ${({ theme }: any) => theme.colors.surface[4]};
+  background: ${({ theme }: any) =>
+    theme.mode === 'dark' ? 'rgba(22,24,32,0.65)' : 'rgba(255,255,255,0.55)'};
+  backdrop-filter: blur(8px) saturate(1.02);
+  box-shadow: ${({ theme }: any) => theme.boxShadow.sm};
+  border-bottom: 1px solid ${({ theme }: any) => theme.colors.surface[4]};
   transition:
-    background 0.33s,
-    box-shadow 0.23s;
+    background 0.25s,
+    box-shadow 0.2s;
 `
-
 const HeaderContent = styled.div`
   max-width: ${({ theme }: any) => theme.breakpoints.xl};
   margin: 0 auto;
@@ -187,22 +146,19 @@ const HeaderContent = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: ${({ theme }: any) => theme.spacing(2)};
-  height: 4.8rem;
+  height: 4.6rem;
   width: 100%;
   box-sizing: border-box;
 `
-
 const LeftSide = styled.div`
   display: flex;
   align-items: center;
 `
-
 const RightSide = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }: any) => theme.spacing(3)};
+  gap: ${({ theme }: any) => theme.spacing(2)};
 `
-
 const Logo = styled.span`
   font-size: ${({ theme }: any) => theme.typography.fontSize.h3};
   font-family: ${({ theme }: any) => theme.typography.fontFamily.secondary};
@@ -210,7 +166,7 @@ const Logo = styled.span`
   cursor: pointer;
   color: ${({ theme }: any) => theme.colors.primary.base};
   letter-spacing: ${({ theme }: any) => theme.typography.letterSpacing.tight};
-  padding: 0 ${({ theme }: any) => theme.spacing(1.2)};
+  padding: 0 ${({ theme }: any) => theme.spacing(1)};
   background: none;
   border: none;
   transition: color 0.2s;
@@ -220,35 +176,30 @@ const Logo = styled.span`
     outline: none;
   }
 `
-
 const DesktopOnly = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }: any) => theme.spacing(3)};
+  gap: ${({ theme }: any) => theme.spacing(2)};
   @media (max-width: ${({ theme }: any) => theme.breakpoints.md}) {
     display: none;
   }
 `
-
 const MobileOnly = styled.div`
   display: none;
   @media (max-width: ${({ theme }: any) => theme.breakpoints.md}) {
     display: block;
   }
 `
-
 const DesktopNav = styled.nav`
   display: flex;
-  gap: ${({ theme }: any) => theme.spacing(7)};
+  gap: ${({ theme }: any) => theme.spacing(5)};
 `
-
 const NavItemWrapper = styled.div`
   position: relative;
   &:hover > div {
     display: block;
   }
 `
-
 const NavItem = styled.div<{ $isActive?: boolean }>`
   font-size: ${({ theme }) => (theme as any).typography.fontSize.h4};
   font-weight: ${({ $isActive, theme }) =>
@@ -265,7 +216,6 @@ const NavItem = styled.div<{ $isActive?: boolean }>`
     color: ${({ theme }) => (theme as any).colors.accent.base};
   }
 `
-
 const SubNav = styled.div`
   position: absolute;
   top: 100%;
@@ -279,7 +229,6 @@ const SubNav = styled.div`
   display: none;
   z-index: 2;
 `
-
 const SubNavItem = styled.div<{ $isActive?: boolean }>`
   font-size: ${({ theme }) => (theme as any).typography.fontSize.body};
   font-weight: ${({ theme }) => (theme as any).typography.fontWeight.regular};
@@ -300,7 +249,6 @@ const SubNavItem = styled.div<{ $isActive?: boolean }>`
     background: ${({ theme }) => (theme as any).colors.surface.hover};
   }
 `
-
 const MobileMenuButton = styled.button`
   background: none;
   border: none;
@@ -316,7 +264,6 @@ const MobileMenuButton = styled.button`
     outline: none;
   }
 `
-
 const MobileMenu = styled.div`
   position: absolute;
   top: 100%;
@@ -329,14 +276,12 @@ const MobileMenu = styled.div`
   border-bottom-left-radius: ${({ theme }: any) => theme.borderRadius.medium};
   border-bottom-right-radius: ${({ theme }: any) => theme.borderRadius.medium};
 `
-
 const MobileNavItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }: any) => `${theme.spacing(1.5)} 0`};
+  padding: ${({ theme }: any) => `${theme.spacing(1.2)} 0`};
 `
-
 const DropdownToggle = styled.button`
   background: none;
   border: none;
@@ -351,11 +296,10 @@ const DropdownToggle = styled.button`
     outline: none;
   }
 `
-
 const MobileSubNav = styled.div<{ $isOpen: boolean }>`
   overflow: hidden;
   transition:
-    max-height 0.33s cubic-bezier(0.4, 0.2, 0.6, 1),
+    max-height 0.28s cubic-bezier(0.4, 0.2, 0.6, 1),
     opacity 0.25s;
   max-height: ${({ $isOpen }) => ($isOpen ? '320px' : '0')};
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
