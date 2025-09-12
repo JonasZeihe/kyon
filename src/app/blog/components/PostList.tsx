@@ -1,77 +1,147 @@
 // src/app/blog/components/PostList.tsx
+'use client'
+
+import styled from 'styled-components'
 import Link from 'next/link'
 import Image from 'next/image'
-import Typography from '@/styles/Typography'
+import CardGrid from '@/components/card/CardGrid'
 import CardWrapper from '@/components/Wrapper/CardWrapper'
+import Typography from '@/styles/Typography'
 import { PostMeta } from '@/lib/blog/types'
-import { toPublicAssetUrl } from '@/lib/blog/fs'
+import { toPublicAssetUrl } from '@/lib/blog/urls'
+
 type Props = { posts: PostMeta[] }
-const d = (v?: string) => {
-  try {
-    return v
-      ? new Date(v).toLocaleDateString('de-DE', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })
-      : ''
-  } catch {
-    return v || ''
-  }
-}
-const PostList = ({ posts }: Props) => (
-  <div style={{ display: 'grid', gap: 16 }}>
-    {posts.map((m) => {
-      const href = `/blog/${m.category}/${m.slug}`
-      const cover = m.cover
-        ? toPublicAssetUrl(m.category, m.dirName, m.cover)
-        : null
-      return (
-        <CardWrapper key={m.id}>
-          <article style={{ display: 'grid', gap: 12 }}>
-            {cover && (
-              <Link href={href}>
-                <Image
-                  src={cover}
-                  alt={m.title}
-                  width={1600}
-                  height={900}
-                  sizes="(max-width:768px) 100vw, (max-width:1200px) 90vw, 1200px"
-                  unoptimized
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    borderTopLeftRadius: 8,
-                    borderTopRightRadius: 8,
-                  }}
-                />
-              </Link>
-            )}
-            <div style={{ padding: 16, display: 'grid', gap: 8 }}>
-              <Typography variant="h3">
+
+export default function PostList({ posts }: Props) {
+  if (!posts?.length) return <p>Keine Beiträge gefunden.</p>
+
+  return (
+    <CardGrid>
+      {posts.map((m) => {
+        const href = `/blog/${m.category}/${m.slug}`
+        const cover = m.cover
+          ? toPublicAssetUrl(m.category, m.dirName, m.cover)
+          : null
+        const dateLabel = new Date(m.updated || m.date).toLocaleDateString(
+          'de-DE',
+          { day: '2-digit', month: 'short', year: 'numeric' }
+        )
+        return (
+          <ItemCard key={m.id}>
+            {cover ? (
+              <CoverLink href={href} aria-label={m.title}>
+                <Cover>
+                  <Image
+                    src={cover}
+                    alt={m.title}
+                    fill
+                    sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+                    style={{ objectFit: 'cover' }}
+                    priority={false}
+                  />
+                </Cover>
+              </CoverLink>
+            ) : null}
+            <Inner>
+              <Title variant="h3" gutter={false}>
                 <Link href={href}>{m.title}</Link>
-              </Typography>
-              <Typography variant="caption">
-                {d(m.updated || m.date)}
-                {typeof m.readingTime === 'number' && m.readingTime > 0
-                  ? ` · ⏱️ ${m.readingTime} min`
-                  : ''}
-              </Typography>
-              {m.excerpt && <Typography>{m.excerpt}</Typography>}
-              {m.tags && m.tags.length > 0 && (
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  {m.tags.map((t) => (
-                    <span key={t} style={{ fontSize: 12, opacity: 0.8 }}>
-                      #{t}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          </article>
-        </CardWrapper>
-      )
-    })}
-  </div>
-)
-export default PostList
+              </Title>
+              <Meta>
+                <span>{dateLabel}</span>
+                {typeof m.readingTime === 'number' && m.readingTime > 0 ? (
+                  <span>· ⏱️ {m.readingTime} min</span>
+                ) : null}
+              </Meta>
+              {m.excerpt ? <Excerpt>{m.excerpt}</Excerpt> : null}
+              <More href={href} aria-label={`${m.title} lesen`}>
+                Weiter lesen
+              </More>
+            </Inner>
+          </ItemCard>
+        )
+      })}
+    </CardGrid>
+  )
+}
+
+const ItemCard = styled(CardWrapper)`
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  transition:
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    filter 0.18s ease;
+
+  &:hover,
+  &:focus-within {
+    transform: translateY(-1px);
+    filter: none;
+    box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  }
+`
+
+const CoverLink = styled(Link)`
+  display: block;
+`
+
+const Cover = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+`
+
+const Inner = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1)};
+  padding: ${({ theme }) => theme.spacing(1.5)};
+`
+
+const Title = styled(Typography)`
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover,
+  a:focus-visible {
+    text-decoration: underline;
+  }
+`
+
+const Meta = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacingHalf(2)};
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
+  border-radius: ${({ theme }) => theme.borderRadius.pill};
+  background: ${({ theme }) => theme.colors.surface[1]};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+`
+
+const Excerpt = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.main};
+  opacity: 0.92;
+`
+
+const More = styled(Link)`
+  justify-self: start;
+  margin-top: ${({ theme }) => theme.spacingHalf(2)};
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  text-decoration: none;
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  background: ${({ theme }) => theme.colors.surface[1]};
+  color: ${({ theme }) => theme.colors.primary.main};
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.surface.hover};
+    transform: translateY(-1px);
+    outline: none;
+  }
+`

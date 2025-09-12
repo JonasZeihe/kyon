@@ -21,21 +21,26 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const metas = getAllPostMeta()
   const cats = categoriesFromMetas()
 
+  const newest = metas
+    .map((m) => m.updated || m.date)
+    .filter(Boolean)
+    .sort()
+    .reverse()[0]
+
   const baseEntries: MetadataRoute.Sitemap = [
-    { url: abs('/'), lastModified: new Date() },
+    { url: abs('/'), lastModified: newest ? new Date(newest) : new Date() },
     {
       url: abs('/blog'),
-      lastModified: new Date(metas[0]?.updated || metas[0]?.date || Date.now()),
+      lastModified: newest ? new Date(newest) : new Date(),
     },
   ]
 
   const categoryEntries: MetadataRoute.Sitemap = cats.map((c) => {
     const latest = metas.filter((m) => m.category === c)[0]
+    const lm = latest?.updated || latest?.date
     return {
       url: abs(`/blog/${c}`),
-      lastModified: latest
-        ? new Date(latest.updated || latest.date)
-        : new Date(),
+      lastModified: lm ? new Date(lm) : new Date(),
     }
   })
 

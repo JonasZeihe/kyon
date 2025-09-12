@@ -9,7 +9,7 @@ export const POSTS_PER_PAGE = Number(process.env.POSTS_PER_PAGE ?? 12)
 export const ENABLE_DRAFTS = process.env.NODE_ENV !== 'production'
 export const ENABLE_MDX = true
 export const ENABLE_SEARCH = true
-export const ENABLE_TAG_PAGES = false
+export const ENABLE_TAG_PAGES = true
 export const REGEX_DIR_PREFIX = /^\d{8}_/
 export const ASSET_EXTENSIONS = [
   'webp',

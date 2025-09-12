@@ -17,13 +17,17 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const enableMesh =
+    (process.env.NEXT_PUBLIC_FEATURE_MESH_BG ?? 'true').toLowerCase() !==
+    'false'
+
   return (
     <html lang="de">
       <body>
         <Providers>
-          <MeshGradientBackground />
+          {enableMesh ? <MeshGradientBackground /> : null}
           <Header navSections={[]} />
-          <main>{children}</main>
+          <main style={{ paddingTop: '4.6rem' }}>{children}</main>
           <Footer />
         </Providers>
       </body>

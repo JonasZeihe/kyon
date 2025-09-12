@@ -1,62 +1,60 @@
 // src/app/blog/[category]/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import { buildPostMetadata } from '@/lib/seo/metadata'
-import { getAllPostMeta } from '@/lib/blog/indexer'
-import { listCategories, listPosts } from '@/lib/blog/fs'
+import { getAllPostMeta, getPostBySlug } from '@/lib/blog/indexer'
 import { parsePost } from '@/lib/blog/parse'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import PageWrapper from '@/components/Wrapper/PageWrapper'
-import CardWrapper from '@/components/Wrapper/CardWrapper'
+import type { Metadata } from 'next'
+import type { TOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
-type ParamsShape = { category: string; slug: string }
-type Params = Promise<ParamsShape>
-export const dynamicParams = false
+import ReadingProgress from '@/components/blog/ReadingProgress'
+
 export async function generateStaticParams() {
-  const params: ParamsShape[] = []
-  for (const category of listCategories()) {
-    for (const p of listPosts(category)) {
-      params.push({ category, slug: p.slug })
-    }
-  }
-  return params
+  const metas = getAllPostMeta()
+  return metas.map((m) => ({ category: m.category, slug: m.slug }))
 }
-export async function generateMetadata({ params }: { params: Params }) {
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string; slug: string }>
+}): Promise<Metadata> {
   const { category, slug } = await params
-  const meta = getAllPostMeta().find(
-    (m) => m.category === category && m.slug === slug
-  )
-  return meta ? buildPostMetadata(meta) : {}
+  const meta = getPostBySlug(category, slug)
+  if (!meta) return {}
+  return buildPostMetadata(meta)
 }
-const Page = async ({ params }: { params: Params }) => {
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ category: string; slug: string }>
+}) {
   const { category, slug } = await params
-  const dirName = getAllPostMeta().find(
-    (m) => m.category === category && m.slug === slug
-  )?.dirName
-  if (!dirName) return notFound()
-  const post = parsePost(category, dirName)
-  if (!post) return notFound()
+  const post = await (async () => {
+    const meta = getPostBySlug(category, slug)
+    if (!meta) return null
+    return parsePost(meta.category, meta.dirName)
+  })()
+  if (!post) notFound()
+
+  const toc: TOCItem[] = post.toc || []
+
+  const crumbs = [
+    { href: '/blog', label: 'Blog' },
+    { href: `/blog/${post.meta.category}`, label: post.meta.category },
+    { label: post.meta.title },
+  ]
+
   return (
-    <PageWrapper>
-      <SectionWrapper $spacious>
-        <Breadcrumbs
-          items={[
-            { href: '/blog', label: 'Blog' },
-            { href: `/blog/${category}`, label: category },
-            { label: post.meta.title },
-          ]}
-        />
-        <PostHeader meta={post.meta} />
-      </SectionWrapper>
-      <SectionWrapper>
-        <CardWrapper>
-          <div style={{ padding: 16 }}>
-            <PostBody post={post} />
-          </div>
-        </CardWrapper>
-      </SectionWrapper>
-    </PageWrapper>
+    <main>
+      <ReadingProgress />
+      <div style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1rem' }}>
+        <Breadcrumbs items={crumbs} />
+      </div>
+      <PostHeader post={post.meta} />
+      <PostBody post={post} toc={toc} />
+    </main>
   )
 }
-export default Page

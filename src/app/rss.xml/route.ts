@@ -24,6 +24,7 @@ export async function GET() {
   const items = getAllPostMeta().slice(0, 200)
   const latest =
     items[0]?.updated || items[0]?.date || new Date().toISOString().slice(0, 10)
+
   const feed =
     `<?xml version="1.0" encoding="UTF-8"?>` +
     `<rss version="2.0"><channel>` +

@@ -34,7 +34,9 @@ export const buildPostMetadata = (meta: PostMeta): Metadata => {
   return {
     title,
     description,
-    alternates: { canonical: meta.canonicalUrl || url },
+    alternates: {
+      canonical: meta.canonicalUrl ? toAbsolute(meta.canonicalUrl) : url,
+    },
     openGraph: {
       type: 'article',
       url,
@@ -50,5 +52,6 @@ export const buildPostMetadata = (meta: PostMeta): Metadata => {
       description,
       images,
     },
+    metadataBase: new URL(SITE_URL),
   }
 }
