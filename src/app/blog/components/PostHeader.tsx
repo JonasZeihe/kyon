@@ -1,3 +1,4 @@
+// src/app/blog/components/PostHeader.tsx
 'use client'
 
 import styled from 'styled-components'
@@ -5,25 +6,9 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import type { PostMeta } from '@/lib/blog/types'
+import { toPublicAssetUrl } from '@/lib/blog/urls'
 
 type Props = { post: PostMeta }
-
-const assetPrefix =
-  process.env.NEXT_PUBLIC_ASSET_PREFIX ||
-  process.env.NEXT_PUBLIC_BASE_PATH ||
-  ''
-
-const toPublicAssetUrl = (
-  category: string,
-  dirName: string,
-  filename: string
-) => {
-  const parts = [assetPrefix, 'content', category, dirName, filename]
-    .filter(Boolean)
-    .map((s) => s.replace(/(^\/+|\/+$)/g, ''))
-    .join('/')
-  return '/' + parts
-}
 
 export default function PostHeader({ post }: Props) {
   const cover = post.cover
@@ -31,16 +16,19 @@ export default function PostHeader({ post }: Props) {
     : null
   const badges = (post.tags || []).map((t) => ({ label: t }))
 
-  const dateObj = post.date ? new Date(post.date as unknown as string) : null
-  const validDate = dateObj && !isNaN(dateObj.getTime()) ? dateObj : null
-  const dateISO = validDate ? validDate.toISOString() : ''
-  const dateLabel = validDate
-    ? validDate.toLocaleDateString('de-DE', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      })
-    : ''
+  const published = post.date ? new Date(post.date) : null
+  const updated = post.updated ? new Date(post.updated) : null
+  const validPub = published && !isNaN(published.getTime()) ? published : null
+  const validUpd = updated && !isNaN(updated.getTime()) ? updated : null
+  const showUpd =
+    validPub && validUpd ? validUpd.getTime() > validPub.getTime() : !!validUpd
+
+  const fmt = (d: Date) =>
+    d.toLocaleDateString('de-DE', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    })
 
   return (
     <Wrap>
@@ -53,6 +41,7 @@ export default function PostHeader({ post }: Props) {
               fill
               sizes="(max-width:768px) 100vw, (max-width:1200px) 90vw, 1200px"
               priority
+              style={{ objectFit: 'cover' }}
             />
             <HeroShade />
           </HeroMedia>
@@ -69,14 +58,24 @@ export default function PostHeader({ post }: Props) {
           </Typography>
         </Title>
 
-        <Meta>
-          {dateLabel && <time dateTime={dateISO}>{dateLabel}</time>}
-          {post.readingTime ? <span>{post.readingTime} min</span> : null}
+        <Meta aria-label="Artikel-Metadaten">
+          {validPub ? (
+            <time dateTime={validPub.toISOString()}>
+              {showUpd ? 'Veröffentlicht am' : 'Am'} {fmt(validPub)}
+            </time>
+          ) : null}
+          {showUpd && validUpd ? (
+            <span aria-label="Aktualisiert am">
+              · Aktualisiert:{' '}
+              <time dateTime={validUpd.toISOString()}>{fmt(validUpd)}</time>
+            </span>
+          ) : null}
+          {post.readingTime ? <span>· ⏱️ {post.readingTime} min</span> : null}
         </Meta>
 
         {badges.length ? (
           <Badges>
-            <BadgeGrid badges={badges} />
+            <BadgeGrid badges={badges} align="flex-start" gapSize={1.2} />
           </Badges>
         ) : null}
 
@@ -98,7 +97,7 @@ const Hero = styled.div`
   position: relative;
   border-radius: ${({ theme }) => theme.borderRadius.large};
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.boxShadow.lg};
+  box-shadow: ${({ theme }) => theme.boxShadow.md};
   background: ${({ theme }) => theme.gradients.hero};
 `
 
@@ -112,18 +111,12 @@ const HeroMedia = styled.div`
 const HeroShade = styled.div`
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      rgba(0, 0, 0, 0.16) 0%,
-      rgba(0, 0, 0, 0.08) 40%,
-      rgba(0, 0, 0, 0) 70%
-    ),
-    radial-gradient(
-      80% 60% at 50% 100%,
-      rgba(0, 0, 0, 0.18) 0%,
-      rgba(0, 0, 0, 0) 62%
-    );
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0.07) 38%,
+    rgba(0, 0, 0, 0.02) 70%
+  );
   pointer-events: none;
 `
 
@@ -131,7 +124,7 @@ const HeroBar = styled.div`
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  height: 10px;
+  height: 8px;
   background: ${({ theme }) => theme.gradients.backgroundPrimary};
   opacity: 0.9;
 `
@@ -146,7 +139,7 @@ const HeroPlaceholder = styled.div`
 
 const Header = styled.div`
   display: grid;
-  gap: ${({ theme }) => theme.spacing(1.5)};
+  gap: ${({ theme }) => theme.spacing(1.25)};
 `
 
 const Title = styled.div`
@@ -158,19 +151,15 @@ const Meta = styled.div`
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacingHalf(2)};
-  padding: ${({ theme }) => theme.spacingHalf(2)}
-    ${({ theme }) => theme.spacing(1.5)};
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.2)}`};
   width: fit-content;
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  background: ${({ theme }) => theme.colors.surface.card};
+  background: ${({ theme }) => theme.colors.surface[1]};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
-
-  & > span::before {
-    content: '•';
-    margin: 0 ${({ theme }) => theme.spacingHalf(2)};
-    opacity: 0.6;
+  time {
+    color: inherit;
   }
 `
 
@@ -185,5 +174,6 @@ const Excerpt = styled.p`
   max-width: 70ch;
   font-size: ${({ theme }) => theme.typography.fontSize.body};
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.colors.text.main};
+  opacity: 0.92;
 `

@@ -1,22 +1,29 @@
 // src/components/navigation/Breadcrumbs.tsx
 'use client'
+
 import Link from 'next/link'
 import styled from 'styled-components'
+
 type Crumb = { href?: string; label: string }
 type Props = { items: Crumb[] }
-const W = styled.nav`
+
+const Nav = styled.nav`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+  padding-top: ${({ theme }) => theme.spacing(1)};
+  padding-bottom: ${({ theme }) => theme.spacing(1)};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
 `
-const S = styled.span`
-  opacity: 0.8;
+
+const Segment = styled.span`
+  opacity: 0.9;
 `
-const A = styled.span`
+
+const Anchor = styled.span`
   a {
     color: inherit;
     text-decoration: none;
@@ -24,28 +31,32 @@ const A = styled.span`
   a:hover,
   a:focus-visible {
     text-decoration: underline;
+    outline: none;
   }
 `
+
 const Sep = styled.span`
-  opacity: 0.4;
+  opacity: 0.45;
 `
+
 const Breadcrumbs = ({ items }: Props) => (
-  <W aria-label="Breadcrumb">
-    <A>
+  <Nav aria-label="Brotkrumen">
+    <Anchor>
       <Link href="/">Home</Link>
-    </A>
+    </Anchor>
     {items.map((it, i) => (
-      <S key={`${it.label}-${i}`}>
+      <Segment key={`${it.label}-${i}`}>
         <Sep> / </Sep>
         {it.href ? (
-          <A>
+          <Anchor>
             <Link href={it.href}>{it.label}</Link>
-          </A>
+          </Anchor>
         ) : (
-          <S aria-current="page">{it.label}</S>
+          <Segment aria-current="page">{it.label}</Segment>
         )}
-      </S>
+      </Segment>
     ))}
-  </W>
+  </Nav>
 )
+
 export default Breadcrumbs

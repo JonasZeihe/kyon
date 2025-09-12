@@ -1,8 +1,10 @@
 // src/app/page.tsx
+import Link from 'next/link'
+import Typography from '@/styles/Typography'
+import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import PostList from '@/app/blog/components/PostList'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta } from '@/lib/blog/indexer'
-import Link from 'next/link'
-import PostList from '@/app/blog/components/PostList'
 
 export const dynamic = 'force-static'
 
@@ -12,17 +14,42 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section>
-        <h1 style={{ margin: '1rem 0' }}>Neueste Beiträge</h1>
+      <SectionWrapper $spacious>
+        <div style={{ display: 'grid', gap: '0.75rem', textAlign: 'center' }}>
+          <Typography variant="h1" align="center" color="primary.main">
+            Kyon
+          </Typography>
+          <Typography align="center" color="text.subtle">
+            Prozess statt Pose. Natürlichkeit vor Methode.
+          </Typography>
+          <div style={{ marginTop: '0.5rem' }}>
+            <Link
+              href="/blog"
+              style={{
+                display: 'inline-block',
+                padding: '0.55rem 0.95rem',
+                borderRadius: '0.55rem',
+                background: 'var(--btn-bg, transparent)',
+                boxShadow: 'var(--btn-shadow, none)',
+                textDecoration: 'none',
+              }}
+            >
+              Alle Beiträge ansehen →
+            </Link>
+          </div>
+        </div>
+      </SectionWrapper>
+
+      <SectionWrapper>
+        <Typography variant="h2" align="left">
+          Neueste Beiträge
+        </Typography>
         {items.length === 0 ? (
-          <p>Keine Beiträge gefunden.</p>
+          <Typography>Keine Beiträge gefunden.</Typography>
         ) : (
           <PostList posts={items} />
         )}
-        <p style={{ marginTop: '1rem' }}>
-          <Link href="/blog">Alle Beiträge ansehen</Link>
-        </p>
-      </section>
+      </SectionWrapper>
     </main>
   )
 }

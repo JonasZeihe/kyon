@@ -47,21 +47,28 @@ export const parsePost = (
 ): PostFull | null => {
   const files = readPostFiles(category, dirName)
   if (!files) return null
+
   const { content, isMDX, indexPath, assets, assetDirPath } = files
   const { data, content: body } = matter(content)
   const fm = (data || {}) as Frontmatter
   if (fm.draft && !ENABLE_DRAFTS) return null
+
   const derivedDate =
     fm.date ||
     parseDateFromDir(dirName) ||
     new Date().toISOString().slice(0, 10)
   const title = deriveTitle(fm, body)
   const excerpt = normalizeExcerpt(body, fm.excerpt)
-  const reading = serializeMarkdown(body, fm)
+
+  const reading = serializeMarkdown(body, fm, {
+    assetBase: { category, dirName },
+  })
+
   const slug = REGEX_DIR_PREFIX.test(dirName) ? dirName.slice(9) : dirName
   const id = `${category}/${dirName}`
   const assetBasePath = assetDirPath
   const cover = fm.cover ? fm.cover : undefined
+
   const meta: PostMeta = {
     id,
     category,
@@ -79,6 +86,7 @@ export const parsePost = (
     sourcePath: indexPath,
     assetBasePath,
   }
+
   const full: PostFull = {
     meta,
     bodySource: reading.mdxSource,

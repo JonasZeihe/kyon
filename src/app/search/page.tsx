@@ -1,3 +1,4 @@
+// src/app/search/page.tsx
 import PageWrapper from '@/components/Wrapper/PageWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import Typography from '@/styles/Typography'
@@ -14,7 +15,8 @@ export default function SearchPage({
 }: {
   searchParams?: SearchParams
 }) {
-  const sp = (searchParams as any) || {}
+  const sp =
+    (searchParams as Record<string, string | string[] | undefined>) || {}
   const qRaw = sp.q
   const q = Array.isArray(qRaw) ? qRaw[0] : qRaw || ''
   const pageNum = getPageParamFromSearchParams(sp)
@@ -58,7 +60,13 @@ export default function SearchPage({
 
       {pageCount > 1 && (
         <SectionWrapper>
-          <Pagination page={page} pageCount={pageCount} />
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            makeHref={(p) =>
+              `/search?q=${encodeURIComponent(trimmed)}&page=${p}`
+            }
+          />
         </SectionWrapper>
       )}
     </PageWrapper>

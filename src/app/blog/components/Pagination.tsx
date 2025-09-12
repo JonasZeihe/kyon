@@ -5,9 +5,10 @@ import Link from 'next/link'
 import styled from 'styled-components'
 
 type Props = {
-  basePath: string
   page: number
   pageCount: number
+  basePath?: string
+  makeHref?: (p: number) => string
 }
 
 const Wrap = styled.nav`
@@ -62,10 +63,18 @@ const buildPages = (page: number, pageCount: number) => {
   return pages
 }
 
-export default function Pagination({ basePath, page, pageCount }: Props) {
+const joinPage = (base: string, p: number) =>
+  base.includes('?') ? `${base}&page=${p}` : `${base}?page=${p}`
+
+export default function Pagination({
+  page,
+  pageCount,
+  basePath = '',
+  makeHref,
+}: Props) {
   if (pageCount <= 1) return null
   const items = buildPages(page, pageCount)
-  const href = (p: number) => `${basePath}?page=${p}`
+  const href = (p: number) => (makeHref ? makeHref(p) : joinPage(basePath, p))
 
   return (
     <Wrap aria-label="Pagination">

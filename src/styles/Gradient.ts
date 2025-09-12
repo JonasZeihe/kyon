@@ -1,3 +1,4 @@
+// src/styles/Gradient.ts
 const HEX_REGEX = /#(?:[\da-f]{3}){1,2}/gi
 
 export type GradientSet = Record<string, string | string[]> & {
@@ -22,19 +23,26 @@ const contrastRatio = (a: string, b: string) => {
 
 type Colors = Record<string, Record<string, string> & { main?: string }>
 
+const safePick = (obj: Record<string, any>, key: string, fallback: string) =>
+  typeof obj?.[key] === 'string' && obj[key] ? obj[key] : fallback
+
 const pickColor = (
   group: string,
   colors: Colors,
   target = 'main',
   mode: 'light' | 'dark' = 'light'
 ) => {
-  const base = colors[group] || {}
+  const base = (colors as any)[group] || {}
   const baseColor =
-    (base as any)[target] || base.main || Object.values(base)[0] || '#ccc'
-  if (mode === 'dark' && contrastRatio(baseColor, '#fff') < 2) {
+    safePick(base, target, '') ||
+    base.main ||
+    Object.values(base)[0] ||
+    '#9aa3b2'
+  if (mode === 'dark' && contrastRatio(baseColor, '#ffffff') < 2.2) {
     const keys = ['0', '1', '2', 'main', '4', '5', '6']
     const fallback = keys.find(
-      (k) => (base as any)[k] && contrastRatio((base as any)[k], '#fff') >= 2
+      (k) =>
+        (base as any)[k] && contrastRatio((base as any)[k], '#ffffff') >= 2.2
     )
     return fallback ? (base as any)[fallback] : baseColor
   }
@@ -50,28 +58,28 @@ const gradients = ({ colors }: { colors: Colors }): GradientSet => {
   if (lastColors === colors && lastResult) return lastResult
 
   const mode: 'light' | 'dark' =
-    luminance(colors?.text?.main || '#000') < 0.5 ? 'dark' : 'light'
+    luminance((colors as any)?.text?.main || '#000000') < 0.5 ? 'dark' : 'light'
 
   const g: GradientSet = {
     pageBackground: createLinear(
       pickColor('surface', colors, '1', mode),
       pickColor('surface', colors, '2', mode),
-      133
+      135
     ),
     backgroundPrimary: createLinear(
       pickColor('primary', colors, '1', mode),
-      pickColor('primary', colors, '4', mode),
+      pickColor('primary', colors, '3', mode),
       120
     ),
     backgroundSecondary: createLinear(
       pickColor('secondary', colors, '1', mode),
       pickColor('secondary', colors, '3', mode),
-      133
+      135
     ),
     backgroundAccent: createLinear(
       pickColor('accent', colors, '1', mode),
       pickColor('accent', colors, '3', mode),
-      123
+      125
     ),
     backgroundDepth: createLinear(
       pickColor('depth', colors, '1', mode),
@@ -144,7 +152,7 @@ const gradients = ({ colors }: { colors: Colors }): GradientSet => {
 
   const meshBase = meshSource.length
     ? meshSource.slice(0, 8)
-    : ['#9999ff', '#ff99cc', '#99e6ff']
+    : ['#8fa3ff', '#f0a2dc', '#8fd9ff']
 
   g.meshPalette = meshBase.map((hex) => {
     const l = luminance(hex)
@@ -152,7 +160,7 @@ const gradients = ({ colors }: { colors: Colors }): GradientSet => {
     const clean = hex.replace('#', '').padEnd(6, hex.slice(1))
     const rgb = [0, 2, 4].map((i) => parseInt(clean.slice(i, i + 2), 16))
     const darkened = rgb
-      .map((v) => Math.max(0, Math.round(v * 0.75)))
+      .map((v) => Math.max(0, Math.round(v * 0.78)))
       .map((v) => v.toString(16).padStart(2, '0'))
       .join('')
     return `#${darkened}`
@@ -164,3 +172,4 @@ const gradients = ({ colors }: { colors: Colors }): GradientSet => {
 }
 
 export default gradients
+export { contrastRatio, luminance }

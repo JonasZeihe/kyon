@@ -1,3 +1,4 @@
+// src/app/tags/[tag]/page.tsx
 import Link from 'next/link'
 import PageWrapper from '@/components/Wrapper/PageWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
@@ -9,8 +10,7 @@ import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { paginate, getPageParamFromSearchParams } from '@/lib/blog/pagination'
 import { searchPosts } from '@/lib/blog/indexer'
 
-type ParamsShape = { tag: string }
-type Params = Promise<ParamsShape>
+type Params = { tag: string }
 type SearchParams = { [key: string]: string | string[] | undefined }
 
 export const dynamic = 'force-static'
@@ -19,9 +19,7 @@ export const dynamicParams = false
 export async function generateStaticParams() {
   const metas = getAllPostMeta()
   const tags = new Set<string>()
-  for (const m of metas) {
-    for (const t of m.tags || []) tags.add(t)
-  }
+  for (const m of metas) for (const t of m.tags || []) tags.add(t)
   return Array.from(tags).map((tag) => ({ tag }))
 }
 
@@ -32,8 +30,9 @@ export default function TagPage({
   params: Params
   searchParams?: SearchParams
 }) {
-  const { tag } = params as unknown as ParamsShape
-  const sp = (searchParams as any) || {}
+  const { tag } = params
+  const sp =
+    (searchParams as Record<string, string | string[] | undefined>) || {}
   const pageNum = getPageParamFromSearchParams(sp)
   const results = searchPosts({ tags: [tag] })
   const { items, page, pageCount } = paginate(results, pageNum, POSTS_PER_PAGE)
@@ -61,9 +60,9 @@ export default function TagPage({
       {pageCount > 1 && (
         <SectionWrapper>
           <Pagination
+            basePath={`/tags/${encodeURIComponent(tag)}`}
             page={page}
             pageCount={pageCount}
-            makeHref={(p) => `?page=${p}`}
           />
         </SectionWrapper>
       )}

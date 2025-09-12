@@ -1,3 +1,4 @@
+// src/components/blog/ArticleTOC.tsx
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
@@ -39,7 +40,7 @@ export default function ArticleTOC({ items }: Props) {
       },
       {
         root: null,
-        rootMargin: '0px 0px -65% 0px',
+        rootMargin: '0px 0px -60% 0px',
         threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
       }
     )
@@ -74,10 +75,11 @@ const Wrap = styled.aside`
   display: none;
   min-width: 240px;
   max-width: 320px;
-  padding: ${({ theme }) => theme.spacing(1.5)};
+  padding: ${({ theme }) => theme.spacing(1.2)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   background: ${({ theme }) => theme.colors.surface.cardAlpha};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
+
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
     display: block;
   }
@@ -86,7 +88,7 @@ const Wrap = styled.aside`
 const Header = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.h4};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  margin-bottom: ${({ theme }) => theme.spacing(1.2)};
+  margin-bottom: ${({ theme }) => theme.spacing(1)};
   color: ${({ theme }) => theme.colors.text.main};
 `
 
@@ -95,7 +97,7 @@ const List = styled.ol`
   margin: 0;
   padding: 0;
   display: grid;
-  gap: ${({ theme }) => theme.spacing(0.7)};
+  gap: ${({ theme }) => theme.spacing(0.6)};
 `
 
 const Item = styled.li<{ $depth: number; $active: boolean }>`
@@ -103,8 +105,7 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     display: block;
     text-decoration: none;
     line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-    padding: ${({ theme }) => theme.spacingHalf(2)}
-      ${({ theme }) => theme.spacing(1)};
+    padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
     border-radius: ${({ theme }) => theme.borderRadius.small};
     font-size: ${({ theme }) => theme.typography.fontSize.small};
     color: ${({ theme }) => theme.colors.text.main};
@@ -112,8 +113,13 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     border-left: 3px solid
       ${({ theme, $active }) =>
         $active ? theme.colors.accent.main : theme.colors.surface[4]};
-    margin-left: ${({ $depth }) =>
-      $depth === 2 ? '0' : $depth === 3 ? '12px' : '0'};
+    background: ${({ theme, $active }) =>
+      $active ? theme.colors.surface.hover : 'transparent'};
+    font-weight: ${({ theme, $active }) =>
+      $active
+        ? theme.typography.fontWeight.medium
+        : theme.typography.fontWeight.regular};
+    margin-left: ${({ $depth }) => ($depth === 3 ? '12px' : '0')};
   }
   a:hover,
   a:focus-visible {

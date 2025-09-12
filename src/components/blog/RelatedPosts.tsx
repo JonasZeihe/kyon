@@ -7,26 +7,10 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import CardWrapper from '@/components/Wrapper/CardWrapper'
 import type { PostMeta } from '@/lib/blog/types'
+import { toPublicAssetUrl } from '@/lib/blog/urls'
 
 type Props = {
   posts: PostMeta[]
-}
-
-const assetPrefix =
-  process.env.NEXT_PUBLIC_ASSET_PREFIX ||
-  process.env.NEXT_PUBLIC_BASE_PATH ||
-  ''
-
-const toPublicAssetUrl = (
-  category: string,
-  dirName: string,
-  filename: string
-) => {
-  const parts = [assetPrefix, 'content', category, dirName, filename]
-    .filter(Boolean)
-    .map((s) => s.replace(/(^\/+|\/+$)/g, ''))
-    .join('/')
-  return '/' + parts
 }
 
 export default function RelatedPosts({ posts }: Props) {
@@ -65,7 +49,16 @@ export default function RelatedPosts({ posts }: Props) {
                     <Link href={href}>{m.title}</Link>
                   </Typography>
                   <Meta>
-                    <span>{m.date}</span>
+                    <span>
+                      {new Date(m.updated || m.date).toLocaleDateString(
+                        'de-DE',
+                        {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        }
+                      )}
+                    </span>
                     {m.readingTime ? <span>· {m.readingTime} min</span> : null}
                   </Meta>
                 </Content>
