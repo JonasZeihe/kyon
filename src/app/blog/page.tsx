@@ -10,9 +10,10 @@ export const dynamic = 'force-static'
 export default async function BlogIndexPage({
   searchParams,
 }: {
-  searchParams?: Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const page = getPageParamFromSearchParams(searchParams || {})
+  const sp = (await searchParams) || {}
+  const page = getPageParamFromSearchParams(sp)
   const all = getAllPostMeta()
   const start = (page - 1) * POSTS_PER_PAGE
   const items = all.slice(start, start + POSTS_PER_PAGE)

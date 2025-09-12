@@ -23,16 +23,15 @@ export async function generateStaticParams() {
   return Array.from(tags).map((tag) => ({ tag }))
 }
 
-export default function TagPage({
+export default async function TagPage({
   params,
   searchParams,
 }: {
-  params: Params
-  searchParams?: SearchParams
+  params: Promise<Params>
+  searchParams?: Promise<SearchParams>
 }) {
-  const { tag } = params
-  const sp =
-    (searchParams as Record<string, string | string[] | undefined>) || {}
+  const { tag } = await params
+  const sp = (await searchParams) || {}
   const pageNum = getPageParamFromSearchParams(sp)
   const results = searchPosts({ tags: [tag] })
   const { items, page, pageCount } = paginate(results, pageNum, POSTS_PER_PAGE)

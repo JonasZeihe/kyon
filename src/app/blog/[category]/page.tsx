@@ -17,15 +17,16 @@ export async function generateStaticParams() {
   return cats.map((c) => ({ category: c }))
 }
 
-export default function CategoryPage({
+export default async function CategoryPage({
   params,
   searchParams,
 }: {
-  params: Params
-  searchParams?: Record<string, string | string[] | undefined>
+  params: Promise<Params>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { category } = params
-  const pageNum = getPageParamFromSearchParams(searchParams || {})
+  const { category } = await params
+  const sp = (await searchParams) || {}
+  const pageNum = getPageParamFromSearchParams(sp)
   const all = getPostsByCategory(category)
   const p = paginate(all, pageNum, POSTS_PER_PAGE)
 
