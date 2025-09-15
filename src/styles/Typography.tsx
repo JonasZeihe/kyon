@@ -1,3 +1,4 @@
+// --- src/styles/Typography.tsx ---
 'use client'
 import React, { ComponentPropsWithoutRef, ReactNode, ElementType } from 'react'
 import styled, { css, DefaultTheme } from 'styled-components'
@@ -32,7 +33,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
       text: { main, subtle },
     },
   } = t
-  const s = spacing
+
   switch (v) {
     case 'h1':
       return css`
@@ -41,7 +42,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
         color: ${main};
-        margin-bottom: ${gutter ? s(5) : 0};
+        margin-bottom: ${gutter ? spacing(5) : 0};
       `
     case 'h2':
       return css`
@@ -50,7 +51,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
         color: ${main};
-        margin-bottom: ${gutter ? s(4) : 0};
+        margin-bottom: ${gutter ? spacing(4) : 0};
       `
     case 'h3':
       return css`
@@ -59,7 +60,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.normal};
         letter-spacing: ${letterSpacing.normal};
         color: ${main};
-        margin-bottom: ${gutter ? s(3) : 0};
+        margin-bottom: ${gutter ? spacing(3) : 0};
       `
     case 'subhead':
       return css`
@@ -67,7 +68,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.medium};
         line-height: ${lineHeight.normal};
         color: ${main};
-        margin-bottom: ${gutter ? s(2) : 0};
+        margin-bottom: ${gutter ? spacing(2) : 0};
       `
     case 'caption':
       return css`
@@ -75,7 +76,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.light};
         line-height: ${lineHeight.tight};
         color: ${subtle};
-        margin-bottom: ${gutter ? s(1) : 0};
+        margin-bottom: ${gutter ? spacing(1) : 0};
       `
     default:
       return css`
@@ -83,7 +84,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.regular};
         line-height: ${lineHeight.normal};
         color: ${main};
-        margin-bottom: ${gutter ? s(2) : 0};
+        margin-bottom: ${gutter ? spacing(2) : 0};
       `
   }
 }

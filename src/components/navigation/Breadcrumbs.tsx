@@ -9,54 +9,72 @@ type Props = { items: Crumb[] }
 
 const Nav = styled.nav`
   width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  padding-top: ${({ theme }) => theme.spacing(1)};
-  padding-bottom: ${({ theme }) => theme.spacing(1)};
+  padding: ${({ theme }) => `${theme.spacing(1)} 0`};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
 `
 
-const Segment = styled.span`
-  opacity: 0.9;
+const List = styled.ol`
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacingHalf(2)};
+  margin: 0;
+  padding: 0;
+  list-style: none;
 `
 
-const Anchor = styled.span`
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-  a:hover,
-  a:focus-visible {
+const Item = styled.li`
+  display: inline-flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacingHalf(2)};
+`
+
+const Slash = styled.span`
+  opacity: 0.55;
+  user-select: none;
+`
+
+const CrumbLink = styled(Link)`
+  color: ${({ theme }) => theme.colors.text.subtle};
+  text-decoration: none;
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  padding: 2px 4px;
+  &:hover,
+  &:focus-visible {
+    color: ${({ theme }) => theme.colors.primary.main};
     text-decoration: underline;
-    outline: none;
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary[1]};
   }
 `
 
-const Sep = styled.span`
-  opacity: 0.45;
+const Current = styled.span`
+  color: ${({ theme }) => theme.colors.text.main};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
 `
 
-const Breadcrumbs = ({ items }: Props) => (
-  <Nav aria-label="Brotkrumen">
-    <Anchor>
-      <Link href="/">Home</Link>
-    </Anchor>
-    {items.map((it, i) => (
-      <Segment key={`${it.label}-${i}`}>
-        <Sep> / </Sep>
-        {it.href ? (
-          <Anchor>
-            <Link href={it.href}>{it.label}</Link>
-          </Anchor>
-        ) : (
-          <Segment aria-current="page">{it.label}</Segment>
-        )}
-      </Segment>
-    ))}
-  </Nav>
-)
-
-export default Breadcrumbs
+export default function Breadcrumbs({ items }: Props) {
+  return (
+    <Nav aria-label="Brotkrumen">
+      <List>
+        <Item>
+          <CrumbLink href="/">Home</CrumbLink>
+        </Item>
+        {items.map((it, i) => {
+          const last = i === items.length - 1
+          return (
+            <Item key={`${it.label}-${i}`}>
+              <Slash aria-hidden="true">/</Slash>
+              {last || !it.href ? (
+                <Current aria-current="page">{it.label}</Current>
+              ) : (
+                <CrumbLink href={it.href}>{it.label}</CrumbLink>
+              )}
+            </Item>
+          )
+        })}
+      </List>
+    </Nav>
+  )
+}

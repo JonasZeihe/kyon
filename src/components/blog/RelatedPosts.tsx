@@ -1,4 +1,3 @@
-// src/components/blog/RelatedPosts.tsx
 'use client'
 
 import styled from 'styled-components'
@@ -7,27 +6,37 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import CardWrapper from '@/components/Wrapper/CardWrapper'
 import type { PostMeta } from '@/lib/blog/types'
-import { toPublicAssetUrl } from '@/lib/blog/urls'
+import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
-type Props = {
-  posts: PostMeta[]
-}
+type Props = { posts: PostMeta[] }
 
 export default function RelatedPosts({ posts }: Props) {
   if (!posts?.length) return null
+
   return (
     <Wrap>
       <Typography variant="h2" align="center" color="primary.main">
         Ähnliche Beiträge
       </Typography>
+
       <Grid>
         {posts.map((m) => {
-          const href = `/blog/${m.category}/${m.slug}`
+          const href =
+            m.category === 'cases'
+              ? `/cases/${m.slug}`
+              : `/blog/${m.category}/${m.slug}`
+
           const cover = m.cover
             ? toPublicAssetUrl(m.category, m.dirName, m.cover)
             : null
+
+          const dateLabel = new Date(m.updated || m.date).toLocaleDateString(
+            'de-DE',
+            { year: 'numeric', month: '2-digit', day: '2-digit' }
+          )
+
           return (
-            <CardWrapper key={m.id}>
+            <CardWrapper key={m.id ?? `${m.category}:${m.slug}`}>
               <CardInner>
                 <ThumbWrap>
                   <Link href={href} aria-label={m.title}>
@@ -37,6 +46,7 @@ export default function RelatedPosts({ posts }: Props) {
                         alt={m.title}
                         fill
                         sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
                         priority={false}
                       />
                     ) : (
@@ -44,21 +54,14 @@ export default function RelatedPosts({ posts }: Props) {
                     )}
                   </Link>
                 </ThumbWrap>
+
                 <Content>
                   <Typography variant="h3" gutter={false}>
                     <Link href={href}>{m.title}</Link>
                   </Typography>
+
                   <Meta>
-                    <span>
-                      {new Date(m.updated || m.date).toLocaleDateString(
-                        'de-DE',
-                        {
-                          year: 'numeric',
-                          month: '2-digit',
-                          day: '2-digit',
-                        }
-                      )}
-                    </span>
+                    <span>{dateLabel}</span>
                     {m.readingTime ? <span>· {m.readingTime} min</span> : null}
                   </Meta>
                 </Content>
@@ -101,7 +104,7 @@ const ThumbWrap = styled.div`
 const ThumbFallback = styled.div`
   position: absolute;
   inset: 0;
-  background: ${({ theme }) => theme.gradients.backgroundSecondary};
+  background: ${({ theme }) => theme.gradients.rainbow};
 `
 
 const Content = styled.div`

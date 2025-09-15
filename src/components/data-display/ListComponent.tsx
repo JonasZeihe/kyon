@@ -1,3 +1,4 @@
+// --- src/components/data-display/ListComponent.tsx ---
 'use client'
 
 import React, { ReactNode } from 'react'
@@ -30,6 +31,7 @@ const ListItemWrapper = styled.li`
   padding: ${({ theme }) => theme.spacing(1.5)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   transition:
     background 0.25s ease,

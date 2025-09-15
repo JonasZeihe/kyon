@@ -1,0 +1,218 @@
+// --- src/lib/content/pipeline.ts ---
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import remarkGfm from 'remark-gfm'
+import remarkFrontmatter from 'remark-frontmatter'
+import remarkMdx from 'remark-mdx'
+import remarkRehype from 'remark-rehype'
+import rehypeRaw from 'rehype-raw'
+import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import rehypeStringify from 'rehype-stringify'
+import { compile } from '@mdx-js/mdx'
+import type { VFileCompatible } from 'vfile'
+import type { Root } from 'hast'
+import readingTime from 'reading-time'
+import matter from 'gray-matter'
+import { toPublicAssetUrl } from './helpers/paths'
+
+export type TOCItem = { id: string; depth: number; text: string }
+
+export type CaseCta = { label: string; href: string }
+export type FrontmatterCommon = {
+  title: string
+  excerpt?: string
+  date?: string
+  updated?: string
+  tags?: string[]
+  draft?: boolean
+  cover?: string
+  canonicalUrl?: string
+}
+export type CaseFrontmatter = FrontmatterCommon & {
+  type: 'case'
+  summary?: string
+  cta?: CaseCta
+}
+export type PostFrontmatter = FrontmatterCommon & {
+  type?: 'post'
+}
+export type AnyFrontmatter =
+  | PostFrontmatter
+  | CaseFrontmatter
+  | FrontmatterCommon
+
+export type PipelineInput = {
+  source: VFileCompatible
+  assetBase?: { category?: string; dirName?: string; baseHref?: string }
+}
+
+export type HtmlResult = {
+  html: string
+  toc: TOCItem[]
+  readingTime: number
+  words: number
+  minutes: number
+}
+
+export type MdxResult = {
+  code: string
+  toc: TOCItem[]
+  readingTime: number
+  words: number
+  minutes: number
+}
+
+export const parseFrontmatter = (
+  source: VFileCompatible
+): {
+  data: AnyFrontmatter
+  content: string
+} => {
+  const text = typeof source === 'string' ? source : String(source as any)
+  const { data, content } = matter(text)
+  const fm = (data || {}) as AnyFrontmatter
+  return { data: fm, content }
+}
+
+const walk = (
+  node: any,
+  parent: any,
+  visit: (n: any, i: number, p: any) => void
+) => {
+  const children: any[] = node?.children || []
+  for (let i = 0; i < children.length; i++) {
+    visit(children[i], i, node)
+    walk(children[i], node, visit)
+  }
+}
+
+const textFrom = (node: any): string => {
+  if (!node) return ''
+  if (typeof node.value === 'string') return node.value
+  const children: any[] = node.children || []
+  return children.map((c) => textFrom(c)).join('')
+}
+
+const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
+  walk(tree as any, null, (node) => {
+    if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
+      const depth = Number(node.tagName.slice(1))
+      const id = node.properties?.id || ''
+      if (depth >= 2 && id) list.push({ id, depth, text: textFrom(node) })
+    }
+  })
+}
+
+const assetsPlugin =
+  (assetBase?: { category?: string; dirName?: string; baseHref?: string }) =>
+  () =>
+  async (tree: Root) => {
+    const toUrl = (src: string): string => {
+      if (!src) return src
+      if (/^https?:\/\//i.test(src)) return src
+      if (assetBase?.baseHref) {
+        const clean = src.replace(/^\.?\//, '')
+        return `${assetBase.baseHref.replace(/\/+$/, '')}/${clean}`
+      }
+      if (assetBase?.category && assetBase?.dirName) {
+        return toPublicAssetUrl(assetBase.category, assetBase.dirName, src)
+      }
+      return src
+    }
+    walk(tree as any, null, (node) => {
+      if (node.type !== 'element') return
+      if (node.tagName === 'img' && node.properties) {
+        const src = String(node.properties.src || '')
+        node.properties.src = toUrl(src)
+      }
+      if (node.tagName === 'source' && node.properties) {
+        if (node.properties.src)
+          node.properties.src = toUrl(String(node.properties.src))
+        if (node.properties.srcset) {
+          const set = String(node.properties.srcset)
+          node.properties.srcset = set
+            .split(',')
+            .map((part) => {
+              const [u, d] = part.trim().split(/\s+/)
+              return [toUrl(u), d].filter(Boolean).join(' ')
+            })
+            .join(', ')
+        }
+      }
+      if (node.tagName === 'a' && node.properties?.href) {
+        const href = String(node.properties.href)
+        if (!/^https?:\/\//i.test(href) && !href.startsWith('#')) {
+          node.properties.href = toUrl(href)
+        }
+        if (/^https?:\/\//i.test(String(node.properties.href))) {
+          node.properties.target = '_blank'
+          node.properties.rel = 'noopener noreferrer nofollow'
+        }
+      }
+    })
+  }
+
+export const renderToHTML = async ({
+  source,
+  assetBase,
+}: PipelineInput): Promise<HtmlResult> => {
+  const text = typeof source === 'string' ? source : String(source as any)
+  const rt = readingTime(text)
+  const toc: TOCItem[] = []
+  const file = await unified()
+    .use(remarkParse)
+    .use(remarkMdx)
+    .use(remarkGfm)
+    .use(remarkFrontmatter, ['yaml', 'toml'])
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
+    .use(rehypeSlug)
+    .use(rehypeAutolinkHeadings, { behavior: 'append' })
+    .use(tocPlugin(toc))
+    .use(assetsPlugin(assetBase))
+    .use(rehypeStringify)
+    .process(text)
+
+  return {
+    html: String(file.value || ''),
+    toc,
+    readingTime: Math.max(1, Math.round(rt.minutes)),
+    words: rt.words,
+    minutes: Math.ceil(rt.minutes),
+  }
+}
+
+export const compileToMdx = async ({
+  source,
+  assetBase,
+}: PipelineInput): Promise<MdxResult> => {
+  const text = typeof source === 'string' ? source : String(source as any)
+  const rt = readingTime(text)
+  const toc: TOCItem[] = []
+  const compiled = await compile(text, {
+    jsx: true,
+    remarkPlugins: [
+      remarkParse as any,
+      remarkMdx as any,
+      remarkGfm as any,
+      [remarkFrontmatter as any, ['yaml', 'toml']],
+    ],
+    rehypePlugins: [
+      rehypeSlug as any,
+      [rehypeAutolinkHeadings as any, { behavior: 'append' }] as any,
+      [tocPlugin(toc) as any] as any,
+      [assetsPlugin(assetBase) as any] as any,
+    ] as any,
+    format: 'mdx',
+    providerImportSource: '@mdx-js/react',
+  })
+
+  return {
+    code: String(compiled.value || ''),
+    toc,
+    readingTime: Math.max(1, Math.round(rt.minutes)),
+    words: rt.words,
+    minutes: Math.ceil(rt.minutes),
+  }
+}

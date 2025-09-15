@@ -1,11 +1,14 @@
-'use client'
+// --- src/components/media/MDXImage.tsx ---
 import Image from 'next/image'
 import React from 'react'
 
 type Props = React.ImgHTMLAttributes<HTMLImageElement> & { base?: string }
 
 const join = (b: string, r: string) =>
-  `${b.replace(/\/+$/, '')}/${r.replace(/^\.?\//, '')}`.replace(/\/{2,}/g, '/')
+  `${b.replace(/\/+$/, '')}/${String(r).replace(/^\.?\//, '')}`.replace(
+    /\/{2,}/g,
+    '/'
+  )
 
 const resolveSrc = (s: string, base?: string) =>
   !s || /^([a-z]+:)?\/\//i.test(s) || s.startsWith('/')
@@ -18,9 +21,10 @@ export default function MDXImage(p: Props) {
   const { src = '', alt, width, height, title, base, style, sizes, ...rest } = p
   if (process.env.NODE_ENV !== 'production' && !alt)
     throw new Error('MDXImage alt required')
+
   const w = typeof width === 'number' ? width : 1200
   const h = typeof height === 'number' ? height : 800
-  const s = resolveSrc(String(src), base)
+  const resolvedSrc = resolveSrc(String(src), base)
   const resolvedSizes =
     typeof sizes === 'string' && sizes.trim().length > 0
       ? sizes
@@ -30,7 +34,7 @@ export default function MDXImage(p: Props) {
     return (
       <figure style={{ margin: '1rem 0' }}>
         <Image
-          src={s}
+          src={resolvedSrc}
           alt={String(alt || '')}
           width={w}
           height={h}
@@ -60,7 +64,7 @@ export default function MDXImage(p: Props) {
 
   return (
     <Image
-      src={s}
+      src={resolvedSrc}
       alt={String(alt || '')}
       width={w}
       height={h}

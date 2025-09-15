@@ -1,4 +1,4 @@
-// src/components/layout/Header.tsx
+// --- src/components/layout/Header.tsx ---
 'use client'
 
 import React, { useReducer, useEffect, useRef, useState } from 'react'
@@ -27,10 +27,19 @@ type Action =
 const PRIMARY_LINKS = [
   { href: '/', label: 'Home', match: (p: string) => p === '/' },
   { href: '/blog', label: 'Blog', match: (p: string) => p.startsWith('/blog') },
-  { href: '/tags', label: 'Tags', match: (p: string) => p.startsWith('/tags') },
+  {
+    href: '/cases',
+    label: 'Cases',
+    match: (p: string) => p.startsWith('/cases'),
+  },
+  {
+    href: '/about',
+    label: 'About',
+    match: (p: string) => p.startsWith('/about'),
+  },
   {
     href: '/search',
-    label: 'Suche',
+    label: 'Search',
     match: (p: string) => p.startsWith('/search'),
   },
 ]
@@ -214,7 +223,7 @@ const Header = ({ navSections = [] }: HeaderProps) => {
             onClick={goTop}
             aria-label="Zur Startseite scrollen"
           >
-            Jonas Zeihe
+            Kyon
           </Logo>
         </LeftSide>
         <RightSide>
@@ -261,20 +270,18 @@ const HeaderContainer = styled.header<{ $hidden: boolean }>`
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(22,24,32,0.65)' : 'rgba(255,255,255,0.55)'};
-  backdrop-filter: blur(8px) saturate(1.02);
+  background: ${({ theme }) => theme.colors.neutral.surface};
   box-shadow: ${({ theme }) => theme.boxShadow.sm};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
   transition:
-    background 0.25s,
-    box-shadow 0.2s,
-    transform 0.22s ease;
+    transform 0.22s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
   transform: translateY(${({ $hidden }) => ($hidden ? '-110%' : '0')});
 `
 
 const HeaderContent = styled.div`
-  max-width: ${({ theme }) => theme.breakpoints.xl};
+  max-width: 72rem;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
@@ -301,12 +308,12 @@ const Logo = styled.span`
   font-family: ${({ theme }) => theme.typography.fontFamily.secondary};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary.base};
+  background: ${({ theme }) => theme.gradients.rainbow};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
   padding: 0 ${({ theme }) => theme.spacing(1)};
-  background: none;
   border: none;
-  transition: color 0.2s;
 `
 
 const DesktopOnly = styled.div`
@@ -327,7 +334,7 @@ const MobileOnly = styled.div`
 
 const DesktopNav = styled.nav`
   display: flex;
-  gap: ${({ theme }) => theme.spacing(4)};
+  gap: ${({ theme }) => theme.spacing(3)};
 `
 
 const NavItemWrapper = styled.div`
@@ -344,21 +351,21 @@ const SectionItem = styled.div<{ $isActive?: boolean }>`
       ? theme.typography.fontWeight.bold
       : theme.typography.fontWeight.regular};
   color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.primary.base : theme.colors.text.main};
+    $isActive ? theme.colors.primary.main : theme.colors.text.main};
   cursor: pointer;
-  transition: color 0.17s;
+  transition: color 0.16s ease;
 `
 
 const SubNav = styled.div`
   position: absolute;
   top: 100%;
   left: 0;
-  background: ${({ theme }) => theme.colors.surface.cardAlpha};
-  color: ${({ theme }) => theme.colors.text.main};
   min-width: 13rem;
   padding: ${({ theme }) => theme.spacing(1)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   box-shadow: ${({ theme }) => theme.boxShadow.md};
+  background: ${({ theme }) => theme.colors.neutral.surface};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   display: none;
   z-index: 2;
 `
@@ -367,14 +374,18 @@ const SubNavItem = styled.div<{ $isActive?: boolean }>`
   font-size: ${({ theme }) => theme.typography.fontSize.body};
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.primary.base : theme.colors.text.main};
+    $isActive ? theme.colors.primary.main : theme.colors.text.main};
   cursor: pointer;
-  padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(2)}`};
+  padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(1.5)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  background: transparent;
   transition:
-    background 0.16s,
-    color 0.18s;
+    background 0.14s ease,
+    color 0.16s ease;
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.surface.hover};
+    outline: none;
+  }
 `
 
 const NavLink = styled(Link)<{ $active?: boolean }>`
@@ -384,12 +395,17 @@ const NavLink = styled(Link)<{ $active?: boolean }>`
       ? theme.typography.fontWeight.bold
       : theme.typography.fontWeight.regular};
   color: ${({ $active, theme }) =>
-    $active ? theme.colors.primary.base : theme.colors.text.main};
+    $active ? theme.colors.primary.main : theme.colors.text.main};
   text-decoration: none;
-  transition: color 0.17s;
+  transition:
+    color 0.16s ease,
+    background 0.16s ease;
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.colors.accent.main};
+    background: ${({ theme }) => theme.colors.surface[1]};
     outline: none;
   }
 `
@@ -406,23 +422,37 @@ const IconLink = styled(Link)`
   justify-content: center;
   padding: ${({ theme }) => theme.spacingHalf(2)};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  color: ${({ theme }) => theme.colors.primary.base};
+  color: ${({ theme }) => theme.colors.primary.main};
+  transition:
+    background 0.14s ease,
+    color 0.14s ease;
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.colors.accent.main};
+    background: ${({ theme }) => theme.colors.surface[1]};
     outline: none;
   }
 `
 
 const MobileMenuButton = styled.button`
   background: none;
-  border: none;
-  font-size: 1.7rem;
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
+  font-size: 1.2rem;
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary.base};
+  color: ${({ theme }) => theme.colors.primary.main};
   display: flex;
   align-items: center;
-  transition: color 0.2s;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    border-color 0.14s ease;
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.surface[1]};
+    outline: none;
+  }
 `
 
 const MobileMenu = styled.div`
@@ -430,12 +460,11 @@ const MobileMenu = styled.div`
   top: 100%;
   left: 0;
   right: 0;
-  background: ${({ theme }) => theme.colors.surface.cardAlpha};
-  padding: ${({ theme }) => theme.spacing(3)};
+  background: ${({ theme }) => theme.colors.neutral.surface};
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  padding: ${({ theme }) => theme.spacing(2)};
   box-shadow: ${({ theme }) => theme.boxShadow.md};
   z-index: 10;
-  border-bottom-left-radius: ${({ theme }) => theme.borderRadius.medium};
-  border-bottom-right-radius: ${({ theme }) => theme.borderRadius.medium};
 `
 
 const MobileGroup = styled.div`
@@ -446,17 +475,24 @@ const MobileGroup = styled.div`
 
 const MobileLink = styled(Link)<{ $active?: boolean }>`
   display: block;
-  padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(1.5)}`};
+  padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(1.2)}`};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   text-decoration: none;
   font-size: ${({ theme }) => theme.typography.fontSize.h4};
   color: ${({ $active, theme }) =>
-    $active ? theme.colors.primary.base : theme.colors.text.main};
+    $active ? theme.colors.primary.main : theme.colors.text.main};
   background: ${({ $active, theme }) =>
-    $active ? theme.colors.surface[2] : 'transparent'};
+    $active ? theme.colors.surface[1] : 'transparent'};
+  border: 1px solid
+    ${({ $active, theme }) =>
+      $active ? theme.colors.neutral.border : 'transparent'};
+  transition:
+    background 0.14s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
   &:hover,
   &:focus-visible {
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.colors.surface[1]};
     outline: none;
   }
 `
@@ -465,33 +501,44 @@ const MobileNavItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => `${theme.spacing(1.2)} 0`};
+  padding: ${({ theme }) => `${theme.spacing(1)} 0`};
 `
 
 const DropdownToggle = styled.button`
   background: none;
-  border: none;
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
   cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary.base};
-  padding: 0 ${({ theme }) => theme.spacing(1)};
-  font-size: 1.1rem;
-  transition: color 0.19s;
+  color: ${({ theme }) => theme.colors.primary.main};
+  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
+  font-size: 1rem;
+  transition:
+    background 0.14s ease,
+    color 0.14s ease,
+    border-color 0.14s ease;
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.surface[1]};
+    outline: none;
+  }
 `
 
 const MobileSubNav = styled.div<{ $isOpen: boolean }>`
   overflow: hidden;
   transition:
     max-height 0.28s cubic-bezier(0.4, 0.2, 0.6, 1),
-    opacity 0.25s;
+    opacity 0.25s ease,
+    padding 0.2s ease;
   max-height: ${({ $isOpen }) => ($isOpen ? '320px' : '0')};
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};
-  margin-left: ${({ theme }) => theme.spacing(2)};
+  margin-left: ${({ theme }) => theme.spacing(1)};
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing(1)};
+  gap: ${({ theme }) => theme.spacing(0.75)};
   padding: ${({ $isOpen, theme }) => ($isOpen ? theme.spacing(1) : 0)};
-  background: ${({ theme }) => theme.colors.surface.cardAlpha};
+  background: ${({ theme }) => theme.colors.neutral.surface};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
 `
 

@@ -1,7 +1,8 @@
-// src/app/sitemap.ts
+// --- src/app/sitemap.ts ---
 import type { MetadataRoute } from 'next'
 import {
   getAllPostMeta,
+  getAllCaseMeta,
   categoriesFromMetas,
   postPath,
 } from '@/lib/blog/indexer'
@@ -18,36 +19,39 @@ const abs = (p: string) => {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const metas = getAllPostMeta()
+  const posts = getAllPostMeta()
+  const cases = getAllCaseMeta()
+  const metas = [...posts, ...cases]
   const cats = categoriesFromMetas()
 
-  const newest = metas
-    .map((m) => m.updated || m.date)
-    .filter(Boolean)
-    .sort()
-    .reverse()[0]
+  const newest =
+    metas
+      .map((m) => m.updated || m.date)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0] || new Date().toISOString()
 
   const baseEntries: MetadataRoute.Sitemap = [
-    { url: abs('/'), lastModified: newest ? new Date(newest) : new Date() },
-    {
-      url: abs('/blog'),
-      lastModified: newest ? new Date(newest) : new Date(),
-    },
+    { url: abs('/'), lastModified: new Date(newest) },
+    { url: abs('/blog'), lastModified: new Date(newest) },
+    { url: abs('/cases'), lastModified: new Date(newest) },
   ]
 
   const categoryEntries: MetadataRoute.Sitemap = cats.map((c) => {
-    const latest = metas.filter((m) => m.category === c)[0]
-    const lm = latest?.updated || latest?.date
-    return {
-      url: abs(`/blog/${c}`),
-      lastModified: lm ? new Date(lm) : new Date(),
-    }
+    const latest = posts.find((m) => m.category === c)
+    const lm = latest?.updated || latest?.date || newest
+    return { url: abs(`/blog/${c}`), lastModified: new Date(lm) }
   })
 
-  const postEntries: MetadataRoute.Sitemap = metas.map((m) => ({
+  const postEntries: MetadataRoute.Sitemap = posts.map((m) => ({
     url: abs(postPath(m)),
     lastModified: new Date(m.updated || m.date),
   }))
 
-  return [...baseEntries, ...categoryEntries, ...postEntries]
+  const caseEntries: MetadataRoute.Sitemap = cases.map((m) => ({
+    url: abs(postPath(m)),
+    lastModified: new Date(m.updated || m.date),
+  }))
+
+  return [...baseEntries, ...categoryEntries, ...postEntries, ...caseEntries]
 }

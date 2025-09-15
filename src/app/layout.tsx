@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import Providers from './providers'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import MeshGradientBackground from '@/components/meshedgradientbackground/MeshGradientBackground'
 import { SITE_URL } from '@/lib/blog/constants'
 
 export const metadata: Metadata = {
@@ -25,7 +24,6 @@ export default function RootLayout({
     <html lang="de">
       <body>
         <Providers>
-          {enableMesh ? <MeshGradientBackground /> : null}
           <Header navSections={[]} />
           <main style={{ paddingTop: '4.6rem' }}>{children}</main>
           <Footer />

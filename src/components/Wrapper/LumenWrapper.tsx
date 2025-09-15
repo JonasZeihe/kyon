@@ -1,4 +1,4 @@
-// src/components/Wrapper/LumenWrapper.tsx
+// --- src/components/Wrapper/LumenWrapper.tsx ---
 'use client'
 
 import { forwardRef, memo, ReactNode } from 'react'
@@ -26,29 +26,18 @@ type ContainerProps = {
 }
 
 const resolvePadding = ({ $padding }: ContainerProps) =>
-  $padding || 'clamp(1.1rem, 2vw, 2.2rem) clamp(1rem, 2.5vw, 1.7rem)'
+  $padding || 'clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.5vw, 1.6rem)'
 
-const resolveBackground = ({
-  theme,
-  $backgroundColor,
-  $variant,
-}: any & ContainerProps) => {
-  if ($variant === LUMEN_VARIANTS.none)
-    return theme.mode === 'dark'
-      ? 'rgba(26,28,32,0.97)'
-      : 'rgba(255,255,255,0.98)'
-  if ($backgroundColor) return $backgroundColor
-  const isDark = theme.mode === 'dark'
-  if ($variant === LUMEN_VARIANTS.subtle)
-    return isDark ? 'rgba(38,42,52,0.6)' : 'rgba(247,249,255,0.60)'
-  return isDark ? 'rgba(35,40,50,0.18)' : 'rgba(255,255,255,0.12)'
-}
-
-const resolveBoxShadow = ({ $variant }: ContainerProps) => {
-  if ($variant === LUMEN_VARIANTS.none) return 'none'
-  if ($variant === LUMEN_VARIANTS.subtle)
-    return '0 2px 12px rgba(60,70,110,0.10), 0 1.5px 9px rgba(120,130,170,0.06)'
-  return '0 2px 18px rgba(80,100,150,0.12), 0 8px 32px rgba(80,100,150,0.07)'
+const surfaceForVariant = (variant?: LumenVariant) => {
+  switch (variant) {
+    case 'none':
+      return 'none'
+    case 'intense':
+      return 'intense'
+    case 'subtle':
+    default:
+      return 'subtle'
+  }
 }
 
 const Container = styled.div<ContainerProps>`
@@ -57,18 +46,34 @@ const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: ${({ theme, $radius }) =>
-    theme.borderRadius?.[$radius || 'large'] || '1rem'};
+    (theme.borderRadius as any)?.[$radius || 'large'] || '1rem'};
   padding: ${resolvePadding};
-  background: ${resolveBackground};
-  box-shadow: ${resolveBoxShadow};
+  background: ${({ theme, $backgroundColor, $variant }) => {
+    if ($backgroundColor) return $backgroundColor
+    const mode = surfaceForVariant($variant)
+    if (mode === 'none') return theme.colors.neutral.background
+    return theme.colors.surface.card
+  }};
+  border: ${({ theme, $variant }) =>
+    surfaceForVariant($variant) === 'none'
+      ? 'none'
+      : `1px solid ${theme.colors.neutral.border}`};
+  box-shadow: ${({ theme, $variant }) => {
+    const mode = surfaceForVariant($variant)
+    if (mode === 'none') return 'none'
+    if (mode === 'intense') return theme.boxShadow.md
+    return theme.boxShadow.xs
+  }};
   will-change: transform, background, box-shadow;
   transition:
     background 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.1s ease;
+
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: clamp(1rem, 2.5vw, 1.4rem);
-    border-radius: ${({ theme }) => theme.borderRadius?.medium || '0.7rem'};
+    padding: clamp(0.9rem, 2.2vw, 1.3rem);
+    border-radius: ${({ theme }) =>
+      (theme.borderRadius as any)?.medium || '0.7rem'};
   }
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     padding: clamp(0.8rem, 2vw, 1rem);
@@ -95,7 +100,7 @@ const LumenWrapper = forwardRef<any, LumenWrapperProps>(
       radius = 'large',
       padding,
       backgroundColor,
-      variant = 'intense',
+      variant = 'subtle',
       role,
       ...rest
     },

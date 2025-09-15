@@ -1,0 +1,65 @@
+## // --- public/content/cases/over-9000-demo/index.mdx ---
+
+title: "Over 9000: Klarheit schlägt Schnickschnack"
+type: "case"
+summary: "Wie eine opake UI, starke Typo und klare IA den Lesefluss brutal verbessern – ohne ‘Glas’ und mit echter Markenstimme."
+cta:
+label: "Case lesen"
+href: "/cases/over-9000-demo"
+date: "2025-09-05"
+tags: ["ux", "designsystem", "nextjs", "strategie"]
+cover: "./hero.webp"
+
+---
+
+# Over 9000: Klarheit schlägt Schnickschnack
+
+<BadgeGrid
+  badges={[
+    { label: 'Case Study' },
+    { label: 'Design Tokens' },
+    { label: 'Next.js' },
+  ]}
+/>
+
+<MDXImage
+  src="./hero.webp"
+  alt="Opake UI mit klarer Typo"
+  title="Hero: opake Flächen, starke Typo"
+/>
+
+<Note title="Kontext">
+  Dieser Case zeigt, wie aus einem gläsernen, ablenkenden Layout eine schnelle,
+  fokussierte Leseoberfläche wurde: Tokens, starke Kontraste, klare IA. Keine
+  Spielerei – Wirkung.
+</Note>
+
+## Hebel
+
+<NumberedSummary>
+  <li>
+    <strong>Tokens</strong>: Farben, Radii, Shadows, Motion – an einer Stelle.
+  </li>
+  <li>
+    <strong>IA</strong>: Header schlank; Home · Blog · Cases · About · Search.
+  </li>
+  <li>
+    <strong>Content-Pipeline</strong>: MD &amp; MDX – Komponenten sind
+    first-class.
+  </li>
+</NumberedSummary>
+
+## Snippet
+
+<CodeBlock title="Design-Token: Primary" lang="ts">
+  {`export const primary = {
+  main: '#3068ff',
+  1: '#e6edff',
+  3: '#678cec',
+  5: '#1536a2'
+}`}
+</CodeBlock>
+
+<Button as="a" href="/cases/over-9000-demo" variant="primary">
+  Zum Case
+</Button>

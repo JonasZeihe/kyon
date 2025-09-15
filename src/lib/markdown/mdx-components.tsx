@@ -1,3 +1,6 @@
+// --- src/lib/markdown/mdx-components.tsx ---
+'use client'
+
 import React from 'react'
 import Link from 'next/link'
 import MDXImage from '@/components/media/MDXImage'
@@ -7,6 +10,7 @@ import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
 import CardWrapper from '@/components/Wrapper/CardWrapper'
 import MediaDisplay from '@/components/data-display/MediaDisplay'
+import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
 import Lightbox from '@/components/lightbox/Lightbox'
@@ -15,9 +19,18 @@ type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: React.ReactNode
 }
 
-const A: React.FC<AnchorProps> = (p) => {
-  const { href = '', children, ...rest } = p
+const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
   const c = children ?? href
+  if (href.startsWith('#')) {
+    const id = href.replace('#', '')
+    return (
+      <SmoothScroller targetId={id}>
+        <a href={href} {...rest}>
+          {c}
+        </a>
+      </SmoothScroller>
+    )
+  }
   return /^https?:\/\//i.test(href) ? (
     <a href={href} rel="noopener noreferrer nofollow" target="_blank" {...rest}>
       {c}
@@ -26,149 +39,104 @@ const A: React.FC<AnchorProps> = (p) => {
     <Link href={href}>{c}</Link>
   )
 }
-A.displayName = 'A'
 
-const H1: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h1 {...r}>{children ?? ''}</h1>
-}
-H1.displayName = 'H1'
-
-const H2: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h2 {...r}>{children ?? ''}</h2>
-}
-H2.displayName = 'H2'
-
-const H3: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h3 {...r}>{children ?? ''}</h3>
-}
-H3.displayName = 'H3'
-
-const H4: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h4 {...r}>{children ?? ''}</h4>
-}
-H4.displayName = 'H4'
-
-const H5: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h5 {...r}>{children ?? ''}</h5>
-}
-H5.displayName = 'H5'
-
-const H6: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = (p) => {
-  const { children, ...r } = p
-  return <h6 {...r}>{children ?? ''}</h6>
-}
-H6.displayName = 'H6'
-
-const P: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = (p) => {
-  const { children, ...r } = p
-  return <p {...r}>{children ?? ''}</p>
-}
-P.displayName = 'P'
-
-const UL: React.FC<React.HTMLAttributes<HTMLUListElement>> = (p) => {
-  const { children, ...r } = p
-  return <ul {...r}>{children}</ul>
-}
-UL.displayName = 'UL'
-
-const OL: React.FC<React.HTMLAttributes<HTMLOListElement>> = (p) => {
-  const { children, ...r } = p
-  return <ol {...r}>{children}</ol>
-}
-OL.displayName = 'OL'
-
-const LI: React.FC<React.LiHTMLAttributes<HTMLLIElement>> = (p) => {
-  const { children, ...r } = p
-  return <li {...r}>{children}</li>
-}
-LI.displayName = 'LI'
-
-const BQ: React.FC<React.BlockquoteHTMLAttributes<HTMLQuoteElement>> = (p) => {
-  const { children, ...r } = p
-  return <blockquote {...r}>{children}</blockquote>
-}
-BQ.displayName = 'Blockquote'
-
-const Code: React.FC<React.HTMLAttributes<HTMLElement>> = (p) => {
-  const { children, ...r } = p
-  return <code {...r}>{children}</code>
-}
-Code.displayName = 'Code'
-
-const Pre: React.FC<React.HTMLAttributes<HTMLPreElement>> = (p) => {
-  const { children, ...r } = p
-  return <pre {...r}>{children}</pre>
-}
-Pre.displayName = 'Pre'
-
-const T: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = (p) => {
-  const { children, ...r } = p
-  return <table {...r}>{children}</table>
-}
-T.displayName = 'Table'
-
-const Thead: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = (p) => {
-  const { children, ...r } = p
-  return <thead {...r}>{children}</thead>
-}
-Thead.displayName = 'Thead'
-
-const Tbody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = (p) => {
-  const { children, ...r } = p
-  return <tbody {...r}>{children}</tbody>
-}
-Tbody.displayName = 'Tbody'
-
-const Tr: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = (p) => {
-  const { children, ...r } = p
-  return <tr {...r}>{children}</tr>
-}
-Tr.displayName = 'Tr'
-
-const Th: React.FC<React.ThHTMLAttributes<HTMLTableHeaderCellElement>> = (
-  p
-) => {
-  const { children, ...r } = p
-  return <th {...r}>{children}</th>
-}
-Th.displayName = 'Th'
-
-const Td: React.FC<React.TdHTMLAttributes<HTMLTableDataCellElement>> = (p) => {
-  const { children, ...r } = p
-  return <td {...r}>{children}</td>
-}
-Td.displayName = 'Td'
+const H1: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h1 {...r}>{children ?? ''}</h1>
+const H2: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h2 {...r}>{children ?? ''}</h2>
+const H3: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h3 {...r}>{children ?? ''}</h3>
+const H4: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h4 {...r}>{children ?? ''}</h4>
+const H5: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h5 {...r}>{children ?? ''}</h5>
+const H6: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
+  children,
+  ...r
+}) => <h6 {...r}>{children ?? ''}</h6>
+const P: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({
+  children,
+  ...r
+}) => <p {...r}>{children ?? ''}</p>
+const UL: React.FC<React.HTMLAttributes<HTMLUListElement>> = ({
+  children,
+  ...r
+}) => <ul {...r}>{children}</ul>
+const OL: React.FC<React.HTMLAttributes<HTMLOListElement>> = ({
+  children,
+  ...r
+}) => <ol {...r}>{children}</ol>
+const LI: React.FC<React.LiHTMLAttributes<HTMLLIElement>> = ({
+  children,
+  ...r
+}) => <li {...r}>{children}</li>
+const BQ: React.FC<React.BlockquoteHTMLAttributes<HTMLQuoteElement>> = ({
+  children,
+  ...r
+}) => <blockquote {...r}>{children}</blockquote>
+const CodeInline: React.FC<React.HTMLAttributes<HTMLElement>> = ({
+  children,
+  ...r
+}) => <code {...r}>{children}</code>
+const Pre: React.FC<React.HTMLAttributes<HTMLPreElement>> = ({
+  children,
+  ...r
+}) => <pre {...r}>{children}</pre>
+const T: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
+  children,
+  ...r
+}) => <table {...r}>{children}</table>
+const Thead: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({
+  children,
+  ...r
+}) => <thead {...r}>{children}</thead>
+const Tbody: React.FC<React.HTMLAttributes<HTMLTableSectionElement>> = ({
+  children,
+  ...r
+}) => <tbody {...r}>{children}</tbody>
+const Tr: React.FC<React.HTMLAttributes<HTMLTableRowElement>> = ({
+  children,
+  ...r
+}) => <tr {...r}>{children}</tr>
+const Th: React.FC<React.ThHTMLAttributes<HTMLTableHeaderCellElement>> = ({
+  children,
+  ...r
+}) => <th {...r}>{children}</th>
+const Td: React.FC<React.TdHTMLAttributes<HTMLTableDataCellElement>> = ({
+  children,
+  ...r
+}) => <td {...r}>{children}</td>
 
 type CalloutProps = {
   type?: 'info' | 'note' | 'warning' | 'success' | 'tip'
   title?: string
   children?: React.ReactNode
 }
-
 const Callout: React.FC<CalloutProps> = ({
   type = 'info',
   title,
   children,
-}) => {
-  return (
-    <div className={`callout ${type}`}>
-      {title ? <div className="callout-title">{title}</div> : null}
-      <div className="callout-body">{children}</div>
-    </div>
-  )
-}
-
+}) => (
+  <div className={`callout ${type}`}>
+    {title ? <div className="callout-title">{title}</div> : null}
+    <div className="callout-body">{children}</div>
+  </div>
+)
 const Note: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="note" title={title}>
     {children}
   </Callout>
 )
-
 const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="warning" title={title}>
     {children}
@@ -178,24 +146,20 @@ const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
 type NumberedSummaryProps = React.OlHTMLAttributes<HTMLOListElement> & {
   children?: React.ReactNode
 }
-
 const NumberedSummary: React.FC<NumberedSummaryProps> = ({
   children,
   ...rest
-}) => {
-  return (
-    <ol className="numbered-summary" {...rest}>
-      {children}
-    </ol>
-  )
-}
+}) => (
+  <ol className="numbered-summary" {...rest}>
+    {children}
+  </ol>
+)
 
 type CodeBlockProps = {
   title?: string
   lang?: string
   children?: React.ReactNode
 }
-
 const CodeBlock: React.FC<CodeBlockProps> = ({ title, lang, children }) => {
   const language = lang ? lang.toLowerCase() : ''
   const content =
@@ -233,7 +197,7 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   ol: OL,
   li: LI,
   blockquote: BQ,
-  code: Code,
+  code: CodeInline,
   pre: Pre,
   table: T,
   thead: Thead,
@@ -251,9 +215,10 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   ButtonGrid,
   CardWrapper,
   MediaDisplay,
+  ListComponent,
   HighlightText,
-  SmoothScroller,
   Lightbox,
+  SmoothScroller,
   Callout,
   Note,
   Warning,
