@@ -1,4 +1,4 @@
-// src/app/blog/components/PostHeader.tsx
+// --- src/app/blog/components/PostHeader.tsx ---
 'use client'
 
 import styled from 'styled-components'
@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import type { PostMeta } from '@/lib/blog/types'
-import { toPublicAssetUrl } from '@/lib/blog/urls'
+import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
 type Props = { post: PostMeta }
 
@@ -98,7 +98,7 @@ const Hero = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.large};
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow.md};
-  background: ${({ theme }) => theme.gradients.hero};
+  background: ${({ theme }) => theme.colors.surface.card};
 `
 
 const HeroMedia = styled.div`
@@ -125,7 +125,7 @@ const HeroBar = styled.div`
   inset-inline: 0;
   bottom: 0;
   height: 8px;
-  background: ${({ theme }) => theme.gradients.backgroundPrimary};
+  background: ${({ theme }) => theme.gradients.rainbow};
   opacity: 0.9;
 `
 
@@ -133,7 +133,7 @@ const HeroPlaceholder = styled.div`
   width: 100%;
   aspect-ratio: 21 / 9;
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  background: ${({ theme }) => theme.gradients.backgroundSurface};
+  background: ${({ theme }) => theme.colors.surface.card};
   box-shadow: ${({ theme }) => theme.boxShadow.md};
 `
 
@@ -155,7 +155,7 @@ const Meta = styled.div`
   width: fit-content;
   border-radius: ${({ theme }) => theme.borderRadius.pill};
   background: ${({ theme }) => theme.colors.surface[1]};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   time {

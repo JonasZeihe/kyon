@@ -1,4 +1,6 @@
 // src/lib/blog/types.ts
+import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
+
 export type Category = string
 
 export type TOCItem = {
@@ -25,6 +27,9 @@ export type Frontmatter = {
   canonicalUrl?: string
   readingTime?: number
   ogImage?: string
+  type?: 'post' | 'case'
+  summary?: string
+  cta?: { label?: string; href?: string }
 }
 
 export type PostMeta = {
@@ -49,6 +54,7 @@ export type PostFull = {
   meta: PostMeta
   bodySource: string
   isMDX: boolean
+  bodyMdx?: MDXRemoteSerializeResult
   toc?: TOCItem[]
   raw?: string
   assets?: AssetRef[]

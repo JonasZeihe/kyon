@@ -2,7 +2,7 @@
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import { visit } from 'unist-util-visit'
-import { toPublicAssetUrl } from '../blog/urls'
+import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
 type Pipeline = {
   remarkPlugins: unknown[]

@@ -1,20 +1,16 @@
-// src/components/blog/ArticleTOC.tsx
+// --- src/components/blog/ArticleTOC.tsx ---
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 import type { TOCItem } from '@/lib/blog/types'
 
-type Props = {
-  items: TOCItem[]
-}
+type Props = { items: TOCItem[] }
 
 export default function ArticleTOC({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const ids = useMemo(
-    () => items.filter((i) => i.depth >= 2).map((i) => i.id),
-    [items]
-  )
+  const filtered = useMemo(() => items.filter((i) => i.depth >= 2), [items])
+  const ids = useMemo(() => filtered.map((i) => i.id), [filtered])
 
   useEffect(() => {
     if (!ids.length) return
@@ -54,15 +50,13 @@ export default function ArticleTOC({ items }: Props) {
     <Wrap role="navigation" aria-label="Inhaltsverzeichnis">
       <Header>Inhalt</Header>
       <List>
-        {items
-          .filter((i) => i.depth >= 2)
-          .map((i) => (
-            <Item key={i.id} $depth={i.depth} $active={activeId === i.id}>
-              <a href={`#${i.id}`} title={i.value}>
-                {i.value}
-              </a>
-            </Item>
-          ))}
+        {filtered.map((i) => (
+          <Item key={i.id} $depth={i.depth} $active={activeId === i.id}>
+            <a href={`#${i.id}`} title={i.value}>
+              {i.value}
+            </a>
+          </Item>
+        ))}
       </List>
     </Wrap>
   )
@@ -77,7 +71,8 @@ const Wrap = styled.aside`
   max-width: 320px;
   padding: ${({ theme }) => theme.spacing(1.2)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  background: ${({ theme }) => theme.colors.surface.cardAlpha};
+  background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
@@ -112,7 +107,7 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     opacity: ${({ $active }) => ($active ? 1 : 0.85)};
     border-left: 3px solid
       ${({ theme, $active }) =>
-        $active ? theme.colors.accent.main : theme.colors.surface[4]};
+        $active ? theme.colors.accent.main : theme.colors.neutral.border};
     background: ${({ theme, $active }) =>
       $active ? theme.colors.surface.hover : 'transparent'};
     font-weight: ${({ theme, $active }) =>

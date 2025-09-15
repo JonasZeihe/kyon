@@ -1,163 +1,135 @@
-// src/lib/blog/indexer.ts
-import fs from 'fs'
-import path from 'path'
+// --- src/lib/blog/indexer.ts ---
+import fs from 'node:fs'
+import path from 'node:path'
 import matter from 'gray-matter'
-import { ENABLE_DRAFTS, REGEX_DIR_PREFIX } from './constants'
-import { PostMeta } from './types'
-import { getContentRoot, listCategories, listPosts } from './fs'
+import type { Frontmatter, PostMeta } from './types'
 
-type Cache = { metas: PostMeta[]; mtime: number }
+const CONTENT_ROOT = path.join(process.cwd(), 'public', 'content')
 
-let cache: Cache | null = null
-
-const extractSlug = (dirName: string) =>
-  REGEX_DIR_PREFIX.test(dirName) ? dirName.slice(9) : dirName
-
-const parseDateFromDir = (dirName: string) => {
-  if (!REGEX_DIR_PREFIX.test(dirName)) return null
-  const y = dirName.slice(0, 4)
-  const m = dirName.slice(4, 6)
-  const d = dirName.slice(6, 8)
-  return `${y}-${m}-${d}`
-}
-
-const firstParagraph = (body: string) => {
-  const cleaned = body
-    .replace(/```[\s\S]*?```/g, '')
-    .replace(/^\s*#.+$/gm, '')
-    .trim()
-  const para =
-    cleaned.split(/\n{2,}/).find((p) => p && p.trim().length > 0) || ''
-  return para.replace(/\n/g, ' ').trim()
-}
-
-const deriveTitle = (title: unknown, body: string) => {
-  if (typeof title === 'string' && title.trim()) return title.trim()
-  const m = body.match(/^\s*#\s+(.+?)\s*$/m)
-  return m ? m[1].trim() : 'Untitled'
-}
-
-const estimateReadingTime = (text: string, fallback?: unknown) => {
-  if (typeof fallback === 'number' && fallback > 0) return Math.ceil(fallback)
-  const words = (text.match(/\b[\p{L}\p{N}’'-]+\b/gu) || []).length
-  return Math.max(1, Math.ceil(words / 220))
-}
-
-const buildMeta = (
-  category: string,
-  dirName: string,
-  indexPath: string
-): PostMeta | null => {
-  const raw = fs.readFileSync(indexPath, 'utf8')
-  const { data, content } = matter(raw)
-  const fm = data || {}
-  if (fm.draft && !ENABLE_DRAFTS) return null
-  const slug = extractSlug(dirName)
-  const date =
-    (typeof fm.date === 'string' && fm.date) ||
-    parseDateFromDir(dirName) ||
-    new Date().toISOString().slice(0, 10)
-  const title = deriveTitle(fm.title, content)
-  const excerpt =
-    (typeof fm.excerpt === 'string' && fm.excerpt.trim()) ||
-    firstParagraph(content)
-  const tags = Array.isArray(fm.tags)
-    ? fm.tags.filter((t) => typeof t === 'string')
-    : undefined
-  const cover = typeof fm.cover === 'string' ? fm.cover : undefined
-  const canonicalUrl =
-    typeof fm.canonicalUrl === 'string' ? fm.canonicalUrl : undefined
-  const readingTime = estimateReadingTime(content, fm.readingTime)
-  const assetBasePath = path.join(getContentRoot(), category, dirName)
-  return {
-    id: `${category}/${dirName}`,
-    category,
-    dirName,
-    slug,
-    date,
-    updated: typeof fm.updated === 'string' ? fm.updated : undefined,
-    title,
-    excerpt,
-    tags,
-    cover,
-    draft: Boolean(fm.draft),
-    canonicalUrl,
-    readingTime,
-    sourcePath: indexPath,
-    assetBasePath,
+const exists = (p: string) => {
+  try {
+    fs.accessSync(p, fs.constants.F_OK)
+    return true
+  } catch {
+    return false
   }
 }
+const readIf = (p: string) => (exists(p) ? fs.readFileSync(p, 'utf8') : '')
 
-const sortByFreshness = (a: PostMeta, b: PostMeta) => {
-  const ad = a.updated || a.date
-  const bd = b.updated || b.date
-  if (ad === bd) return a.title.localeCompare(b.title)
-  return ad > bd ? -1 : 1
+const toSlug = (dirName: string) =>
+  dirName
+    .trim()
+    .toLowerCase()
+    .replace(/^\d+[_-]?/, '')
+    .replace(/[^a-z0-9/_-]+/g, '-')
+    .replace(/-+/g, '-')
+
+const buildSourcePath = (base: string) => {
+  const mdx = path.join(base, 'index.mdx')
+  const md = path.join(base, 'index.md')
+  if (exists(mdx)) return { file: mdx, isMDX: true }
+  if (exists(md)) return { file: md, isMDX: false }
+  return null
 }
 
-const buildAllMetas = (): PostMeta[] => {
-  const result: PostMeta[] = []
-  for (const category of listCategories()) {
-    for (const entry of listPosts(category)) {
-      const meta = buildMeta(category, entry.dirName, entry.indexPath)
-      if (meta) result.push(meta)
+let CACHE: PostMeta[] | null = null
+
+const scanAll = (): PostMeta[] => {
+  if (CACHE) return CACHE
+
+  const categories = (
+    exists(CONTENT_ROOT)
+      ? fs
+          .readdirSync(CONTENT_ROOT, { withFileTypes: true })
+          .filter((d) => d.isDirectory())
+          .map((d) => d.name)
+      : []
+  ) as string[]
+
+  const items: PostMeta[] = []
+
+  for (const category of categories) {
+    const catDir = path.join(CONTENT_ROOT, category)
+    const entries = fs
+      .readdirSync(catDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+
+    for (const dirName of entries) {
+      const base = path.join(catDir, dirName)
+      const src = buildSourcePath(base)
+      if (!src) continue
+
+      const raw = readIf(src.file)
+      const fm = matter(raw).data as Frontmatter
+
+      const title =
+        fm?.title ||
+        dirName.replace(/[_-]/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase())
+
+      const date =
+        fm?.updated || fm?.date || new Date().toISOString().slice(0, 10)
+      const slug = toSlug(dirName)
+
+      const meta: PostMeta = {
+        id: `${category}/${dirName}`,
+        category,
+        dirName,
+        slug,
+        date,
+        updated: fm?.updated,
+        title,
+        excerpt: fm?.summary || fm?.excerpt,
+        tags: fm?.tags || [],
+        cover: fm?.cover,
+        draft: !!fm?.draft,
+        canonicalUrl: fm?.canonicalUrl,
+        readingTime: fm?.readingTime,
+        sourcePath: src.file,
+        assetBasePath: `/content/${category}/${dirName}`,
+      }
+
+      items.push(meta)
     }
   }
-  return result.sort(sortByFreshness)
-}
 
-export const clearIndexCache = () => {
-  cache = null
-}
+  items.sort((a, b) => {
+    const da = new Date(a.updated || a.date).getTime()
+    const db = new Date(b.updated || b.date).getTime()
+    return db - da
+  })
 
-const getCachedMetas = () => {
-  if (process.env.NODE_ENV === 'development') return buildAllMetas()
-  if (!cache) cache = { metas: buildAllMetas(), mtime: Date.now() }
-  return cache.metas
-}
-
-export const getAllPostMeta = (): PostMeta[] => getCachedMetas()
-
-export const getPostsByCategory = (category: string): PostMeta[] =>
-  getCachedMetas().filter((p) => p.category === category)
-
-export const getPostBySlug = (
-  category: string,
-  slug: string
-): PostMeta | undefined =>
-  getCachedMetas().find((p) => p.category === category && p.slug === slug)
-
-export const searchPosts = (opts: {
-  query?: string
-  tags?: string[]
-  from?: string
-  to?: string
-  category?: string
-}): PostMeta[] => {
-  let items = getCachedMetas()
-  if (opts.category) items = items.filter((p) => p.category === opts.category)
-  if (opts.from)
-    items = items.filter((p) => (p.updated || p.date) >= opts.from!)
-  if (opts.to) items = items.filter((p) => (p.updated || p.date) <= opts.to!)
-  if (opts.tags && opts.tags.length) {
-    const set = new Set(opts.tags.map((t) => t.toLowerCase()))
-    items = items.filter((p) =>
-      (p.tags || []).some((t) => set.has(t.toLowerCase()))
-    )
-  }
-  if (opts.query && opts.query.trim()) {
-    const q = opts.query.toLowerCase()
-    items = items.filter((p) => {
-      const hay = [p.title, p.excerpt || '', (p.tags || []).join(' ')]
-        .join(' ')
-        .toLowerCase()
-      return hay.includes(q)
-    })
-  }
+  CACHE = items
   return items
 }
 
-export const postPath = (meta: PostMeta) =>
-  `/blog/${meta.category}/${meta.slug}`
-export const categoriesFromMetas = () =>
-  Array.from(new Set(getCachedMetas().map((m) => m.category))).sort()
+export const getAllMeta = () => scanAll()
+
+export const getAllPostMeta = () =>
+  scanAll().filter((m) => m.category !== 'cases' && !m.draft)
+
+export const getAllCaseMeta = () =>
+  scanAll().filter((m) => m.category === 'cases' && !m.draft)
+
+export const getPostsByCategory = (category: string) =>
+  scanAll().filter(
+    (m) => m.category === category && category !== 'cases' && !m.draft
+  )
+
+export const getPostBySlug = (category: string, slug: string) =>
+  scanAll().find(
+    (m) => m.category === category && (m.slug === slug || m.dirName === slug)
+  )
+
+export const categoriesFromMetas = () => {
+  const s = new Set<string>()
+  for (const m of getAllPostMeta()) s.add(m.category)
+  return Array.from(s)
+}
+
+export const postPath = (m: PostMeta) =>
+  m.category === 'cases' ? `/cases/${m.slug}` : `/blog/${m.category}/${m.slug}`
+
+export const __resetIndexerCache = () => {
+  CACHE = null
+}

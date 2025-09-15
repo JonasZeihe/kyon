@@ -1,13 +1,16 @@
-// src/lib/markdown/mdx.ts
+// --- src/lib/markdown/mdx.ts ---
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
+import remarkFrontmatter from 'remark-frontmatter'
 import remarkRehype from 'remark-rehype'
 import rehypeSlug from 'rehype-slug'
+import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
+import rehypeRaw from 'rehype-raw'
 import { visit } from 'unist-util-visit'
 import { Frontmatter, TOCItem } from '../blog/types'
-import { toPublicAssetUrl } from '../blog/urls'
+import { toPublicAssetUrl } from '../content/helpers/paths'
 
 const slugify = (value: string) =>
   value
@@ -44,7 +47,6 @@ const estimateReadingTime = (text: string, fallback?: number) => {
   return Math.max(1, Math.ceil(words / 220))
 }
 
-// rewrites <img src="relative.webp"> to /content/<category>/<dirName>/relative.webp
 const rehypeRewriteAssetUrls =
   (assetBase?: { category: string; dirName: string }) => () => (tree: any) => {
     if (!assetBase) return
@@ -60,6 +62,39 @@ const rehypeRewriteAssetUrls =
           )
         }
       }
+      if (node.tagName === 'source' && node.properties?.srcset) {
+        const set = String(node.properties.srcset)
+        node.properties.srcset = set
+          .split(',')
+          .map((part) => {
+            const [u, d] = part.trim().split(/\s+/)
+            if (!u) return part
+            const isAbs = /^([a-z]+:)?\/\//i.test(u) || u.startsWith('/')
+            const url = isAbs
+              ? u
+              : toPublicAssetUrl(assetBase.category, assetBase.dirName, u)
+            return [url, d].filter(Boolean).join(' ')
+          })
+          .join(', ')
+      }
+      if (node.tagName === 'a' && node.properties?.href) {
+        const href = String(node.properties.href)
+        const isAbs =
+          /^https?:\/\//i.test(href) ||
+          href.startsWith('#') ||
+          href.startsWith('/')
+        if (!isAbs) {
+          node.properties.href = toPublicAssetUrl(
+            assetBase.category,
+            assetBase.dirName,
+            href
+          )
+        }
+        if (/^https?:\/\//i.test(String(node.properties.href))) {
+          node.properties.target = '_blank'
+          node.properties.rel = 'noopener noreferrer nofollow'
+        }
+      }
     })
   }
 
@@ -71,8 +106,11 @@ export const serializeMarkdown = (
   const processor = unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkRehype, { allowDangerousHtml: false })
+    .use(remarkFrontmatter, ['yaml', 'toml'])
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeRaw)
     .use(rehypeSlug)
+    .use(rehypeAutolinkHeadings, { behavior: 'append' })
     .use(rehypeRewriteAssetUrls(opts?.assetBase))
     .use(rehypeStringify)
 
