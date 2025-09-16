@@ -1,4 +1,4 @@
-// src/app/blog/[category]/[slug]/page.tsx
+// --- src/app/blog/[category]/[slug]/page.tsx ---
 import { notFound } from 'next/navigation'
 import { buildPostMetadata } from '@/lib/seo/metadata'
 import { getAllPostMeta, getPostBySlug } from '@/lib/blog/indexer'
@@ -7,7 +7,6 @@ import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
-import ReadingProgress from '@/components/blog/ReadingProgress'
 import fs from 'node:fs'
 import path from 'node:path'
 import {
@@ -15,6 +14,8 @@ import {
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -91,16 +92,19 @@ export default async function BlogPostPage({
 
   return (
     <main>
-      <ReadingProgress />
-      <div
-        style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1.25rem' }}
-      >
-        <Breadcrumbs items={crumbs} />
-      </div>
-      <article>
-        <PostHeader post={post.meta} />
-        <PostBody post={post as any} toc={toc} />
-      </article>
+      <ContainerWrapper>
+        <SectionWrapper>
+          <Breadcrumbs items={crumbs} />
+        </SectionWrapper>
+
+        <SectionWrapper $spacious>
+          <PostHeader post={post.meta} />
+        </SectionWrapper>
+
+        <SectionWrapper>
+          <PostBody post={post as any} toc={toc} />
+        </SectionWrapper>
+      </ContainerWrapper>
     </main>
   )
 }

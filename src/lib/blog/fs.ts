@@ -1,12 +1,8 @@
 // src/lib/blog/fs.ts
 import fs from 'fs'
 import path from 'path'
-import {
-  ASSET_EXTENSIONS,
-  CONTENT_DIR,
-  CONTENT_PUBLIC_BASE,
-  REGEX_DIR_PREFIX,
-} from './constants'
+import { ASSET_EXTENSIONS, CONTENT_DIR, REGEX_DIR_PREFIX } from './constants'
+
 export type PostDirEntry = {
   category: string
   dirName: string
@@ -14,6 +10,7 @@ export type PostDirEntry = {
   indexPath: string
   isMDX: boolean
 }
+
 const isDir = (p: string) => {
   try {
     return fs.statSync(p).isDirectory()
@@ -21,13 +18,16 @@ const isDir = (p: string) => {
     return false
   }
 }
+
 const exists = (p: string) => {
   try {
-    return (fs.accessSync(p, fs.constants.F_OK), true)
+    fs.accessSync(p, fs.constants.F_OK)
+    return true
   } catch {
     return false
   }
 }
+
 const readDir = (p: string) => {
   try {
     return fs.readdirSync(p)
@@ -35,6 +35,7 @@ const readDir = (p: string) => {
     return [] as string[]
   }
 }
+
 const hasIndex = (dir: string) => {
   const mdx = path.join(dir, 'index.mdx')
   const md = path.join(dir, 'index.md')
@@ -42,15 +43,19 @@ const hasIndex = (dir: string) => {
   if (exists(md)) return { path: md, isMDX: false }
   return null
 }
+
 const extractSlug = (dirName: string) =>
   REGEX_DIR_PREFIX.test(dirName) ? dirName.slice(9) : dirName
+
 export const getContentRoot = () => path.join(process.cwd(), CONTENT_DIR)
+
 export const listCategories = (): string[] =>
   readDir(getContentRoot())
     .map((name) => ({ name, full: path.join(getContentRoot(), name) }))
     .filter((e) => isDir(e.full))
     .map((e) => e.name)
     .sort()
+
 export const listPosts = (category: string): PostDirEntry[] => {
   const catDir = path.join(getContentRoot(), category)
   if (!isDir(catDir)) return []
@@ -72,10 +77,12 @@ export const listPosts = (category: string): PostDirEntry[] => {
     .sort((a, b) => a.dirName.localeCompare(b.dirName))
     .reverse()
 }
+
 export const readPostFiles = (category: string, dirName: string) => {
   const postDir = path.join(getContentRoot(), category, dirName)
   const idx = hasIndex(postDir)
   if (!idx) return null
+
   const body = fs.readFileSync(idx.path, 'utf8')
   const assets = readDir(postDir).filter((f) => {
     const ext = f.split('.').pop()?.toLowerCase() ?? ''
@@ -85,6 +92,7 @@ export const readPostFiles = (category: string, dirName: string) => {
       f !== 'index.mdx'
     )
   })
+
   return {
     indexPath: idx.path,
     isMDX: idx.isMDX,
@@ -92,14 +100,4 @@ export const readPostFiles = (category: string, dirName: string) => {
     assets,
     assetDirPath: postDir,
   }
-}
-export const toPublicAssetUrl = (
-  category: string,
-  dirName: string,
-  filename: string
-) => {
-  const parts = [CONTENT_PUBLIC_BASE, category, dirName, filename]
-    .filter(Boolean)
-    .map((s) => s.replace(/\\/g, '/').replace(/^\/+|\/+$/g, ''))
-  return '/' + parts.join('/')
 }

@@ -44,7 +44,7 @@ const PRIMARY_LINKS = [
   },
 ]
 
-const Header = ({ navSections = [] }: HeaderProps) => {
+export default function Header({ navSections = [] }: HeaderProps) {
   const pathname = usePathname() || '/'
   const isArticle = /^\/blog\/[^/]+\/[^/]+\/?$/.test(pathname)
   const headerRef = useRef<HTMLElement | null>(null)
@@ -541,5 +541,3 @@ const MobileSubNav = styled.div<{ $isOpen: boolean }>`
   border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
 `
-
-export default Header

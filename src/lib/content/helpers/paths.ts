@@ -18,13 +18,16 @@ export const toPublicAssetUrl = (
 ) => {
   const safeCategory = encodeURIComponent(category)
   const safeDir = encodeURIComponent(dirName)
-  const cleanFile = trimSlashes(file.replace(/^\.?\//, ''))
+  const cleanFile = trimSlashes(String(file || '').replace(/^\.?\//, ''))
   return abs(`/content/${safeCategory}/${safeDir}/${cleanFile}`)
 }
 
 export const extractSlug = (s: string) => {
   const name =
-    trimSlashes(s.replace(/\\/g, '/')).split('/').filter(Boolean).pop() || ''
+    trimSlashes(String(s || '').replace(/\\/g, '/'))
+      .split('/')
+      .filter(Boolean)
+      .pop() || ''
   return name
     .toLowerCase()
     .replace(/\s+/g, '-')
@@ -32,7 +35,7 @@ export const extractSlug = (s: string) => {
 }
 
 export const parseDateFromDir = (dirName: string) => {
-  const m = dirName.match(/^(\d{4})(\d{2})(\d{2})/)
+  const m = String(dirName || '').match(/^(\d{4})(\d{2})(\d{2})/)
   if (!m) return null
   const y = Number(m[1])
   const mo = Number(m[2]) - 1

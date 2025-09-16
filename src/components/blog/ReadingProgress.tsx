@@ -1,37 +1,57 @@
-// src/components/blog/ReadingProgress.tsx
+// --- src/components/blog/ReadingProgress.tsx ---
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
-const enabled =
-  typeof process !== 'undefined' &&
-  (process.env.NEXT_PUBLIC_FEATURE_READING_PROGRESS || '').toLowerCase() ===
-    'true'
+const flag =
+  typeof process !== 'undefined'
+    ? (process.env.NEXT_PUBLIC_FEATURE_READING_PROGRESS || '').toLowerCase()
+    : ''
+const enabledByEnv = flag === '' || flag === 'true'
 
 export default function ReadingProgress() {
   const pathname = usePathname()
-  const isArticle = /^\/blog\/[^/]+\/[^/]+$/.test(pathname || '')
+  const isArticle = /^\/blog\/[^/]+\/[^/]+\/?$/.test(pathname || '')
   const [progress, setProgress] = useState(0)
   const [visible, setVisible] = useState(false)
   const rafRef = useRef<number | null>(null)
   const mounted = useMemo(() => typeof window !== 'undefined', [])
 
   useEffect(() => {
-    if (!mounted || !enabled || !isArticle) return
+    if (!mounted || !enabledByEnv || !isArticle) return
 
     const prefersReduced =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
+    const getScrollTarget = () => {
+      const article =
+        document.querySelector('article') ||
+        document.querySelector('[data-article]') ||
+        document.querySelector('main') ||
+        document.body
+      return article as HTMLElement
+    }
+
     const update = () => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement
-      const total = Math.max(0, scrollHeight - clientHeight)
-      const current = Math.max(0, Math.min(scrollTop, total))
+      const el = getScrollTarget()
+      const doc = document.documentElement
+
+      const rect = el.getBoundingClientRect()
+      const topFromDoc = rect.top + (window.pageYOffset || doc.scrollTop || 0)
+
+      const viewportH = window.innerHeight || doc.clientHeight
+      const total = Math.max(0, el.scrollHeight - viewportH)
+      const current = Math.max(
+        0,
+        Math.min((window.pageYOffset || doc.scrollTop || 0) - topFromDoc, total)
+      )
+
       const pct = total > 0 ? (current / total) * 100 : 0
       setProgress(pct)
-      setVisible(total > 1200)
+      setVisible(el.scrollHeight > viewportH * 1.6)
       rafRef.current = null
     }
 
@@ -42,6 +62,8 @@ export default function ReadingProgress() {
 
     const onResize = () => update()
 
+    setProgress(0)
+    setVisible(false)
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize, { passive: true })
@@ -50,9 +72,9 @@ export default function ReadingProgress() {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
     }
-  }, [mounted, isArticle])
+  }, [mounted, isArticle, pathname])
 
-  if (!enabled || !visible || !isArticle) return null
+  if (!enabledByEnv || !visible || !isArticle) return null
 
   return (
     <div

@@ -1,3 +1,4 @@
+// src/components/blog/RelatedPosts.tsx
 'use client'
 
 import styled from 'styled-components'
@@ -45,23 +46,27 @@ export default function RelatedPosts({ posts }: Props) {
                         src={cover}
                         alt={m.title}
                         fill
-                        sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         style={{ objectFit: 'cover' }}
                         priority={false}
                       />
                     ) : (
-                      <ThumbFallback />
+                      <ThumbFallback aria-hidden="true" />
                     )}
                   </Link>
                 </ThumbWrap>
 
                 <Content>
-                  <Typography variant="h3" gutter={false}>
+                  <Title variant="h3" gutter={false}>
                     <Link href={href}>{m.title}</Link>
-                  </Typography>
+                  </Title>
 
                   <Meta>
-                    <span>{dateLabel}</span>
+                    <time
+                      dateTime={new Date(m.updated || m.date).toISOString()}
+                    >
+                      {dateLabel}
+                    </time>
                     {m.readingTime ? <span>· {m.readingTime} min</span> : null}
                   </Meta>
                 </Content>
@@ -113,10 +118,21 @@ const Content = styled.div`
   padding: ${({ theme }) => theme.spacing(2)};
 `
 
+const Title = styled(Typography)`
+  a {
+    text-decoration: none;
+  }
+  a:hover,
+  a:focus-visible {
+    text-decoration: underline;
+  }
+`
+
 const Meta = styled.div`
-  opacity: 0.8;
-  font-size: ${({ theme }) => theme.typography.fontSize.small};
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+  opacity: 0.75;
 `

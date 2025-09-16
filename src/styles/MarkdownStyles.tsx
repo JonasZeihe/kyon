@@ -60,11 +60,21 @@ export const MarkdownStyles = styled.div`
     margin: 0.9rem 0 0.9rem 1.25rem;
     padding: 0;
   }
+  ul {
+    list-style: disc;
+  }
+  ol {
+    list-style: decimal;
+  }
   li {
     margin: 0.33rem 0;
   }
-  li > ul,
+  li > ul {
+    list-style: circle;
+    margin-top: 0.33rem;
+  }
   li > ol {
+    list-style: lower-alpha;
     margin-top: 0.33rem;
   }
 

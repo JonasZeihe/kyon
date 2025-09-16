@@ -1,10 +1,10 @@
 // --- src/app/blog/components/PostBody.tsx ---
+import React from 'react'
+import matter from 'gray-matter'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
 import type { PostFull, TOCItem } from '@/lib/blog/types'
 import ArticleTOC from '@/components/blog/ArticleTOC'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-import matter from 'gray-matter'
-import React from 'react'
 
 import MDXImageCmp from '@/components/media/MDXImage'
 import Badge from '@/components/badge/Badge'
@@ -20,12 +20,15 @@ import Lightbox from '@/components/lightbox/Lightbox'
 
 type Props = { post: PostFull; toc?: TOCItem[] }
 
-type CalloutProps = {
+function Callout({
+  type = 'info',
+  title,
+  children,
+}: {
   type?: 'info' | 'note' | 'warning' | 'success' | 'tip'
   title?: string
   children?: React.ReactNode
-}
-function Callout({ type = 'info', title, children }: CalloutProps) {
+}) {
   return (
     <div className={`callout ${type}`}>
       {title ? <div className="callout-title">{title}</div> : null}
@@ -33,12 +36,24 @@ function Callout({ type = 'info', title, children }: CalloutProps) {
     </div>
   )
 }
-const Note = ({ title, children }: Omit<CalloutProps, 'type'>) => (
+const Note = ({
+  title,
+  children,
+}: {
+  title?: string
+  children?: React.ReactNode
+}) => (
   <Callout type="note" title={title}>
     {children}
   </Callout>
 )
-const Warning = ({ title, children }: Omit<CalloutProps, 'type'>) => (
+const Warning = ({
+  title,
+  children,
+}: {
+  title?: string
+  children?: React.ReactNode
+}) => (
   <Callout type="warning" title={title}>
     {children}
   </Callout>
@@ -123,7 +138,11 @@ export default function PostBody({ post, toc }: Props) {
     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
       <div style={{ order: 1 }}>
         <MarkdownStyles as="div">
-          <MDXRemote source={content} components={components as any} />
+          {post.isMDX ? (
+            <MDXRemote source={content} components={components as any} />
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: post.bodySource || '' }} />
+          )}
         </MarkdownStyles>
       </div>
       {!!items.length && (

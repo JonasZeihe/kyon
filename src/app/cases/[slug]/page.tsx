@@ -1,8 +1,14 @@
+// src/app/cases/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import fs from 'node:fs'
 import path from 'node:path'
 import { getAllCaseMeta } from '@/lib/blog/indexer'
-import { renderToHTML, compileToMdx } from '@/lib/content/pipeline'
+import {
+  renderToHTML,
+  compileToMdx,
+  type TOCItem as PipelineTOCItem,
+} from '@/lib/content/pipeline'
+import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
@@ -39,7 +45,7 @@ export default async function CasePage({
       })
       return {
         meta,
-        isMDX: true,
+        isMDX: true as const,
         raw,
         bodyMdx: { code: mdx.code },
         toc: mdx.toc,
@@ -52,13 +58,19 @@ export default async function CasePage({
     })
     return {
       meta,
-      isMDX: false,
+      isMDX: false as const,
       raw,
       bodySource: html.html,
       toc: html.toc,
       readingTime: html.readingTime,
     }
   })()
+
+  const toc: BlogTOCItem[] = (post.toc || []).map((t: PipelineTOCItem) => ({
+    id: t.id,
+    depth: t.depth,
+    value: t.text,
+  }))
 
   const crumbs = [
     { href: '/cases', label: 'Cases' },
@@ -75,7 +87,7 @@ export default async function CasePage({
 
       <article>
         <PostHeader post={post.meta} />
-        <PostBody post={post as any} toc={post.toc as any} />
+        <PostBody post={post as any} toc={toc} />
       </article>
 
       <SectionWrapper>

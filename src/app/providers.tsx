@@ -1,15 +1,15 @@
-// src/app/providers.tsx
+// --- src/app/providers.tsx ---
 'use client'
 
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
+import { MDXProvider } from '@mdx-js/react'
 import { ThemeContextProvider } from '@/components/context/ThemeContext'
-import GlobalStyles from '@/styles/GlobalStyles'
+import { getMDXComponents } from '@/lib/markdown/mdx-components'
 
 export default function Providers({ children }: { children: ReactNode }) {
   return (
     <ThemeContextProvider>
-      <GlobalStyles />
-      {children}
+      <MDXProvider components={getMDXComponents()}>{children}</MDXProvider>
     </ThemeContextProvider>
   )
 }

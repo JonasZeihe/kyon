@@ -1,34 +1,38 @@
 // --- src/app/(site)/layout.tsx ---
+'use client'
+
 import type { ReactNode } from 'react'
+import styled from 'styled-components'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import styled from 'styled-components'
+import { usePathname } from 'next/navigation'
+import ReadingProgress from '@/components/blog/ReadingProgress'
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
+  const pathname = usePathname() || '/'
+  const isArticle = /^\/blog\/[^/]+\/[^/]+\/?$/.test(pathname)
+
   return (
-    <html lang="de">
-      <body>
-        <HeaderWrapper>
-          <Header />
-        </HeaderWrapper>
-        <Main>{children}</Main>
-        <Footer />
-      </body>
-    </html>
+    <Shell>
+      <Header />
+      {isArticle ? <ReadingProgress /> : null}
+      <Main role="main">{children}</Main>
+      <Footer />
+    </Shell>
   )
 }
 
-const HeaderWrapper = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: ${({ theme }) => theme.colors.neutral.surface};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+const Shell = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: ${({ theme }) => theme.colors.neutral.background};
 `
 
 const Main = styled.main`
+  flex: 1 1 auto;
   width: 100%;
-  min-height: 100vh;
-  background: ${({ theme }) => theme.colors.neutral.background};
+  max-width: 100vw;
+  min-width: 0;
+  padding-top: 4.6rem;
 `

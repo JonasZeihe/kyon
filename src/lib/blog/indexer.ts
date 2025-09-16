@@ -14,15 +14,33 @@ const exists = (p: string) => {
     return false
   }
 }
+
 const readIf = (p: string) => (exists(p) ? fs.readFileSync(p, 'utf8') : '')
 
+const listDirs = (dir: string) => {
+  try {
+    return fs
+      .readdirSync(dir, { withFileTypes: true })
+      .filter((d) => d.isDirectory())
+      .map((d) => d.name)
+  } catch {
+    return [] as string[]
+  }
+}
+
+const removeDiacritics = (s: string) =>
+  s.normalize('NFKD').replace(/\p{Diacritic}+/gu, '')
+
 const toSlug = (dirName: string) =>
-  dirName
-    .trim()
-    .toLowerCase()
-    .replace(/^\d+[_-]?/, '')
-    .replace(/[^a-z0-9/_-]+/g, '-')
-    .replace(/-+/g, '-')
+  removeDiacritics(
+    dirName
+      .trim()
+      .toLowerCase()
+      .replace(/^\d+[_-]?/, '')
+      .replace(/[^a-z0-9/_-]+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/\/+/g, '/')
+  ).replace(/(^-|-$)/g, '')
 
 const buildSourcePath = (base: string) => {
   const mdx = path.join(base, 'index.mdx')
@@ -32,28 +50,27 @@ const buildSourcePath = (base: string) => {
   return null
 }
 
+const parseDatePrefix = (dirName: string) => {
+  const m = dirName.match(/^(\d{4})(\d{2})(\d{2})/)
+  if (!m) return null
+  const y = Number(m[1])
+  const mo = Number(m[2]) - 1
+  const d = Number(m[3])
+  const dt = new Date(Date.UTC(y, mo, d))
+  return isNaN(dt.getTime()) ? null : dt.toISOString().slice(0, 10)
+}
+
 let CACHE: PostMeta[] | null = null
 
 const scanAll = (): PostMeta[] => {
   if (CACHE) return CACHE
 
-  const categories = (
-    exists(CONTENT_ROOT)
-      ? fs
-          .readdirSync(CONTENT_ROOT, { withFileTypes: true })
-          .filter((d) => d.isDirectory())
-          .map((d) => d.name)
-      : []
-  ) as string[]
-
+  const categories = listDirs(CONTENT_ROOT)
   const items: PostMeta[] = []
 
   for (const category of categories) {
     const catDir = path.join(CONTENT_ROOT, category)
-    const entries = fs
-      .readdirSync(catDir, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name)
+    const entries = listDirs(catDir)
 
     for (const dirName of entries) {
       const base = path.join(catDir, dirName)
@@ -67,8 +84,12 @@ const scanAll = (): PostMeta[] => {
         fm?.title ||
         dirName.replace(/[_-]/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase())
 
+      const datedFromDir = parseDatePrefix(dirName)
       const date =
-        fm?.updated || fm?.date || new Date().toISOString().slice(0, 10)
+        fm?.updated ||
+        fm?.date ||
+        datedFromDir ||
+        new Date().toISOString().slice(0, 10)
       const slug = toSlug(dirName)
 
       const meta: PostMeta = {

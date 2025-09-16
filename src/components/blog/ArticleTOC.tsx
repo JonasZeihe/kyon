@@ -7,9 +7,14 @@ import type { TOCItem } from '@/lib/blog/types'
 
 type Props = { items: TOCItem[] }
 
+const HEADER_OFFSET_PX = 88
+
 export default function ArticleTOC({ items }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
-  const filtered = useMemo(() => items.filter((i) => i.depth >= 2), [items])
+  const filtered = useMemo(
+    () => items.filter((i) => i.depth === 2 || i.depth === 3),
+    [items]
+  )
   const ids = useMemo(() => filtered.map((i) => i.id), [filtered])
 
   useEffect(() => {
@@ -17,29 +22,33 @@ export default function ArticleTOC({ items }: Props) {
     const hs = ids
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[]
+
     hs.forEach((h) => {
-      h.style.scrollMarginTop = '96px'
-      h.setAttribute('tabindex', '-1')
+      h.style.scrollMarginTop = `${HEADER_OFFSET_PX}px`
+      if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1')
     })
+
     const obs = new IntersectionObserver(
       (entries) => {
         const visible = entries
           .filter((e) => e.isIntersecting)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        if (visible[0]?.target?.id) setActiveId(visible[0].target.id)
-        else {
-          const past = entries
-            .filter((e) => e.boundingClientRect.top < 0)
-            .sort((a, b) => b.boundingClientRect.top - a.boundingClientRect.top)
-          if (past[0]?.target?.id) setActiveId(past[0].target.id)
+        if (visible[0]?.target?.id) {
+          setActiveId(visible[0].target.id)
+          return
         }
+        const past = entries
+          .filter((e) => e.boundingClientRect.top < 0)
+          .sort((a, b) => b.boundingClientRect.top - a.boundingClientRect.top)
+        if (past[0]?.target?.id) setActiveId(past[0].target.id)
       },
       {
         root: null,
-        rootMargin: '0px 0px -60% 0px',
+        rootMargin: `-${HEADER_OFFSET_PX}px 0px -60% 0px`,
         threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
       }
     )
+
     hs.forEach((h) => obs.observe(h))
     return () => obs.disconnect()
   }, [ids])
@@ -64,7 +73,7 @@ export default function ArticleTOC({ items }: Props) {
 
 const Wrap = styled.aside`
   position: sticky;
-  top: 88px;
+  top: ${HEADER_OFFSET_PX}px;
   align-self: start;
   display: none;
   min-width: 240px;

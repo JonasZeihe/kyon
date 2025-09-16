@@ -1,4 +1,4 @@
-// src/app/layout.tsx
+// --- src/app/layout.tsx ---
 import type { Metadata } from 'next'
 import Providers from './providers'
 import Header from '@/components/layout/Header'
@@ -16,10 +16,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const enableMesh =
-    (process.env.NEXT_PUBLIC_FEATURE_MESH_BG ?? 'true').toLowerCase() !==
-    'false'
-
   return (
     <html lang="de">
       <body>

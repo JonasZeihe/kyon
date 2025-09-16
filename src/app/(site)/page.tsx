@@ -1,106 +1,168 @@
 // --- src/app/(site)/page.tsx ---
-import Image from 'next/image'
 import Link from 'next/link'
-import Typography from '@/styles/Typography'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import PostList from '@/app/blog/components/PostList'
+import Image from 'next/image'
+import styled from 'styled-components'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import BentoSection from '@/components/Wrapper/BentoSection'
+import AutoGrid from '@/components/Wrapper/AutoGrid'
+import CardWrapper from '@/components/Wrapper/CardWrapper'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
-import styled from 'styled-components'
+import Typography from '@/styles/Typography'
 
 export const dynamic = 'force-static'
 
 export default function HomePage() {
-  const all = getAllPostMeta()
-  const items = all.slice(0, POSTS_PER_PAGE)
+  const all = getAllPostMeta().filter((p) => !p.draft)
+  const latest = all.slice(0, POSTS_PER_PAGE)
+
+  const tagCounts = new Map<string, number>()
+  for (const m of all) {
+    for (const t of m.tags || []) tagCounts.set(t, (tagCounts.get(t) || 0) + 1)
+  }
+  const topTags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 16)
+    .map(([tag]) => tag)
 
   return (
     <>
-      <HeroSection>
-        <HeroContent>
-          <div>
-            <Typography variant="h1" align="left" color="text.main">
-              Prozess statt Pose.
-            </Typography>
-            <Typography variant="subhead" align="left" color="text.subtle">
-              Natürlichkeit vor Methode. Ein technischer Blog mit Haltung –
-              klar, opak, präzise.
-            </Typography>
-            <HeroActions>
-              <HeroLink href="/blog" $primary>
+      <ContainerWrapper $size="wide" $padY>
+        <BentoSection
+          title={
+            <GradientTitle>
+              Prozess statt Pose <span>·</span> Natürlichkeit vor Methode
+            </GradientTitle>
+          }
+          subtitle={
+            <Subtitle>
+              Ein technischer Blog mit Haltung – klar, präzise, praxisnah.
+            </Subtitle>
+          }
+          cta={
+            <CTAGroup>
+              <CTA href="/blog" data-variant="primary">
                 Neueste Beiträge
-              </HeroLink>
-              <HeroLink href="/about">Purpose & About</HeroLink>
-            </HeroActions>
-          </div>
-          <HeroImageWrapper>
+              </CTA>
+              <CTA href="/about">Purpose & About</CTA>
+            </CTAGroup>
+          }
+          min="20rem"
+          gap={2}
+          columns={1}
+          padY
+          wide
+        >
+          <HeroVisual>
             <Image
-              src="/assets/hero/home-hero.webp"
-              alt="Kyon – klares, farbstarkes Layout"
+              src="/og-default.png"
+              alt="Kyon – klare, ruhige Oberfläche"
               fill
-              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 600px"
-              priority
+              sizes="(max-width: 768px) 100vw, 960px"
               style={{ objectFit: 'cover' }}
+              priority
             />
-          </HeroImageWrapper>
-        </HeroContent>
-      </HeroSection>
+          </HeroVisual>
+        </BentoSection>
+      </ContainerWrapper>
 
-      <SectionWrapper>
-        <Typography variant="h2" align="left" color="text.main">
-          Neueste Beiträge
-        </Typography>
-        {items.length === 0 ? (
-          <Typography>Keine Beiträge gefunden.</Typography>
-        ) : (
-          <PostList posts={items} />
-        )}
-      </SectionWrapper>
+      <ContainerWrapper $size="default" $padY>
+        <BentoSection
+          title="Neu & lesenswert"
+          subtitle="Frisch aus dem Prozess – Auswahl der neuesten Artikel."
+          cta={<CTA href="/blog">Alle Beiträge →</CTA>}
+          min="20rem"
+          gap={2}
+          columns="auto"
+        >
+          {latest.length === 0 ? (
+            <EmptyHint>Keine Beiträge gefunden.</EmptyHint>
+          ) : (
+            latest.map((p) => (
+              <PostCard key={p.id} href={`/blog/${p.category}/${p.slug}`}>
+                <CardInner>
+                  <MetaRow>
+                    <Meta>{p.category}</Meta>
+                    <Meta>{p.updated || p.date}</Meta>
+                  </MetaRow>
+                  <Title>{p.title}</Title>
+                  {p.excerpt ? <Excerpt>{p.excerpt}</Excerpt> : null}
+                </CardInner>
+              </PostCard>
+            ))
+          )}
+        </BentoSection>
+      </ContainerWrapper>
+
+      <ContainerWrapper $size="default" $padY>
+        <BentoSection
+          title="Themen"
+          subtitle="Worüber hier gesprochen wird."
+          min="12rem"
+          gap={1.5}
+          columns="auto"
+        >
+          <AutoGrid $min="10rem" $gap={1.2} $columns="auto">
+            {topTags.length === 0 ? (
+              <EmptyHint>Keine Tags vorhanden.</EmptyHint>
+            ) : (
+              topTags.map((t) => (
+                <TagLink key={t} href={`/tags/${encodeURIComponent(t)}`}>
+                  #{t}
+                </TagLink>
+              ))
+            )}
+          </AutoGrid>
+        </BentoSection>
+      </ContainerWrapper>
     </>
   )
 }
 
-const HeroSection = styled(SectionWrapper)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const HeroContent = styled.div`
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: ${({ theme }) => theme.spacing(3)};
-  align-items: center;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: 1fr;
+const GradientTitle = styled.h1`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.h1};
+  line-height: ${({ theme }) => theme.typography.lineHeight.tight};
+  letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
+  background: ${({ theme }) => theme.gradients.rainbow};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  span {
+    opacity: 0.4;
   }
 `
 
-const HeroActions = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing(1.5)};
-  margin-top: ${({ theme }) => theme.spacing(2)};
+const Subtitle = styled.p`
+  margin: 0.25rem 0 0 0;
+  color: ${({ theme }) => theme.colors.text.subtle};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
 `
 
-const HeroLink = styled(Link)<{ $primary?: boolean }>`
-  display: inline-block;
-  padding: 0.7rem 1rem;
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  text-decoration: none;
-  box-shadow: ${({ theme, $primary }) =>
-    $primary ? theme.boxShadow.sm : 'none'};
-  background: ${({ theme, $primary }) =>
-    $primary
-      ? `linear-gradient(115deg, ${theme.colors.primary.main}, ${theme.colors.accent.main})`
-      : theme.colors.surface.card};
-  color: ${({ theme, $primary }) =>
-    $primary ? theme.colors.text.inverse : theme.colors.text.main};
-  border: ${({ theme, $primary }) =>
-    $primary ? 'none' : `1px solid ${theme.colors.neutral.border}`};
-  transition: all 0.22s ease;
+const CTAGroup = styled.div`
+  display: inline-flex;
+  gap: ${({ theme }) => theme.spacing(1)};
+  align-items: center;
+  justify-content: flex-end;
+`
 
+const CTA = styled(Link)`
+  display: inline-block;
+  padding: 0.65rem 0.95rem;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  text-decoration: none;
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.colors.surface.card};
+  color: ${({ theme }) => theme.colors.text.main};
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+  &[data-variant='primary'] {
+    border: none;
+    background: ${({ theme }) => theme.gradients.primary};
+    color: ${({ theme }) => theme.colors.text.inverse};
+    box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  }
   &:hover,
   &:focus-visible {
     transform: translateY(-1px);
@@ -109,12 +171,79 @@ const HeroLink = styled(Link)<{ $primary?: boolean }>`
   }
 `
 
-const HeroImageWrapper = styled.div`
+const HeroVisual = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   border-radius: ${({ theme }) => theme.borderRadius.large};
   overflow: hidden;
-  box-shadow: ${({ theme }) => theme.boxShadow.lg};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface[2]};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+`
+
+const PostCard = styled(CardWrapper).attrs({ as: Link })`
+  text-decoration: none;
+  color: inherit;
+  min-height: 10rem;
+`
+
+const CardInner = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1)};
+  padding: ${({ theme }) => theme.spacing(1.25)};
+`
+
+const MetaRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing(1)};
+  opacity: 0.8;
+`
+
+const Meta = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+`
+
+const Title = styled.h3`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.h3};
+  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
+  color: ${({ theme }) => theme.colors.text.main};
+`
+
+const Excerpt = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.main};
+  opacity: 0.95;
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
+`
+
+const TagLink = styled(Link)`
+  display: inline-block;
+  width: 100%;
+  text-decoration: none;
+  padding: 0.55rem 0.75rem;
+  text-align: center;
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  background: ${({ theme }) => theme.colors.surface[1]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  color: ${({ theme }) => theme.colors.text.main};
+  transition:
+    background 0.15s ease,
+    transform 0.12s ease,
+    box-shadow 0.18s ease;
+  &:hover,
+  &:focus-visible {
+    background: ${({ theme }) => theme.colors.surface.hover};
+    box-shadow: ${({ theme }) => theme.boxShadow.xs};
+    transform: translateY(-1px);
+    outline: none;
+  }
+`
+
+const EmptyHint = styled(Typography)`
+  opacity: 0.8;
+  text-align: center;
 `

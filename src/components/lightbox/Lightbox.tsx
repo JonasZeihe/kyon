@@ -1,6 +1,7 @@
+// --- src/components/lightbox/Lightbox.tsx ---
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
@@ -47,8 +48,8 @@ const CloseButton = styled.button`
   position: fixed;
   top: 20px;
   right: 20px;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   font-size: 1.3rem;
   display: flex;
@@ -57,14 +58,13 @@ const CloseButton = styled.button`
   border: none;
   cursor: pointer;
   z-index: 14100;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   transition:
-    background 0.3s,
-    transform 0.3s;
-
+    background 0.2s ease,
+    transform 0.2s ease;
   &:hover {
-    background: #e74c3c;
-    transform: scale(1.1);
+    background: rgba(231, 76, 60, 0.95);
+    transform: scale(1.05);
   }
 `
 
@@ -74,8 +74,8 @@ const NavButton = styled.button<{ $direction: 'left' | 'right' }>`
   ${({ $direction }) =>
     $direction === 'left' ? 'left: 20px;' : 'right: 20px;'}
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   font-size: 1.3rem;
   display: flex;
@@ -85,13 +85,13 @@ const NavButton = styled.button<{ $direction: 'left' | 'right' }>`
   cursor: pointer;
   z-index: 14100;
   background: rgba(0, 0, 0, 0.6);
+  color: #fff;
   transition:
-    background 0.3s,
-    transform 0.3s;
-
+    background 0.2s ease,
+    transform 0.2s ease;
   &:hover {
     background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
 `
 
@@ -103,6 +103,9 @@ export default function Lightbox({
   const [activeIndex, setActiveIndex] = useState(currentIndex)
   const isCarousel = media.length > 1
   const mounted = useMemo(() => typeof document !== 'undefined', [])
+  const overlayRef = useRef<HTMLDivElement | null>(null)
+  const closeRef = useRef<HTMLButtonElement | null>(null)
+  const restoreFocusRef = useRef<HTMLElement | null>(null)
 
   const navigate = useCallback(
     (direction: -1 | 1) =>
@@ -110,23 +113,59 @@ export default function Lightbox({
     [media.length]
   )
 
+  const trapTabKey = useCallback((e: KeyboardEvent) => {
+    if (e.key !== 'Tab') return
+    const root = overlayRef.current
+    if (!root) return
+    const focusables = Array.from(
+      root.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+    ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
+    if (focusables.length === 0) return
+    const first = focusables[0]
+    const last = focusables[focusables.length - 1]
+    const active = document.activeElement as HTMLElement | null
+    if (e.shiftKey) {
+      if (active === first || !root.contains(active)) {
+        last.focus()
+        e.preventDefault()
+      }
+    } else {
+      if (active === last) {
+        first.focus()
+        e.preventDefault()
+      }
+    }
+  }, [])
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
       if (e.key === 'ArrowLeft' && isCarousel) navigate(-1)
       if (e.key === 'ArrowRight' && isCarousel) navigate(1)
+      if (e.key === 'Tab') trapTabKey(e)
     },
-    [onClose, isCarousel, navigate]
+    [onClose, isCarousel, navigate, trapTabKey]
   )
 
   useEffect(() => {
     if (!mounted) return
+    restoreFocusRef.current = document.activeElement as HTMLElement | null
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     window.addEventListener('keydown', handleKeyDown)
+    const timer = setTimeout(() => closeRef.current?.focus(), 0)
+    const preventTouchScroll = (e: TouchEvent) => e.preventDefault()
+    document.addEventListener('touchmove', preventTouchScroll, {
+      passive: false,
+    })
     return () => {
+      clearTimeout(timer)
       document.body.style.overflow = prevOverflow
       window.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('touchmove', preventTouchScroll)
+      restoreFocusRef.current?.focus?.()
     }
   }, [mounted, handleKeyDown])
 
@@ -135,13 +174,31 @@ export default function Lightbox({
     onSwipedRight: () => isCarousel && navigate(-1),
     trackMouse: true,
   })
+  const { ref: swipeRef, ...swipeProps } = swipeHandlers as unknown as {
+    ref: (el: HTMLElement | null) => void
+  } & React.HTMLAttributes<HTMLElement>
+
+  const setOverlayRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      overlayRef.current = node
+      if (typeof swipeRef === 'function') swipeRef(node)
+    },
+    [swipeRef]
+  )
 
   if (!mounted) return null
 
   const { type, src, alt } = media[activeIndex]
 
   return ReactDOM.createPortal(
-    <Overlay onClick={onClose} {...swipeHandlers}>
+    <Overlay
+      ref={setOverlayRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Media viewer"
+      onClick={onClose}
+      {...swipeProps}
+    >
       <ImageContainer onClick={(e) => e.stopPropagation()}>
         {type === 'image' ? (
           <Navigation src={src} alt={alt} onClose={onClose} />
@@ -154,22 +211,30 @@ export default function Lightbox({
           />
         )}
       </ImageContainer>
-      <CloseButton onClick={onClose} aria-label="Close">
+
+      <CloseButton ref={closeRef} onClick={onClose} aria-label="Close dialog">
         <FaTimes size={20} />
       </CloseButton>
+
       {isCarousel && (
         <>
           <NavButton
             $direction="left"
-            onClick={() => navigate(-1)}
-            aria-label="Previous"
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(-1)
+            }}
+            aria-label="Previous media"
           >
             <FaChevronLeft size={20} />
           </NavButton>
           <NavButton
             $direction="right"
-            onClick={() => navigate(1)}
-            aria-label="Next"
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(1)
+            }}
+            aria-label="Next media"
           >
             <FaChevronRight size={20} />
           </NavButton>
