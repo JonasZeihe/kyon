@@ -1,3 +1,4 @@
+// --- src/components/data-display/MediaDisplay.tsx ---
 'use client'
 
 import React, { useMemo, useState } from 'react'
@@ -5,13 +6,7 @@ import styled from 'styled-components'
 import Image from 'next/image'
 import Lightbox from '../lightbox/Lightbox'
 
-type ImageMedia = {
-  type: 'image'
-  src: string
-  alt?: string
-  caption?: string
-}
-
+type ImageMedia = { type: 'image'; src: string; alt?: string; caption?: string }
 type VideoMedia = {
   type: 'video'
   src: string
@@ -20,14 +15,10 @@ type VideoMedia = {
   trackSrc?: string
   trackLang?: string
 }
-
 type MediaItem = ImageMedia | VideoMedia
 type Variant = 'small' | 'medium' | 'large'
 
-type MediaDisplayProps = {
-  media: MediaItem[]
-  variant?: Variant
-}
+type MediaDisplayProps = { media: MediaItem[]; variant?: Variant }
 
 const MediaGrid = styled.div<{ $variant: Variant }>`
   display: grid;
@@ -63,9 +54,15 @@ const MediaItemBox = styled.div<{ $isClickable: boolean }>`
   width: 100% !important;
   height: auto !important;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+  }
+  @media (hover: hover) {
     &:hover {
-      transform: none;
+      transform: ${({ $isClickable }) =>
+        $isClickable ? 'translateY(-1px)' : 'none'};
       box-shadow: ${({ theme }) => theme.boxShadow.sm};
     }
   }
@@ -147,12 +144,24 @@ export default function MediaDisplay({
           const aria = isImage
             ? item.alt || `Image ${index + 1}`
             : item.alt || `Video ${index + 1}`
+          const key = `${item.type}-${item.src}-${index}`
+          const onKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (e) => {
+            if (!isImage) return
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              openLightbox(index)
+            }
+          }
           return (
             <MediaItemBox
-              key={`${item.type}-${item.src}-${index}`}
+              key={key}
               $isClickable={isImage}
               onClick={() => (isImage ? openLightbox(index) : undefined)}
-              aria-label={`${isImage ? 'Open image' : 'Open video'} ${aria}`}
+              onKeyDown={onKeyDown}
+              role={isImage ? 'button' : undefined}
+              tabIndex={isImage ? 0 : -1}
+              aria-label={isImage ? `Open image ${aria}` : aria}
+              aria-haspopup={isImage ? 'dialog' : undefined}
             >
               {isImage ? (
                 <ImageWrapper>

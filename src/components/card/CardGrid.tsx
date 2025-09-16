@@ -1,3 +1,4 @@
+// src/components/card/CardGrid.tsx
 import styled from 'styled-components'
 
 const CardGrid = styled.div`

@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// --- src/app/page.tsx ---
 import Link from 'next/link'
 import Typography from '@/styles/Typography'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
@@ -13,7 +13,7 @@ export default async function HomePage() {
   const items = all.slice(0, POSTS_PER_PAGE)
 
   return (
-    <main>
+    <>
       <SectionWrapper $spacious>
         <div style={{ display: 'grid', gap: '0.75rem', textAlign: 'center' }}>
           <Typography variant="h1" align="center" color="primary.main">
@@ -33,6 +33,7 @@ export default async function HomePage() {
                 boxShadow: 'var(--btn-shadow, none)',
                 textDecoration: 'none',
               }}
+              aria-label="Alle Blogbeiträge anzeigen"
             >
               Alle Beiträge ansehen →
             </Link>
@@ -50,6 +51,6 @@ export default async function HomePage() {
           <PostList posts={items} />
         )}
       </SectionWrapper>
-    </main>
+    </>
   )
 }

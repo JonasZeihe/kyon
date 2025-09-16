@@ -112,16 +112,16 @@ const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.accent.main};
     text-decoration: underline;
   }
+  a:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+  }
 
   img, svg {
     max-width: 100%;
     display: block;
     user-select: none;
-  }
-
-  ul, ol {
-    list-style: none;
-    padding-left: 0;
   }
 
   code, kbd, samp {

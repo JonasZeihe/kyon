@@ -64,10 +64,6 @@ export default function Footer() {
               <li>
                 <FooterLink href="/impressum">Impressum</FooterLink>
               </li>
-              {/* Falls Datenschutzseite existiert */}
-              {/* <li>
-                <FooterLink href="/datenschutz">Datenschutz</FooterLink>
-              </li> */}
             </LinksList>
           </FooterColumn>
         </FooterGrid>
@@ -77,7 +73,6 @@ export default function Footer() {
         <Copyright>
           © {new Date().getFullYear()} Jonas Zeihe. Alle Rechte vorbehalten.
         </Copyright>
-
         <ScrollToTopButton
           onClick={scrollToTop}
           aria-label="Nach oben scrollen"
@@ -214,7 +209,6 @@ const FooterBottom = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     flex-direction: column;
     gap: ${({ theme }) => theme.spacing(1.5)};
@@ -228,7 +222,7 @@ const Copyright = styled.p`
 
 const ScrollToTopButton = styled.button`
   background: ${({ theme }) => theme.colors.primary.main};
-  color: ${({ theme }) => theme.colors.text.main};
+  color: ${({ theme }) => theme.colors.text.inverse};
   border: none;
   border-radius: 50%;
   width: 2.5rem;
@@ -246,8 +240,6 @@ const ScrollToTopButton = styled.button`
   &:focus-visible {
     background: ${({ theme }) =>
       theme.colors.accent[4] || theme.colors.accent.main};
-    color: ${({ theme }) => theme.colors.text.inverse};
-
     transform: scale(1.08);
     outline: none;
   }

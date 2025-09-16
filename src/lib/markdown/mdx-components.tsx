@@ -21,22 +21,31 @@ type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
 
 const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
   const c = children ?? href
+  if (!href) return <a {...rest}>{c}</a>
   if (href.startsWith('#')) {
-    const id = href.replace('#', '')
+    const id = href.slice(1)
     return (
-      <SmoothScroller targetId={id}>
-        <a href={href} {...rest}>
-          {c}
-        </a>
+      <SmoothScroller targetId={id} href={href} {...rest}>
+        {c}
       </SmoothScroller>
     )
   }
-  return /^https?:\/\//i.test(href) ? (
-    <a href={href} rel="noopener noreferrer nofollow" target="_blank" {...rest}>
+  if (/^https?:\/\//i.test(href)) {
+    return (
+      <a
+        href={href}
+        rel="noopener noreferrer nofollow"
+        target="_blank"
+        {...rest}
+      >
+        {c}
+      </a>
+    )
+  }
+  return (
+    <Link href={href} {...rest}>
       {c}
-    </a>
-  ) : (
-    <Link href={href}>{c}</Link>
+    </Link>
   )
 }
 

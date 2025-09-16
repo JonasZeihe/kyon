@@ -1,54 +1,44 @@
+// --- src/components/utilities/SmoothScroller.tsx ---
 'use client'
 
-import React, { ReactNode } from 'react'
+import React from 'react'
 
-type SmoothScrollerProps = {
+type Props = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   targetId: string
-  children: ReactNode
 }
 
 export default function SmoothScroller({
   targetId,
   children,
-}: SmoothScrollerProps) {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  onClick,
+  href,
+  ...rest
+}: Props) {
+  const handle = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onClick) onClick(e)
+    if (e.defaultPrevented) return
     e.preventDefault()
-    const target = document.getElementById(targetId)
-    if (!target) return
-
+    const el = document.getElementById(targetId)
+    if (!el) return
     try {
-      target.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } catch {
       window.scrollTo({
-        top: target.offsetTop,
+        top: el.getBoundingClientRect().top + window.scrollY,
         behavior: 'smooth',
       })
     }
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      handleClick(e as unknown as React.MouseEvent<HTMLButtonElement>)
-    }
+    history.replaceState(null, '', `#${targetId}`)
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      style={{
-        all: 'unset',
-        cursor: 'pointer',
-        display: 'inline-block',
-      }}
+    <a
+      href={href ?? `#${targetId}`}
+      onClick={handle}
       aria-label={`Scroll to ${targetId}`}
+      {...rest}
     >
       {children}
-    </button>
+    </a>
   )
 }

@@ -3,7 +3,12 @@
     "stylelint-config-standard",
     "stylelint-config-styled-components"
   ],
-  "processors": ["stylelint-processor-styled-components"],
+  "overrides": [
+    {
+      "files": ["**/*.{js,jsx,ts,tsx}"],
+      "customSyntax": "postcss-styled-syntax"
+    }
+  ],
   "rules": {
     "block-no-empty": true,
     "color-no-invalid-hex": true,

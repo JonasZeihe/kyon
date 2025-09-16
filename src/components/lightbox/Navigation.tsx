@@ -1,3 +1,4 @@
+// --- src/components/lightbox/Navigation.tsx ---
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
@@ -27,7 +28,9 @@ const ZoomableMedia = styled.img<{
   transform: ${({ $zoomLevel, $panX, $panY }) =>
     `translate(${$panX}px, ${$panY}px) scale(${getScale($zoomLevel)})`};
   transition: ${({ $isZoomed }) =>
-    $isZoomed ? 'none' : 'transform 0.3s ease'};
+    $isZoomed ? 'none' : 'transform 0.25s ease'};
+  user-select: none;
+  -webkit-user-drag: none;
 `
 
 export default function Navigation({
@@ -43,6 +46,8 @@ export default function Navigation({
   const [isPanning, setIsPanning] = useState(false)
   const [hasPanned, setHasPanned] = useState(false)
   const imgRef = useRef<HTMLImageElement | null>(null)
+
+  const isZoomed = zoomLevel > 0
 
   const constrainPan = (value: number, max: number) =>
     Math.max(Math.min(value, max), -max)
@@ -88,48 +93,44 @@ export default function Navigation({
   }
 
   const handleMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (zoomLevel > 0) {
-      e.preventDefault()
-      setIsPanning(true)
-      startPan(e.clientX, e.clientY)
-    }
+    if (!isZoomed) return
+    e.preventDefault()
+    setIsPanning(true)
+    startPan(e.clientX, e.clientY)
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
-    if (isPanning) {
-      setHasPanned(true)
-      movePan(e.clientX, e.clientY)
-    }
+    if (!isPanning) return
+    setHasPanned(true)
+    movePan(e.clientX, e.clientY)
   }
 
   const handleTouchStart = (e: React.TouchEvent<HTMLImageElement>) => {
-    if (zoomLevel > 0) {
-      e.preventDefault()
-      setIsPanning(true)
-      const t = e.touches[0]
-      startPan(t.clientX, t.clientY)
-    }
+    if (!isZoomed) return
+    e.preventDefault()
+    setIsPanning(true)
+    const t = e.touches[0]
+    startPan(t.clientX, t.clientY)
   }
 
   const handleTouchMove = (e: React.TouchEvent<HTMLImageElement>) => {
-    if (isPanning) {
-      e.preventDefault()
-      const t = e.touches[0]
-      movePan(t.clientX, t.clientY)
-    }
+    if (!isPanning) return
+    e.preventDefault()
+    const t = e.touches[0]
+    movePan(t.clientX, t.clientY)
   }
 
   const stopPanning = () => setIsPanning(false)
 
   useEffect(() => {
     const preventScroll = (e: TouchEvent) => {
-      if (zoomLevel > 0) e.preventDefault()
+      if (isZoomed) e.preventDefault()
     }
     document.addEventListener('touchmove', preventScroll, { passive: false })
     return () => {
       document.removeEventListener('touchmove', preventScroll)
     }
-  }, [zoomLevel])
+  }, [isZoomed])
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -141,23 +142,24 @@ export default function Navigation({
 
   useEffect(() => {
     const prev = document.body.style.overflow
-    document.body.style.overflow = zoomLevel > 0 ? 'hidden' : prev
+    if (isZoomed) document.body.style.overflow = 'hidden'
     return () => {
       document.body.style.overflow = prev
     }
-  }, [zoomLevel])
+  }, [isZoomed])
 
   return (
     <ZoomableMedia
       ref={imgRef}
       src={src}
       alt={alt}
+      draggable={false}
       $zoomLevel={zoomLevel}
       $zoomOriginX={zoomOriginX}
       $zoomOriginY={zoomOriginY}
       $panX={panX}
       $panY={panY}
-      $isZoomed={isPanning}
+      $isZoomed={isZoomed}
       onClick={handleZoom}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}

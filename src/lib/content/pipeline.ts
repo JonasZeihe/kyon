@@ -94,6 +94,14 @@ const textFrom = (node: any): string => {
   return children.map((c) => textFrom(c)).join('')
 }
 
+const isExternalUrl = (s: string) =>
+  /^([a-z]+:)?\/\//i.test(s) ||
+  s.startsWith('/') ||
+  s.startsWith('data:') ||
+  s.startsWith('blob:') ||
+  s.startsWith('mailto:') ||
+  s.startsWith('tel:')
+
 const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
   walk(tree as any, null, (node) => {
     if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
@@ -110,7 +118,7 @@ const assetsPlugin =
   async (tree: Root) => {
     const toUrl = (src: string): string => {
       if (!src) return src
-      if (/^https?:\/\//i.test(src)) return src
+      if (isExternalUrl(src)) return src
       if (assetBase?.baseHref) {
         const clean = src.replace(/^\.?\//, '')
         return `${assetBase.baseHref.replace(/\/+$/, '')}/${clean}`
@@ -120,15 +128,19 @@ const assetsPlugin =
       }
       return src
     }
+
     walk(tree as any, null, (node) => {
       if (node.type !== 'element') return
+
       if (node.tagName === 'img' && node.properties) {
         const src = String(node.properties.src || '')
         node.properties.src = toUrl(src)
       }
+
       if (node.tagName === 'source' && node.properties) {
-        if (node.properties.src)
+        if (node.properties.src) {
           node.properties.src = toUrl(String(node.properties.src))
+        }
         if (node.properties.srcset) {
           const set = String(node.properties.srcset)
           node.properties.srcset = set
@@ -140,15 +152,20 @@ const assetsPlugin =
             .join(', ')
         }
       }
+
+      if (node.tagName === 'track' && node.properties?.src) {
+        node.properties.src = toUrl(String(node.properties.src))
+      }
+
       if (node.tagName === 'a' && node.properties?.href) {
         const href = String(node.properties.href)
-        if (!/^https?:\/\//i.test(href) && !href.startsWith('#')) {
-          node.properties.href = toUrl(href)
-        }
-        if (/^https?:\/\//i.test(String(node.properties.href))) {
+        if (href.startsWith('#')) return
+        if (isExternalUrl(href)) {
           node.properties.target = '_blank'
           node.properties.rel = 'noopener noreferrer nofollow'
+          return
         }
+        node.properties.href = toUrl(href)
       }
     })
   }
@@ -160,6 +177,7 @@ export const renderToHTML = async ({
   const text = typeof source === 'string' ? source : String(source as any)
   const rt = readingTime(text)
   const toc: TOCItem[] = []
+
   const file = await unified()
     .use(remarkParse)
     .use(remarkMdx)
@@ -190,6 +208,7 @@ export const compileToMdx = async ({
   const text = typeof source === 'string' ? source : String(source as any)
   const rt = readingTime(text)
   const toc: TOCItem[] = []
+
   const compiled = await compile(text, {
     jsx: true,
     remarkPlugins: [
