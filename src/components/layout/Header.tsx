@@ -1,4 +1,4 @@
-// --- src/components/layout/Header.tsx ---
+// src/components/layout/Header.tsx
 'use client'
 
 import React, { useReducer, useEffect, useRef, useState } from 'react'
@@ -73,6 +73,29 @@ export default function Header({ navSections = [] }: HeaderProps) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [activeSection, navSections])
+
+  useEffect(() => {
+    if (!headerRef.current) return
+    const el = headerRef.current as HTMLElement
+    const applyVars = () => {
+      const h = el.offsetHeight || 74
+      const scrollMargin = h + 12
+      document.documentElement.style.setProperty('--header-height', `${h}px`)
+      document.documentElement.style.setProperty('--header-offset', `${h}px`)
+      document.documentElement.style.setProperty(
+        '--article-scroll-margin',
+        `${scrollMargin}px`
+      )
+    }
+    applyVars()
+    const obs = new ResizeObserver(applyVars)
+    obs.observe(el)
+    window.addEventListener('resize', applyVars)
+    return () => {
+      obs.disconnect()
+      window.removeEventListener('resize', applyVars)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isArticle) {
@@ -286,7 +309,7 @@ const HeaderContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => theme.spacing(2)};
+  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(2)};
   height: 4.6rem;
   width: 100%;
   box-sizing: border-box;

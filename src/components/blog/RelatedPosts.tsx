@@ -33,11 +33,15 @@ export default function RelatedPosts({ posts }: Props) {
 
           const dateLabel = new Date(m.updated || m.date).toLocaleDateString(
             'de-DE',
-            { year: 'numeric', month: '2-digit', day: '2-digit' }
+            {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            }
           )
 
           return (
-            <CardWrapper key={m.id ?? `${m.category}:${m.slug}`}>
+            <CardWrapper key={m.id || `${m.category}:${m.slug}`}>
               <CardInner>
                 <ThumbWrap>
                   <Link href={href} aria-label={m.title}>

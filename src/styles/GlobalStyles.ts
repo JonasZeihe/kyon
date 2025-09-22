@@ -1,7 +1,12 @@
-// --- src/styles/GlobalStyles.ts ---
+// src/styles/GlobalStyles.ts
 import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyles = createGlobalStyle`
+  :root {
+    --header-height: 74px;
+    --article-scroll-margin: 88px;
+  }
+
   *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;

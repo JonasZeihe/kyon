@@ -1,4 +1,4 @@
-// --- src/components/media/MDXImage.tsx ---
+// src/components/media/MDXImage.tsx
 import Image from 'next/image'
 import React from 'react'
 

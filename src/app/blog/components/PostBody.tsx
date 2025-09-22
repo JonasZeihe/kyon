@@ -1,9 +1,10 @@
-// --- src/app/blog/components/PostBody.tsx ---
+// src/app/blog/components/PostBody.tsx
+'use client'
+
 import React from 'react'
 import matter from 'gray-matter'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
-import type { PostFull, TOCItem } from '@/lib/blog/types'
-import ArticleTOC from '@/components/blog/ArticleTOC'
+import type { PostFull } from '@/lib/blog/types'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 
 import MDXImageCmp from '@/components/media/MDXImage'
@@ -18,7 +19,7 @@ import HighlightText from '@/components/utilities/HighlightText'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
 import Lightbox from '@/components/lightbox/Lightbox'
 
-type Props = { post: PostFull; toc?: TOCItem[] }
+type Props = { post: PostFull }
 
 function Callout({
   type = 'info',
@@ -36,6 +37,7 @@ function Callout({
     </div>
   )
 }
+
 const Note = ({
   title,
   children,
@@ -47,6 +49,7 @@ const Note = ({
     {children}
   </Callout>
 )
+
 const Warning = ({
   title,
   children,
@@ -105,8 +108,7 @@ function CodeBlock({
   )
 }
 
-export default function PostBody({ post, toc }: Props) {
-  const items = (toc || post.toc || []).filter((i) => i.depth >= 2)
+export default function PostBody({ post }: Props) {
   const raw = post.raw || ''
   const { content } = matter(raw)
 
@@ -135,21 +137,12 @@ export default function PostBody({ post, toc }: Props) {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-      <div style={{ order: 1 }}>
-        <MarkdownStyles as="div">
-          {post.isMDX ? (
-            <MDXRemote source={content} components={components as any} />
-          ) : (
-            <div dangerouslySetInnerHTML={{ __html: post.bodySource || '' }} />
-          )}
-        </MarkdownStyles>
-      </div>
-      {!!items.length && (
-        <div style={{ order: 2 }}>
-          <ArticleTOC items={items} />
-        </div>
+    <MarkdownStyles as="div">
+      {post.isMDX ? (
+        <MDXRemote source={content} components={components as any} />
+      ) : (
+        <div dangerouslySetInnerHTML={{ __html: post.bodySource || '' }} />
       )}
-    </div>
+    </MarkdownStyles>
   )
 }

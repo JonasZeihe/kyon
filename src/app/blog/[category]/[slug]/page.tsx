@@ -1,4 +1,4 @@
-// --- src/app/blog/[category]/[slug]/page.tsx ---
+//src/app/blog/[category]/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import { buildPostMetadata } from '@/lib/seo/metadata'
 import { getAllPostMeta, getPostBySlug } from '@/lib/blog/indexer'
@@ -16,6 +16,7 @@ import {
 } from '@/lib/content/pipeline'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import ArticleLayout from '@/components/blog/ArticleLayout'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -57,7 +58,7 @@ export default async function BlogPostPage({
       })
       return {
         meta,
-        isMDX: true,
+        isMDX: true as const,
         raw,
         bodyMdx: { code: mdx.code },
         toc: mdx.toc,
@@ -70,7 +71,7 @@ export default async function BlogPostPage({
     })
     return {
       meta,
-      isMDX: false,
+      isMDX: false as const,
       raw,
       bodySource: html.html,
       toc: html.toc,
@@ -96,15 +97,19 @@ export default async function BlogPostPage({
         <SectionWrapper>
           <Breadcrumbs items={crumbs} />
         </SectionWrapper>
-
-        <SectionWrapper $spacious>
-          <PostHeader post={post.meta} />
-        </SectionWrapper>
-
-        <SectionWrapper>
-          <PostBody post={post as any} toc={toc} />
-        </SectionWrapper>
       </ContainerWrapper>
+
+      <ArticleLayout toc={toc}>
+        <>
+          <ContainerWrapper>
+            <SectionWrapper $spacious>
+              <PostHeader post={post.meta} />
+            </SectionWrapper>
+          </ContainerWrapper>
+
+          <PostBody post={post as any} />
+        </>
+      </ArticleLayout>
     </main>
   )
 }

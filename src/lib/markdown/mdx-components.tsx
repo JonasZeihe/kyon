@@ -1,4 +1,4 @@
-// --- src/lib/markdown/mdx-components.tsx ---
+// src/lib/markdown/mdx-components.tsx
 'use client'
 
 import React from 'react'
