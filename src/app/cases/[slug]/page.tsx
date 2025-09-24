@@ -1,8 +1,8 @@
 // src/app/cases/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import fs from 'node:fs'
-import path from 'node:path'
+import fs from 'fs'
+import path from 'path'
 import { getAllCaseMeta } from '@/lib/blog/indexer'
 import {
   renderToHTML,
@@ -17,6 +17,9 @@ import PostBody from '@/app/blog/components/PostBody'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import ArticleLayout from '@/components/blog/ArticleLayout'
+import StickyToc from '@/components/blog/StickyToc'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import ArticleGrid from '@/components/blog/ArticleGrid'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -29,9 +32,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const meta = getAllCaseMeta().find((m) => m.slug === params.slug)
+  const { slug } = await params
+  const meta = getAllCaseMeta().find((m) => m.slug === slug)
   if (!meta) return {}
   const title = meta.title
   const description = meta.excerpt || ''
@@ -70,9 +74,9 @@ export async function generateMetadata({
 export default async function CasePage({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
-  const { slug } = params
+  const { slug } = await params
   const meta = getAllCaseMeta().find((m) => m.slug === slug) || null
   if (!meta) notFound()
 
@@ -115,6 +119,9 @@ export default async function CasePage({
     value: t.text,
   }))
 
+  const hasTOC =
+    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
+
   const crumbs = [
     { href: '/cases', label: 'Cases' },
     { label: post.meta.title },
@@ -122,25 +129,24 @@ export default async function CasePage({
 
   return (
     <main>
-      <SectionWrapper>
-        <div
-          style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1.25rem' }}
-        >
+      <ContainerWrapper>
+        <SectionWrapper>
           <Breadcrumbs items={crumbs} />
-        </div>
-      </SectionWrapper>
+        </SectionWrapper>
+      </ContainerWrapper>
 
-      <SectionWrapper $spacious>
-        <div
-          style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1.25rem' }}
-        >
-          <PostHeader post={post.meta} />
-        </div>
-      </SectionWrapper>
-
-      <ArticleLayout toc={toc}>
-        <PostBody post={post as any} />
-      </ArticleLayout>
+      <ContainerWrapper $size="wide">
+        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
+          <ArticleLayout>
+            <SectionWrapper $spacious data-toc-anchor>
+              <PostHeader post={post.meta} />
+            </SectionWrapper>
+            <SectionWrapper $spacious>
+              <PostBody post={post as any} />
+            </SectionWrapper>
+          </ArticleLayout>
+        </ArticleGrid>
+      </ContainerWrapper>
     </main>
   )
 }

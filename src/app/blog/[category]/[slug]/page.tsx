@@ -1,4 +1,4 @@
-//src/app/blog/[category]/[slug]/page.tsx
+// src/app/blog/[category]/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import { buildPostMetadata } from '@/lib/seo/metadata'
 import { getAllPostMeta, getPostBySlug } from '@/lib/blog/indexer'
@@ -17,10 +17,15 @@ import {
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import ArticleLayout from '@/components/blog/ArticleLayout'
+import StickyToc from '@/components/blog/StickyToc'
+import ArticleGrid from '@/components/blog/ArticleGrid'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
 export const revalidate = false
+
+type RouteParams = { category: string; slug: string }
+type PageProps = { params: Promise<RouteParams> }
 
 export async function generateStaticParams() {
   return getAllPostMeta().map((m) => ({ category: m.category, slug: m.slug }))
@@ -28,20 +33,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ category: string; slug: string }>
-}): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const { category, slug } = await params
   const meta = getPostBySlug(category, slug)
   if (!meta) return {}
   return buildPostMetadata(meta)
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ category: string; slug: string }>
-}) {
+export default async function BlogPostPage({ params }: PageProps) {
   const { category, slug } = await params
   const meta = getPostBySlug(category, slug)
   if (!meta) notFound()
@@ -85,6 +84,9 @@ export default async function BlogPostPage({
     value: t.text,
   }))
 
+  const hasTOC =
+    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
+
   const crumbs = [
     { href: '/blog', label: 'Blog' },
     { href: `/blog/${post.meta.category}`, label: post.meta.category },
@@ -99,17 +101,18 @@ export default async function BlogPostPage({
         </SectionWrapper>
       </ContainerWrapper>
 
-      <ArticleLayout toc={toc}>
-        <>
-          <ContainerWrapper>
-            <SectionWrapper $spacious>
+      <ContainerWrapper $size="wide">
+        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
+          <ArticleLayout>
+            <SectionWrapper $spacious data-toc-anchor>
               <PostHeader post={post.meta} />
             </SectionWrapper>
-          </ContainerWrapper>
-
-          <PostBody post={post as any} />
-        </>
-      </ArticleLayout>
+            <SectionWrapper $spacious>
+              <PostBody post={post as any} />
+            </SectionWrapper>
+          </ArticleLayout>
+        </ArticleGrid>
+      </ContainerWrapper>
     </main>
   )
 }

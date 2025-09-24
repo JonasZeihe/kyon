@@ -1,4 +1,4 @@
-// --- src/app/blog/components/PostList.tsx ---
+// src/app/blog/components/PostList.tsx
 'use client'
 
 import styled from 'styled-components'
@@ -18,18 +18,19 @@ export default function PostList({ posts }: Props) {
   return (
     <CardGrid>
       {posts.map((m) => {
-        const href = `/blog/${m.category}/${m.slug}`
+        const href =
+          m.category === 'cases'
+            ? `/cases/${m.slug}/`
+            : `/blog/${m.category}/${m.slug}/`
+
         const cover = m.cover
           ? toPublicAssetUrl(m.category, m.dirName, m.cover)
           : null
+
         const isoDate = new Date(m.updated || m.date).toISOString().slice(0, 10)
         const dateLabel = new Date(m.updated || m.date).toLocaleDateString(
           'de-DE',
-          {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          }
+          { day: '2-digit', month: 'short', year: 'numeric' }
         )
 
         return (

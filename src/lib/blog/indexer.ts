@@ -148,8 +148,13 @@ export const categoriesFromMetas = () => {
   return Array.from(s)
 }
 
-export const postPath = (m: PostMeta) =>
-  m.category === 'cases' ? `/cases/${m.slug}` : `/blog/${m.category}/${m.slug}`
+export const postPath = (m: PostMeta) => {
+  const base =
+    m.category === 'cases'
+      ? `/cases/${m.slug}`
+      : `/blog/${m.category}/${m.slug}`
+  return base.endsWith('/') ? base : `${base}/`
+}
 
 export const __resetIndexerCache = () => {
   CACHE = null

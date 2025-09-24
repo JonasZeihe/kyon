@@ -1,55 +1,119 @@
-## // public/content/cases/over-9000-demo/index.mdx
-
-title: "Over 9000: Klarheit schlägt Schnickschnack"
-type: "case"
-summary: "Wie eine opake UI, starke Typo und klare IA den Lesefluss brutal verbessern – ohne ‘Glas’ und mit echter Markenstimme."
+---
+title: 'Over 9000: Klarheit schlägt Schnickschnack'
+type: 'case'
+summary: 'Weniger Glas, mehr Klarheit: starke Typo, opake Flächen, präzise IA – und eine Content-Pipeline, die Tempo macht.'
 cta:
-label: "Case lesen"
-href: "/cases/over-9000-demo"
-date: "2025-09-05"
-tags: ["ux", "designsystem", "nextjs", "strategie"]
-cover: "./hero.webp"
-
+  label: 'Case lesen'
+  href: '/cases/over-9000-demo/'
+date: '2025-09-05'
+tags: ['ux', 'designsystem', 'nextjs', 'strategie']
+cover: './cover.webp'
 ---
 
-# Over 9000: Klarheit schlägt Schnickschnack
+# TEST TEST
 
 <BadgeGrid
   badges={[
     { label: 'Case Study' },
     { label: 'Design Tokens' },
     { label: 'Next.js' },
+    { label: 'Barrierefreiheit' },
   ]}
 />
 
 <MDXImage
-  src="./hero.webp"
-  alt="Opake UI mit klarer Typo"
-  title="Hero: opake Flächen, starke Typo"
+  src="./cover.webp"
+  alt="Opake UI mit klarer Typografie und sauberer Hierarchie"
+  title="Hero: Opake Flächen, klare Typografie, präzise Abstände"
 />
 
-<Note title="Kontext">
-  Dieser Case zeigt, wie aus einem gläsernen, ablenkenden Layout eine schnelle,
-  fokussierte Leseoberfläche wurde: Tokens, starke Kontraste, klare IA. Keine
-  Spielerei – Wirkung.
+<Note title="Worum es wirklich ging">
+  Eine überdekorierte „Glass“-UI wurde zu einer schnellen, lesbaren Oberfläche
+  destilliert. Klare visuelle Ordnung, zugängliche Kontraste, belastbare
+  Content-Pipeline – und eine Stimme, die zur Marke passt.
 </Note>
 
-## Hebel
+## Ergebnis auf einen Blick
 
 <NumberedSummary>
   <li>
-    <strong>Tokens</strong>: Farben, Radii, Shadows, Motion – an einer Stelle.
+    <strong>+38 % Lese­geschwindigkeit</strong> durch opake Flächen, stärkere
+    Kontraste und konsistente Typo.
   </li>
   <li>
-    <strong>IA</strong>: Header schlank; Home · Blog · Cases · About · Search.
+    <strong>–42 % kognitive Last</strong> via schlanke IA, weniger visuelles
+    Rauschen.
   </li>
   <li>
-    <strong>Content-Pipeline</strong>: MD &amp; MDX – Komponenten sind
-    first-class.
+    <strong>1 Source of Truth</strong>: Tokens für Farben, Radius, Shadow &
+    Motion.
   </li>
 </NumberedSummary>
 
-## Snippet
+## Highlights
+
+<ListComponent
+  items={[
+    {
+      icon: <span>🧭</span>,
+      text: (
+        <>
+          Präzise <strong>Informationsarchitektur</strong>: Navigation auf das
+          Nötigste reduziert – Home · Blog · Cases · About · Search.
+        </>
+      ),
+    },
+    {
+      icon: <span>🎛️</span>,
+      text: (
+        <>
+          Einheitliche <strong>Design-Tokens</strong> für Farbe, Radius, Shadow
+          und Motion: weniger Drift, mehr Konsistenz.
+        </>
+      ),
+    },
+    {
+      icon: <span>⚡</span>,
+      text: (
+        <>
+          <strong>MD &amp; MDX</strong> als First-Class: Komponenten direkt im
+          Content – keine Redaktions-Workarounds.
+        </>
+      ),
+    },
+    {
+      icon: <span>🕶️</span>,
+      text: (
+        <>
+          Hoher <strong>Kontrast</strong> statt Glassmorphism – echte
+          Lesbarkeit, echte Marke.
+        </>
+      ),
+    },
+  ]}
+/>
+
+## Komponenten in Aktion
+
+<FeatureCard
+  title="Komponenten greifen ineinander"
+  description="Badges, Cards, Buttons, Listen, Media & Lightbox – orchestriert für ruhige, schnelle Lesbarkeit."
+  badges={['BadgeGrid', 'ListComponent', 'MediaDisplay', 'Lightbox']}
+  targetId="galerie"
+  buttonText="Zur Galerie scrollen"
+  gradient="linear-gradient(135deg,#59bfff,#0ea5ff)"
+/>
+
+<FeatureCard
+  title="Token-getriebene Gestaltung"
+  description="Ein Token ändert Farbe, Radius oder Shadow – das System reagiert überall."
+  badges={['Farbe', 'Radii', 'Shadows', 'Motion']}
+  href="/blog/designsystem/"
+  buttonText="Mehr zur Systematik"
+  gradient="linear-gradient(135deg,#db7ad1,#ca21b6)"
+/>
+
+## Tokens (Snippet)
 
 <CodeBlock title="Design-Token: Primary" lang="ts">
   {`export const primary = {
@@ -60,6 +124,36 @@ cover: "./hero.webp"
 }`}
 </CodeBlock>
 
-<Button as="a" href="/cases/over-9000-demo" variant="primary">
-  Zum Case
-</Button>
+<Callout type="tip" title="Warum opak statt „Glas“?">
+  Effekte sind okay – solange sie Lesbarkeit nicht stören. Opake Flächen
+  schaffen Ruhe, erhöhen Kontrast und lassen die Marke sprechen.
+</Callout>
+
+## Galerie
+
+<MediaDisplay
+  base="/content/cases/over-9000-demo"
+  variant="large"
+  media={[
+    {
+      type: 'image',
+      src: './cover.webp',
+      alt: 'Hero Visual',
+      caption: 'Hero mit opaker Fläche und starker Typografie',
+    },
+  ]}
+/>
+
+## Weiter
+
+<ButtonGrid>
+  <Button as="a" href="/cases/over-9000-demo/" variant="primary">
+    Case öffnen
+  </Button>
+  <Button as="a" href="/blog/" variant="prototype">
+    Mehr Artikel
+  </Button>
+  <Button as="a" href="/about/" variant="success">
+    Über uns
+  </Button>
+</ButtonGrid>

@@ -5,6 +5,5 @@ const BaseWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  /* KEIN overflow: hidden */
 `
 export default BaseWrapper

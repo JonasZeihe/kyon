@@ -1,10 +1,11 @@
 // src/lib/content/helpers/paths.ts
+
 import { BASE_PATH, SITE_URL } from '@/lib/blog/constants'
 
 const trimSlashes = (s: string) => String(s || '').replace(/^\/+|\/+$/g, '')
 const ensureLeading = (s: string) => (s.startsWith('/') ? s : `/${s}`)
 
-const withBase = (p: string) => {
+export const withBase = (p: string) => {
   const bp = trimSlashes(BASE_PATH || '')
   const clean = ensureLeading(trimSlashes(p || '/'))
   return bp ? `/${bp}${clean}` : clean

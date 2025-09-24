@@ -1,8 +1,8 @@
 ---
 title: 'Kyon: Ein Blog, der Prozesse zeigt'
-excerpt: 'Ein erster Beitrag über Natur, Schiller, Workflow und meine Haltung zur KI.'
-date: 2025-09-12
-updated: 2025-09-12
+excerpt: 'Hallo Welt – Test Test, ist das Ding an?'
+date: 2025-09-05
+updated: 2025-09-05
 tags:
   - Kyon
   - Design
@@ -18,88 +18,99 @@ cover: ./cover.webp
 
 # Einführung in meinen Blog
 
-Herzlich willkommen zu meinem Blog. Fast hätte ich mit **„Hallo Welt“** begonnen – aber eigentlich passt etwas anderes besser: _Sei gespannt auf eine Welt, die sich zwischen den Dingen bewegt_ – so wie ich mich zwischen **Design** und **Entwicklung** orientiere und dort auch am wohlsten fühle.
+Herzlich willkommen zu meinem Blog. Das wären wohl fast meine ersten Worte, wenn ich nicht gerade **„Hallo Welt“** im Kopf hätte. Also: _Sei gespannt auf eine Welt, die sich zwischen den Dingen bewegt_ – so wie ich mich zwischen **Design** und **Entwicklung** orientiert habe und dort am wohlsten fühle.
 
-Was dich hier erwartet, sind keine reinen Tutorials. Keine bloßen Anleitungen. Sondern **Eindrücke, Gedanken, kleine Vorträge**. Dinge, die mich beschäftigen – und die vielleicht auch dich berühren.
+Es ist mir wichtig, hier nicht einfach nur Tutorials oder Anleitungen zu veröffentlichen, sondern **Eindrücke, Gedanken, kleine Vorträge** – abgeleitet aus dem, was mich beschäftigt.
 
-Für diesen ersten Beitrag war ich lange unsicher. Aber dann, beim Spazierengehen, kam mir ein Bild.
+Für den allerersten Beitrag war ich unsicher. Beim Spazierengehen kam mir dann ein Gedanke.
 
 ---
 
 ## Inspiration aus der Natur
 
-In der Natur finde ich Ruhe. Sie erdet mich und erinnert mich daran, was zählt.
+Wenn ich draußen bin, besinne ich mich auf das, was zählt. Ich finde dort Ruhe und Entspannung.
 
-Neulich stand ich vor einem **Pflaumenbaum**. Voller Früchte – und doch außer Reichweite. Ich hatte keinen Obstpflücker dabei, und die Pflaumen waren zu hoch.
+Neulich sah ich einen **Pflaumenbaum** – voller Früchte, alle zu hoch zum Pflücken.
 
-In diesem Moment dachte ich: Der Baum wächst einfach. Er trägt Früchte, weil es in seiner Natur liegt. Er existiert aus sich selbst heraus.
+> Der Pflaumenbaum existiert aus sich selbst heraus und pflanzt sich genauso fort.
 
-Das erinnerte mich sofort an **Schiller**. In seiner Schrift _Über naive und sentimentalische Dichtung_ hat mich ein Satz tief geprägt:
+Da musste ich sofort an **Schiller** denken. Ein Text, der mich in meiner Jugend geprägt hat, ist sein Essay _Über naive und sentimentalische Dichtung_. Darin beschreibt er die Schönheit der Natur, die wir so gerne wahrnehmen.
 
-> „Natur wirkt aus sich selbst heraus.“ – Friedrich Schiller
+> „Natur wirkt aus sich selbst heraus.“
 
-Und genau so möchte ich meinen Blog beginnen: nicht geplant, sondern organisch. Ein Beitrag, der sich aus sich selbst heraus entfaltet.
+Genau das begeistert mich bis heute. Also dachte ich mir: Mein erster Blogbeitrag soll ebenfalls **aus sich selbst heraus entstehen** – indem ich zeige, wie ich meine Beiträge mache.
 
 ---
 
 ## Mein Workflow für Blogbeiträge
 
-Wie entstehen meine Texte?
+Das hat sich über die Jahre entwickelt. Ich habe immer gerne frei gesprochen, erklärt, Vorträge gehalten – daraus ist eine Fähigkeit entstanden, die ich hier nutze.
 
-Ich habe schon immer gerne frei gesprochen, Vorträge gehalten, Dinge erklärt. Daraus ist eine Fähigkeit gewachsen, die ich heute nutze.
+Am Anfang stehen zwei Fragen:
 
-Meistens beginnt es mit einem Gedanken unterwegs. Beim Gehen, beim Schauen. Aus diesen Gedanken bildet sich eine Struktur. Und wenn der Moment stimmt, nehme ich mein Smartphone (**Google Pixel Modell**) und starte den **Recorder**.
+- Was möchte ich erzählen?
+- Was ist die Intention hinter dem Beitrag?
 
-Ich spreche den gesamten Beitrag in einem Atemzug ein. Sofort habe ich eine Transkription, erstaunlich präzise und nah an meinen eigenen Worten.
+Solche Gedanken kommen oft unterwegs. Irgendwann bildet sich daraus eine Struktur.
 
-So schreibe ich nicht – ich spreche. Und genau dadurch drückt der Text das aus, was ich wirklich denke.
+Wenn ich bereit bin, nehme ich mein Smartphone (**Google Pixel**) und starte den **Recorder**. Ich mache eine Audioaufnahme, die zeitgleich sehr hochwertig transkribiert wird.
+
+Das heißt: Ich nehme in einem Atemzug den gesamten Beitrag auf.
 
 ![Screenshot: Transkript aus dem Recorder](screenshot-transkript.webp)
 
-Das Transkript landet anschließend in einem eigens gebauten **Custom-GPT**. Er hilft mir, offene Fragen zu klären und Fehler zu glätten.
+Das Transkript ist dann komplett da – in meinen eigenen Worten.
+
+Mir fällt auf, dass ich anders schreibe, als ich spreche. Aber am ehrlichsten drücke ich mich aus, wenn ich spreche.
+
+Das Transkript füge ich anschließend in meinen eigens dafür aufgebauten **Custom-GPT** ein.
 
 ![Screenshot: Intro des Custom-GPT](screenshot-custom-gpt-intro.webp)
 
-Dieser GPT ist öffentlich zugänglich. Wenn du das Plus-Abo hast, kannst du ihn gerne [nutzen](https://chatgpt.com/g/g-682b43bb8ecc81918b4393c5714669d0-transkriptor-3000), besuchen und ausprobieren.
+Dieser GPT ist öffentlich zugänglich. Mit Plus-Abo kannst du ihn [nutzen](https://chatgpt.com/g/g-682b43bb8ecc81918b4393c5714669d0-transkriptor-3000).
+
+Er ist so konzipiert, dass er Transkripte verarbeitet und **vorher Rückfragen stellt**.
 
 ![Screenshot: Erste GPT-Reaktion mit Rückfragen](screenshot-gpt-reaktion.webp)
 
-Natürlich versteht die Technik nicht jedes Wort perfekt – gerade im Deutschen. Aber das Ergebnis ist stark genug, um darauf zu bauen.
+Unklarheiten gibt es immer noch. Manche Wörter werden falsch interpretiert. Gerade Deutsch ist eine Herausforderung. Trotzdem funktioniert es mittlerweile erstaunlich gut – besser als früher. Mit diesem Workflow bin ich sehr zufrieden.
 
 ---
 
 ## Vom Transkript zum fertigen Beitrag
 
-Aus dieser Rohfassung entsteht der erste Entwurf. Danach gehe ich noch einmal durch: Ich ergänze **Markdown**, füge Bilder oder Screenshots hinzu – und Schritt für Schritt wächst daraus ein vollständiger Blogartikel.
+Aus dem Transkript entsteht der erste Entwurf.
 
-Das Entscheidende bleibt: Alles kommt zuerst aus meinem Kopf, aus meiner Stimme.
+Danach gehe ich den Text durch, füge **Markdown**, Satzzeichen und Screenshots hinzu – wie hier. Nach und nach wächst daraus ein Beitrag, mit dem ich zufrieden bin.
+
+So siehst du, warum sich meine Texte so lesen, als wären sie gesprochen. Und du bekommst einen Eindruck von meiner **eng mit KI verwachsenen Arbeitsweise**.
 
 ---
 
 ## Haltung zur KI
 
-KI ist für mich ein Werkzeug – nicht mehr, nicht weniger.
+KI ist für mich Werkzeug.
 
-Ja, ich könnte meine Beiträge einfach generieren lassen. Aber das wäre leer. Ich will mich als Person ausdrücken. Dafür brauche ich meine eigenen Worte, meine eigene Art zu sprechen und zu denken.
+Ich könnte auch komplette Texte generieren lassen – aber das wäre wertlos, weil ich mich selbst ausdrücken will. Das geht nur in meinen eigenen Worten, wenn ich selbst spreche und schreibe.
 
-KI hilft mir beim Überarbeiten, beim Strukturieren, manchmal auch beim Ausprobieren. Aber die Seele bleibt bei mir.
+Ich nutze KI, um zu überarbeiten oder Ideen auszuprobieren. Aber wichtig bleibt: **Ich interagiere als Person.**
 
-Denn wenn KI irgendwann alles übernimmt – wo bliebe dann der Wert meines eigenen Tuns?
+Denn sonst übernimmt irgendwann die KI alles – und was wäre dann der Wert, wenn ich es nicht selbst gemacht habe?
 
 ---
 
 ## Ausblick
 
-In diesem Blog wirst du meine Projekte begleiten können, vor allem mein großes Projekt **Shizen**, an dem ich im Design- und Entwicklungsprozess arbeite.
+Hier im Blog erwarten dich Themen, die mich seit Jahren beschäftigen – manche tiefer, manche spontaner.
 
-Daneben möchte ich meine Arbeitsweisen teilen, zum Beispiel mein Konzept der **„natürlichen Entwicklung“**. Es steht im Kontrast zu gängigen Frameworks wie **Scrum** oder **SAFe** – und vielleicht öffnet es neue Wege.
+Ich möchte meine **Softwareprojekte** beleuchten, vor allem mein großes Projekt **Shizen** im Design- und Entwicklungsprozess.
 
-Und noch etwas will ich herausfinden: Liegt mir das Bloggen überhaupt? Ist es eine Form, mit der ich langfristig in Resonanz gehe?
+Außerdem werde ich über meine Arbeitsweisen schreiben, zum Beispiel mein Konzept der **„natürlichen Entwicklung“** – das teilweise im Kontrast zu agiler Softwareentwicklung, **Scrum** oder dem **SAFe-Framework** steht. Vielleicht bringt das Neues hervor.
+
+Und ich will herausfinden, ob Bloggen überhaupt etwas ist, womit ich langfristig arbeiten möchte.
 
 ---
 
 ### Danke fürs Lesen 🙏
 
-Danke, dass du diesen ersten Beitrag gelesen hast. Ich freue mich, wenn du mich auf diesem Weg begleitest – zwischen Entwicklung und Design, zwischen Technik und Natur, zwischen Gedanken und Worten.
-
-Hier beginnt mein Blog – und er darf sich weiter aus sich selbst heraus entwickeln.
+**Herzlichen Dank** fürs Lesen. Viel Spaß mit den weiteren Beiträgen – und ich hoffe, dir hat diese Einführung gefallen :)

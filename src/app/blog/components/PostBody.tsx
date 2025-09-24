@@ -1,6 +1,4 @@
 // src/app/blog/components/PostBody.tsx
-'use client'
-
 import React from 'react'
 import matter from 'gray-matter'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
@@ -18,6 +16,9 @@ import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
 import Lightbox from '@/components/lightbox/Lightbox'
+
+import FeatureCard from '@/components/card/FeatureCard'
+import ProjectCard from '@/components/card/ProjectCard'
 
 type Props = { post: PostFull }
 
@@ -85,16 +86,22 @@ function CodeBlock({
   children?: React.ReactNode
 }) {
   const language = lang ? lang.toLowerCase() : ''
+
+  const childArray = React.Children.toArray(children)
+  const allStrings = childArray.every((c) => typeof c === 'string')
+  const text = allStrings ? (childArray as string[]).join('') : null
+
   const content =
-    typeof children === 'string' ? (
+    typeof text === 'string' ? (
       <pre>
         <code className={language ? `language-${language}` : undefined}>
-          {children}
+          {text}
         </code>
       </pre>
     ) : (
-      children
+      <>{children}</>
     )
+
   return (
     <div className="codeblock" data-language={language || undefined}>
       {title ? (
@@ -111,6 +118,7 @@ function CodeBlock({
 export default function PostBody({ post }: Props) {
   const raw = post.raw || ''
   const { content } = matter(raw)
+  const mdxSource = content
 
   const components = {
     img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
@@ -119,16 +127,23 @@ export default function PostBody({ post }: Props) {
     MDXImage: (props: React.ComponentProps<typeof MDXImageCmp>) => (
       <MDXImageCmp {...props} base={post.meta.assetBasePath} />
     ),
+    MediaDisplay: (p: React.ComponentProps<typeof MediaDisplay>) => (
+      <MediaDisplay {...p} base={post.meta.assetBasePath} />
+    ),
+
     Badge,
     BadgeGrid,
     Button,
     ButtonGrid,
     CardWrapper,
-    MediaDisplay,
     ListComponent,
     HighlightText,
     Lightbox,
     SmoothScroller,
+
+    FeatureCard,
+    ProjectCard,
+
     Callout,
     Note,
     Warning,
@@ -139,7 +154,7 @@ export default function PostBody({ post }: Props) {
   return (
     <MarkdownStyles as="div">
       {post.isMDX ? (
-        <MDXRemote source={content} components={components as any} />
+        <MDXRemote source={mdxSource} components={components as any} />
       ) : (
         <div dangerouslySetInnerHTML={{ __html: post.bodySource || '' }} />
       )}
