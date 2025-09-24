@@ -1,4 +1,4 @@
-// --- src/components/data-display/MediaDisplay.tsx ---
+// src/components/data-display/MediaDisplay.tsx
 'use client'
 
 import React, { useMemo, useState } from 'react'
@@ -18,7 +18,24 @@ type VideoMedia = {
 type MediaItem = ImageMedia | VideoMedia
 type Variant = 'small' | 'medium' | 'large'
 
-type MediaDisplayProps = { media: MediaItem[]; variant?: Variant }
+type MediaDisplayProps = {
+  media: MediaItem[]
+  variant?: Variant
+  base?: string
+}
+
+const join = (b: string, r: string) =>
+  `${b.replace(/\/+$/, '')}/${String(r).replace(/^\.?\//, '')}`.replace(
+    /\/{2,}/g,
+    '/'
+  )
+
+const resolveSrc = (s: string, base?: string) =>
+  !s || /^([a-z]+:)?\/\//i.test(s) || s.startsWith('/')
+    ? s
+    : base
+      ? join(base, s)
+      : s
 
 const MediaGrid = styled.div<{ $variant: Variant }>`
   display: grid;
@@ -107,21 +124,36 @@ const VideoWrapper = styled.div`
 export default function MediaDisplay({
   media,
   variant = 'large',
+  base,
 }: MediaDisplayProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
+  const normalized = useMemo<MediaItem[]>(
+    () =>
+      (media || []).map((m) =>
+        m.type === 'image'
+          ? { ...m, src: resolveSrc(m.src, base) }
+          : {
+              ...m,
+              src: resolveSrc(m.src, base),
+              trackSrc: m.trackSrc ? resolveSrc(m.trackSrc, base) : m.trackSrc,
+            }
+      ),
+    [media, base]
+  )
+
   const images = useMemo(
-    () => media.filter((m): m is ImageMedia => m.type === 'image'),
-    [media]
+    () => normalized.filter((m): m is ImageMedia => m.type === 'image'),
+    [normalized]
   )
   const imageIndices = useMemo(
     () =>
-      media.reduce<number[]>((acc, item, idx) => {
+      normalized.reduce<number[]>((acc, item, idx) => {
         if (item.type === 'image') acc.push(idx)
         return acc
       }, []),
-    [media]
+    [normalized]
   )
 
   const openLightbox = (originalIndex: number) => {
@@ -134,12 +166,12 @@ export default function MediaDisplay({
 
   const closeLightbox = () => setLightboxOpen(false)
 
-  if (!media?.length) return null
+  if (!normalized?.length) return null
 
   return (
     <>
       <MediaGrid $variant={variant}>
-        {media.map((item, index) => {
+        {normalized.map((item, index) => {
           const isImage = item.type === 'image'
           const aria = isImage
             ? item.alt || `Image ${index + 1}`

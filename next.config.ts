@@ -1,26 +1,33 @@
-// next.config.ts
-import type { NextConfig } from 'next'
-
-const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? ''
+// next.config.js
+const repo = process.env.GITHUB_REPOSITORY
+  ? process.env.GITHUB_REPOSITORY.split('/')[1]
+  : ''
 const isCI = process.env.GITHUB_ACTIONS === 'true'
-const ghBase = repo ? `/${repo}` : ''
-const base = process.env.NEXT_PUBLIC_BASE_PATH ?? (isCI ? ghBase : '')
-const asset = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? base
+const isStaticExport = process.env.STATIC_EXPORT === 'true'
+const isGhTarget = process.env.DEPLOY_TARGET === 'gh' || isCI || isStaticExport
 
-const cfg: NextConfig = {
+const inferredBase = repo ? `/${repo}` : ''
+const basePath =
+  process.env.NEXT_PUBLIC_BASE_PATH ?? (isGhTarget ? inferredBase : '')
+const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? basePath
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
-  images: { unoptimized: true },
   compiler: { styledComponents: true },
-  assetPrefix: asset ? `${asset}/` : undefined,
-  basePath: base || undefined,
+  basePath: basePath || undefined,
+  assetPrefix: assetPrefix ? `${assetPrefix}/` : undefined,
   trailingSlash: true,
   poweredByHeader: false,
+  images: {
+    unoptimized: !!isGhTarget,
+  },
+  output: isGhTarget ? 'export' : undefined,
   env: {
-    NEXT_PUBLIC_BASE_PATH: base,
-    NEXT_PUBLIC_ASSET_PREFIX: asset,
+    NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_ASSET_PREFIX: assetPrefix,
     FEATURE_BASEPATH_REWRITE: process.env.FEATURE_BASEPATH_REWRITE ?? 'true',
   },
 }
 
-export default cfg
+module.exports = nextConfig

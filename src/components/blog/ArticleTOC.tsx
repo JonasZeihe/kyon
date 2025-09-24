@@ -1,18 +1,18 @@
-// --- src/components/blog/ArticleTOC.tsx ---
+// src/components/blog/ArticleTOC.tsx
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 import type { TOCItem } from '@/lib/blog/types'
 
-type Props = { items: TOCItem[] }
+type Props = { items: TOCItem[]; embedded?: boolean }
 
 const HEADER_OFFSET_PX = 88
 
-export default function ArticleTOC({ items }: Props) {
+export default function ArticleTOC({ items, embedded = false }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
   const filtered = useMemo(
-    () => items.filter((i) => i.depth === 2 || i.depth === 3),
+    () => (items || []).filter((i) => i.depth === 2 || i.depth === 3),
     [items]
   )
   const ids = useMemo(() => filtered.map((i) => i.id), [filtered])
@@ -56,37 +56,50 @@ export default function ArticleTOC({ items }: Props) {
   if (!ids.length) return null
 
   return (
-    <Wrap role="navigation" aria-label="Inhaltsverzeichnis">
+    <Wrap
+      role="navigation"
+      aria-label="Inhaltsverzeichnis"
+      $embedded={embedded}
+    >
       <Header>Inhalt</Header>
       <List>
-        {filtered.map((i) => (
-          <Item key={i.id} $depth={i.depth} $active={activeId === i.id}>
-            <a href={`#${i.id}`} title={i.value}>
-              {i.value}
-            </a>
-          </Item>
-        ))}
+        {filtered.map((i) => {
+          const active = activeId === i.id
+          return (
+            <Item key={i.id} $depth={i.depth} $active={active}>
+              <a
+                href={`#${i.id}`}
+                title={i.value}
+                aria-current={active ? 'true' : undefined}
+              >
+                {i.value}
+              </a>
+            </Item>
+          )
+        })}
       </List>
     </Wrap>
   )
 }
 
-const Wrap = styled.aside`
-  position: sticky;
-  top: ${HEADER_OFFSET_PX}px;
-  align-self: start;
-  display: none;
-  min-width: 240px;
-  max-width: 320px;
-  padding: ${({ theme }) => theme.spacing(1.2)};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    display: block;
-  }
+const Wrap = styled.aside<{ $embedded: boolean }>`
+  ${({ $embedded, theme }) =>
+    $embedded
+      ? css`
+          position: static;
+          display: block;
+          min-width: 240px;
+          max-width: 320px;
+          padding: ${theme.spacing(1.2)};
+          border-radius: ${theme.borderRadius.medium};
+          background: ${theme.colors.surface.card};
+          border: 1px solid ${theme.colors.neutral.border};
+          box-shadow: ${theme.boxShadow.xs};
+        `
+      : css`
+          position: static;
+          display: block;
+        `}
 `
 
 const Header = styled.div`
@@ -113,7 +126,7 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     border-radius: ${({ theme }) => theme.borderRadius.small};
     font-size: ${({ theme }) => theme.typography.fontSize.small};
     color: ${({ theme }) => theme.colors.text.main};
-    opacity: ${({ $active }) => ($active ? 1 : 0.85)};
+    opacity: ${({ $active }) => ($active ? 1 : 0.9)};
     border-left: 3px solid
       ${({ theme, $active }) =>
         $active ? theme.colors.accent.main : theme.colors.neutral.border};
@@ -124,6 +137,9 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
         ? theme.typography.fontWeight.medium
         : theme.typography.fontWeight.regular};
     margin-left: ${({ $depth }) => ($depth === 3 ? '12px' : '0')};
+    transition:
+      background 0.15s ease,
+      opacity 0.15s ease;
   }
   a:hover,
   a:focus-visible {

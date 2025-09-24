@@ -1,4 +1,4 @@
-// --- src/styles/MarkdownStyles.tsx ---
+// src/styles/MarkdownStyles.tsx
 'use client'
 
 import styled, { css } from 'styled-components'
@@ -7,9 +7,13 @@ export const MarkdownStyles = styled.div`
   line-height: 1.7;
   font-size: 1.065rem;
   word-break: break-word;
-  max-width: 72ch;
+  max-width: 80ch;
   margin-left: auto;
   margin-right: auto;
+
+  :where(h1, h2, h3, h4, h5, h6) {
+    scroll-margin-top: var(--article-scroll-margin, 88px);
+  }
 
   h1,
   h2,
@@ -50,6 +54,7 @@ export const MarkdownStyles = styled.div`
     text-underline-offset: 0.16em;
     text-decoration-thickness: 0.06em;
     transition: opacity 0.18s ease;
+    overflow-wrap: anywhere;
   }
   a:hover {
     opacity: 0.88;
@@ -101,10 +106,12 @@ export const MarkdownStyles = styled.div`
     line-height: 1.55;
     font-size: 0.95rem;
     margin: 1.1rem 0;
+    max-width: 100%;
   }
   pre code {
     padding: 0;
     background: transparent;
+    white-space: pre;
   }
 
   table {
@@ -112,6 +119,9 @@ export const MarkdownStyles = styled.div`
     border-collapse: collapse;
     margin: 1.1rem 0;
     font-size: 0.96rem;
+    display: block;
+    overflow-x: auto;
+    max-width: 100%;
   }
   th,
   td {

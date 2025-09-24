@@ -1,4 +1,4 @@
-// --- src/components/blog/ReadingProgress.tsx ---
+// src/components/blog/ReadingProgress.tsx
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -38,17 +38,14 @@ export default function ReadingProgress() {
     const update = () => {
       const el = getScrollTarget()
       const doc = document.documentElement
-
       const rect = el.getBoundingClientRect()
       const topFromDoc = rect.top + (window.pageYOffset || doc.scrollTop || 0)
-
       const viewportH = window.innerHeight || doc.clientHeight
       const total = Math.max(0, el.scrollHeight - viewportH)
       const current = Math.max(
         0,
         Math.min((window.pageYOffset || doc.scrollTop || 0) - topFromDoc, total)
       )
-
       const pct = total > 0 ? (current / total) * 100 : 0
       setProgress(pct)
       setVisible(el.scrollHeight > viewportH * 1.6)

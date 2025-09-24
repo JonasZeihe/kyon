@@ -1,4 +1,4 @@
-// --- src/app/cases/page.tsx ---
+// src/app/cases/page.tsx
 import { getAllCaseMeta } from '@/lib/blog/indexer'
 import PostList from '@/app/blog/components/PostList'
 

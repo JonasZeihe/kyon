@@ -8,22 +8,22 @@ type ButtonGridProps = {
   children: React.ReactNode
 }
 
-const ButtonGridWrapper = styled.div<{ buttonCount: number }>`
+const ButtonGridWrapper = styled.div<{ buttoncount: number }>`
   display: grid;
   width: 100%;
   padding: ${({ theme }) => theme.spacing(1.5)} 0;
   gap: ${({ theme }) => theme.spacing(1.3)};
   justify-content: center;
-  grid-template-columns: ${({ theme, buttonCount }) => {
-    if (buttonCount === 1) return `minmax(${theme.spacing(20)}, 340px)`
-    if (buttonCount === 2) return `repeat(2, minmax(${theme.spacing(14)}, 1fr))`
-    if (buttonCount === 3) return `repeat(3, minmax(${theme.spacing(13)}, 1fr))`
+  grid-template-columns: ${({ theme, buttoncount }) => {
+    if (buttoncount === 1) return `minmax(${theme.spacing(20)}, 340px)`
+    if (buttoncount === 2) return `repeat(2, minmax(${theme.spacing(14)}, 1fr))`
+    if (buttoncount === 3) return `repeat(3, minmax(${theme.spacing(13)}, 1fr))`
     return `repeat(auto-fit, minmax(${theme.spacing(12)}, 1fr))`
   }};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: ${({ theme, buttonCount }) =>
-      buttonCount < 3
+    grid-template-columns: ${({ theme, buttoncount }) =>
+      buttoncount < 3
         ? `1fr`
         : `repeat(auto-fit, minmax(${theme.spacing(12)}, 1fr))`};
     gap: ${({ theme }) => theme.spacing(1.8)};
@@ -38,6 +38,6 @@ const ButtonGridWrapper = styled.div<{ buttonCount: number }>`
 export default function ButtonGrid({ children }: ButtonGridProps) {
   const buttonCount = React.Children.count(children)
   return (
-    <ButtonGridWrapper buttonCount={buttonCount}>{children}</ButtonGridWrapper>
+    <ButtonGridWrapper buttoncount={buttonCount}>{children}</ButtonGridWrapper>
   )
 }

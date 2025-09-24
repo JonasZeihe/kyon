@@ -1,14 +1,19 @@
-// --- src/lib/content/helpers/paths.ts ---
+// src/lib/content/helpers/paths.ts
+
 import { BASE_PATH, SITE_URL } from '@/lib/blog/constants'
 
-const trimSlashes = (s: string) => s.replace(/^\/+|\/+$/g, '')
+const trimSlashes = (s: string) => String(s || '').replace(/^\/+|\/+$/g, '')
 const ensureLeading = (s: string) => (s.startsWith('/') ? s : `/${s}`)
 
-export const abs = (p: string) => {
-  const base = (SITE_URL || '').replace(/\/+$/, '')
+export const withBase = (p: string) => {
   const bp = trimSlashes(BASE_PATH || '')
-  const path = ensureLeading(trimSlashes(p || '/'))
-  return `${base}${bp ? `/${bp}` : ''}${path}`
+  const clean = ensureLeading(trimSlashes(p || '/'))
+  return bp ? `/${bp}${clean}` : clean
+}
+
+export const abs = (p: string) => {
+  const origin = (SITE_URL || '').replace(/\/+$/, '')
+  return `${origin}${withBase(p)}`
 }
 
 export const toPublicAssetUrl = (
@@ -16,10 +21,10 @@ export const toPublicAssetUrl = (
   dirName: string,
   file: string
 ) => {
-  const safeCategory = encodeURIComponent(category)
-  const safeDir = encodeURIComponent(dirName)
+  const safeCategory = encodeURIComponent(String(category || ''))
+  const safeDir = encodeURIComponent(String(dirName || ''))
   const cleanFile = trimSlashes(String(file || '').replace(/^\.?\//, ''))
-  return abs(`/content/${safeCategory}/${safeDir}/${cleanFile}`)
+  return withBase(`/content/${safeCategory}/${safeDir}/${cleanFile}`)
 }
 
 export const extractSlug = (s: string) => {

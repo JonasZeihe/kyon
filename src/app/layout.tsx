@@ -1,4 +1,4 @@
-// --- src/app/layout.tsx ---
+// src/app/layout.tsx
 import type { Metadata } from 'next'
 import Providers from './providers'
 import Header from '@/components/layout/Header'
@@ -21,7 +21,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <Header navSections={[]} />
-          <main style={{ paddingTop: '4.6rem' }}>{children}</main>
+          <main style={{ paddingTop: 'var(--header-height, 74px)' }}>
+            {children}
+          </main>
           <Footer />
         </Providers>
       </body>

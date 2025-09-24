@@ -1,6 +1,7 @@
-// --- src/components/media/MDXImage.tsx ---
+// src/components/media/MDXImage.tsx
 import Image from 'next/image'
 import React from 'react'
+import { withBase } from '@/lib/content/helpers/paths'
 
 type Props = React.ImgHTMLAttributes<HTMLImageElement> & { base?: string }
 
@@ -10,12 +11,12 @@ const join = (b: string, r: string) =>
     '/'
   )
 
-const resolveSrc = (s: string, base?: string) =>
-  !s || /^([a-z]+:)?\/\//i.test(s) || s.startsWith('/')
-    ? s
-    : base
-      ? join(base, s)
-      : s
+const resolveSrc = (s: string, base?: string) => {
+  if (!s) return s
+  if (/^([a-z]+:)?\/\//i.test(s)) return s
+  if (s.startsWith('/')) return withBase(s)
+  return base ? join(base, s) : s
+}
 
 export default function MDXImage(p: Props) {
   const { src = '', alt, width, height, title, base, style, sizes, ...rest } = p

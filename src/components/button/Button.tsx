@@ -66,9 +66,9 @@ const baseStyles = (theme: DefaultTheme): Record<Variant, BaseStyle> => ({
 })
 
 const StyledButton = styled.button<{
-  variant?: Variant
-  customBackground?: string
-  disabled?: boolean
+  $variant: Variant
+  $customBackground?: string
+  $disabled?: boolean
 }>`
   font-family: ${({ theme }) => theme.typography.fontFamily.button};
   font-size: ${({ theme }) => theme.typography.fontSize.body};
@@ -94,9 +94,9 @@ const StyledButton = styled.button<{
     transform 0.14s cubic-bezier(0.4, 0, 0.2, 1),
     filter 0.16s cubic-bezier(0.4, 0, 0.2, 1);
 
-  ${({ variant = 'primary', theme, customBackground, disabled }) => {
-    const base = baseStyles(theme)[variant]
-    const bg = customBackground || base.background
+  ${({ $variant, theme, $customBackground, $disabled }) => {
+    const base = baseStyles(theme)[$variant]
+    const bg = $customBackground || base.background
     const { border, hover, active, color, shadow } = base
 
     return css`
@@ -123,7 +123,7 @@ const StyledButton = styled.button<{
         filter: brightness(0.97);
       }
 
-      ${disabled &&
+      ${$disabled &&
       css`
         opacity: 0.46;
         cursor: not-allowed;
@@ -151,9 +151,9 @@ const StyledButton = styled.button<{
     &:hover,
     &:focus-visible {
       filter: brightness(1.02);
-      background: ${({ variant = 'primary', theme, customBackground }) => {
-        const base = baseStyles(theme)[variant]
-        return customBackground || base.background
+      background: ${({ $variant, theme, $customBackground }) => {
+        const base = baseStyles(theme)[$variant]
+        return $customBackground || base.background
       }};
       box-shadow: none;
       transform: none;
@@ -175,11 +175,14 @@ export default function Button({
 }: ButtonProps) {
   return (
     <StyledButton
-      variant={variant}
-      customBackground={customBackground}
+      as={(rest as any).as}
+      href={(rest as any).href as any}
+      $variant={variant}
+      $customBackground={customBackground}
+      $disabled={disabled}
       onClick={onClick}
       disabled={disabled}
-      type="button"
+      type={(rest as any).type || 'button'}
       tabIndex={disabled ? -1 : 0}
       {...rest}
     >

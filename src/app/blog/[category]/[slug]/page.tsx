@@ -1,4 +1,4 @@
-// --- src/app/blog/[category]/[slug]/page.tsx ---
+// src/app/blog/[category]/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import { buildPostMetadata } from '@/lib/seo/metadata'
 import { getAllPostMeta, getPostBySlug } from '@/lib/blog/indexer'
@@ -16,10 +16,16 @@ import {
 } from '@/lib/content/pipeline'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import ArticleLayout from '@/components/blog/ArticleLayout'
+import StickyToc from '@/components/blog/StickyToc'
+import ArticleGrid from '@/components/blog/ArticleGrid'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
 export const revalidate = false
+
+type RouteParams = { category: string; slug: string }
+type PageProps = { params: Promise<RouteParams> }
 
 export async function generateStaticParams() {
   return getAllPostMeta().map((m) => ({ category: m.category, slug: m.slug }))
@@ -27,20 +33,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ category: string; slug: string }>
-}): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const { category, slug } = await params
   const meta = getPostBySlug(category, slug)
   if (!meta) return {}
   return buildPostMetadata(meta)
 }
 
-export default async function BlogPostPage({
-  params,
-}: {
-  params: Promise<{ category: string; slug: string }>
-}) {
+export default async function BlogPostPage({ params }: PageProps) {
   const { category, slug } = await params
   const meta = getPostBySlug(category, slug)
   if (!meta) notFound()
@@ -57,7 +57,7 @@ export default async function BlogPostPage({
       })
       return {
         meta,
-        isMDX: true,
+        isMDX: true as const,
         raw,
         bodyMdx: { code: mdx.code },
         toc: mdx.toc,
@@ -70,7 +70,7 @@ export default async function BlogPostPage({
     })
     return {
       meta,
-      isMDX: false,
+      isMDX: false as const,
       raw,
       bodySource: html.html,
       toc: html.toc,
@@ -84,6 +84,9 @@ export default async function BlogPostPage({
     value: t.text,
   }))
 
+  const hasTOC =
+    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
+
   const crumbs = [
     { href: '/blog', label: 'Blog' },
     { href: `/blog/${post.meta.category}`, label: post.meta.category },
@@ -96,14 +99,19 @@ export default async function BlogPostPage({
         <SectionWrapper>
           <Breadcrumbs items={crumbs} />
         </SectionWrapper>
+      </ContainerWrapper>
 
-        <SectionWrapper $spacious>
-          <PostHeader post={post.meta} />
-        </SectionWrapper>
-
-        <SectionWrapper>
-          <PostBody post={post as any} toc={toc} />
-        </SectionWrapper>
+      <ContainerWrapper $size="wide">
+        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
+          <ArticleLayout>
+            <SectionWrapper $spacious data-toc-anchor>
+              <PostHeader post={post.meta} />
+            </SectionWrapper>
+            <SectionWrapper $spacious>
+              <PostBody post={post as any} />
+            </SectionWrapper>
+          </ArticleLayout>
+        </ArticleGrid>
       </ContainerWrapper>
     </main>
   )

@@ -1,7 +1,8 @@
 // src/app/cases/[slug]/page.tsx
 import { notFound } from 'next/navigation'
-import fs from 'node:fs'
-import path from 'node:path'
+import type { Metadata } from 'next'
+import fs from 'fs'
+import path from 'path'
 import { getAllCaseMeta } from '@/lib/blog/indexer'
 import {
   renderToHTML,
@@ -9,12 +10,16 @@ import {
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
 import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
+import { SITE_URL } from '@/lib/blog/constants'
+import { abs, toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import Typography from '@/styles/Typography'
-import Link from 'next/link'
+import ArticleLayout from '@/components/blog/ArticleLayout'
+import StickyToc from '@/components/blog/StickyToc'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import ArticleGrid from '@/components/blog/ArticleGrid'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -22,6 +27,48 @@ export const revalidate = false
 
 export async function generateStaticParams() {
   return getAllCaseMeta().map((m) => ({ slug: m.slug }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const meta = getAllCaseMeta().find((m) => m.slug === slug)
+  if (!meta) return {}
+  const title = meta.title
+  const description = meta.excerpt || ''
+  const url = abs(`/cases/${meta.slug}`)
+  const canonical = meta.canonicalUrl
+    ? /^https?:\/\//i.test(meta.canonicalUrl)
+      ? meta.canonicalUrl
+      : abs(meta.canonicalUrl)
+    : url
+  const ogUrl = meta.cover
+    ? toPublicAssetUrl(meta.category, meta.dirName, meta.cover)
+    : abs('/og-default.png')
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      url,
+      siteName: 'Kyon',
+      title,
+      description,
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: title }],
+      locale: 'de_DE',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: title }],
+    },
+    metadataBase: new URL(SITE_URL),
+  }
 }
 
 export default async function CasePage({
@@ -72,6 +119,9 @@ export default async function CasePage({
     value: t.text,
   }))
 
+  const hasTOC =
+    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
+
   const crumbs = [
     { href: '/cases', label: 'Cases' },
     { label: post.meta.title },
@@ -79,43 +129,24 @@ export default async function CasePage({
 
   return (
     <main>
-      <div
-        style={{ maxWidth: '72rem', margin: '0 auto', padding: '0 1.25rem' }}
-      >
-        <Breadcrumbs items={crumbs} />
-      </div>
+      <ContainerWrapper>
+        <SectionWrapper>
+          <Breadcrumbs items={crumbs} />
+        </SectionWrapper>
+      </ContainerWrapper>
 
-      <article>
-        <PostHeader post={post.meta} />
-        <PostBody post={post as any} toc={toc} />
-      </article>
-
-      <SectionWrapper>
-        <div
-          style={{
-            display: 'grid',
-            gap: '0.6rem',
-            textAlign: 'center',
-            marginTop: '0.25rem',
-          }}
-        >
-          <Typography align="center" color="text.subtle">
-            Weitere Cases folgen. Zurück zum Blog?
-          </Typography>
-          <Link
-            href="/blog"
-            style={{
-              justifySelf: 'center',
-              padding: '0.55rem 0.9rem',
-              borderRadius: '0.55rem',
-              textDecoration: 'none',
-              border: '1px solid var(--btn-sec-bd, rgba(120,130,150,.25))',
-            }}
-          >
-            ← Zum Blog
-          </Link>
-        </div>
-      </SectionWrapper>
+      <ContainerWrapper $size="wide">
+        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
+          <ArticleLayout>
+            <SectionWrapper $spacious data-toc-anchor>
+              <PostHeader post={post.meta} />
+            </SectionWrapper>
+            <SectionWrapper $spacious>
+              <PostBody post={post as any} />
+            </SectionWrapper>
+          </ArticleLayout>
+        </ArticleGrid>
+      </ContainerWrapper>
     </main>
   )
 }

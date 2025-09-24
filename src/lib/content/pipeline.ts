@@ -1,4 +1,4 @@
-// --- src/lib/content/pipeline.ts ---
+// src/lib/content/pipeline.ts
 import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkGfm from 'remark-gfm'
