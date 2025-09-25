@@ -18,8 +18,7 @@ import { toPublicAssetUrl } from './helpers/paths'
 
 export type TOCItem = { id: string; depth: number; text: string }
 
-export type CaseCta = { label: string; href: string }
-export type FrontmatterCommon = {
+export type Frontmatter = {
   title: string
   excerpt?: string
   date?: string
@@ -28,19 +27,9 @@ export type FrontmatterCommon = {
   draft?: boolean
   cover?: string
   canonicalUrl?: string
-}
-export type CaseFrontmatter = FrontmatterCommon & {
-  type: 'case'
   summary?: string
-  cta?: CaseCta
+  cta?: { label?: string; href?: string }
 }
-export type PostFrontmatter = FrontmatterCommon & {
-  type?: 'post'
-}
-export type AnyFrontmatter =
-  | PostFrontmatter
-  | CaseFrontmatter
-  | FrontmatterCommon
 
 export type PipelineInput = {
   source: VFileCompatible
@@ -66,12 +55,12 @@ export type MdxResult = {
 export const parseFrontmatter = (
   source: VFileCompatible
 ): {
-  data: AnyFrontmatter
+  data: Frontmatter
   content: string
 } => {
   const text = typeof source === 'string' ? source : String(source as any)
   const { data, content } = matter(text)
-  const fm = (data || {}) as AnyFrontmatter
+  const fm = (data || {}) as Frontmatter
   return { data: fm, content }
 }
 
@@ -174,8 +163,9 @@ export const renderToHTML = async ({
   source,
   assetBase,
 }: PipelineInput): Promise<HtmlResult> => {
-  const text = typeof source === 'string' ? source : String(source as any)
-  const rt = readingTime(text)
+  const raw = typeof source === 'string' ? source : String(source as any)
+  const { content } = matter(raw)
+  const rt = readingTime(content)
   const toc: TOCItem[] = []
 
   const file = await unified()
@@ -190,7 +180,7 @@ export const renderToHTML = async ({
     .use(tocPlugin(toc))
     .use(assetsPlugin(assetBase))
     .use(rehypeStringify)
-    .process(text)
+    .process(raw)
 
   return {
     html: String(file.value || ''),
@@ -205,11 +195,12 @@ export const compileToMdx = async ({
   source,
   assetBase,
 }: PipelineInput): Promise<MdxResult> => {
-  const text = typeof source === 'string' ? source : String(source as any)
-  const rt = readingTime(text)
+  const raw = typeof source === 'string' ? source : String(source as any)
+  const { content } = matter(raw)
+  const rt = readingTime(content)
   const toc: TOCItem[] = []
 
-  const compiled = await compile(text, {
+  const compiled = await compile(raw, {
     jsx: true,
     remarkPlugins: [
       remarkParse as any,

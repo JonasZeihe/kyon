@@ -27,7 +27,6 @@ export type Frontmatter = {
   canonicalUrl?: string
   readingTime?: number
   ogImage?: string
-  type?: 'post' | 'case'
   summary?: string
   cta?: { label?: string; href?: string }
 }

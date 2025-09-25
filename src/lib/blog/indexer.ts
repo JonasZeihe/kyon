@@ -126,16 +126,13 @@ const scanAll = (): PostMeta[] => {
 
 export const getAllMeta = () => scanAll()
 
-export const getAllPostMeta = () =>
-  scanAll().filter((m) => m.category !== 'cases' && !m.draft)
+export const getAllPostMeta = () => scanAll().filter((m) => !m.draft)
 
 export const getAllCaseMeta = () =>
   scanAll().filter((m) => m.category === 'cases' && !m.draft)
 
 export const getPostsByCategory = (category: string) =>
-  scanAll().filter(
-    (m) => m.category === category && category !== 'cases' && !m.draft
-  )
+  scanAll().filter((m) => m.category === category && !m.draft)
 
 export const getPostBySlug = (category: string, slug: string) =>
   scanAll().find(
@@ -149,10 +146,7 @@ export const categoriesFromMetas = () => {
 }
 
 export const postPath = (m: PostMeta) => {
-  const base =
-    m.category === 'cases'
-      ? `/cases/${m.slug}`
-      : `/blog/${m.category}/${m.slug}`
+  const base = `/blog/${m.category}/${m.slug}`
   return base.endsWith('/') ? base : `${base}/`
 }
 

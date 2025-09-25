@@ -1,5 +1,4 @@
 // src/lib/content/helpers/paths.ts
-
 import { BASE_PATH, SITE_URL } from '@/lib/blog/constants'
 
 const trimSlashes = (s: string) => String(s || '').replace(/^\/+|\/+$/g, '')

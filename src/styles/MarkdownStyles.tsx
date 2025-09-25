@@ -4,15 +4,19 @@
 import styled, { css } from 'styled-components'
 
 export const MarkdownStyles = styled.div`
-  line-height: 1.7;
-  font-size: 1.065rem;
-  word-break: break-word;
-  max-width: 80ch;
+  --ms-max-width: var(--article-max-width, 78ch);
+  --ms-scroll-margin: var(--article-scroll-margin, 88px);
+
+  max-width: var(--ms-max-width);
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
+  line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
+  word-break: break-word;
 
   :where(h1, h2, h3, h4, h5, h6) {
-    scroll-margin-top: var(--article-scroll-margin, 88px);
+    scroll-margin-top: var(--ms-scroll-margin);
   }
 
   h1,
@@ -21,22 +25,22 @@ export const MarkdownStyles = styled.div`
   h4,
   h5,
   h6 {
-    line-height: 1.25;
+    line-height: ${({ theme }) => theme.typography.lineHeight.tight};
     margin: 2rem 0 0.9rem;
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+    letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
   }
   h1 {
-    font-size: clamp(1.9rem, 2.4vw, 2.4rem);
+    font-size: ${({ theme }) => theme.typography.fontSize.h1};
   }
   h2 {
-    font-size: clamp(1.55rem, 2vw, 2rem);
+    font-size: ${({ theme }) => theme.typography.fontSize.h2};
   }
   h3 {
-    font-size: clamp(1.28rem, 1.6vw, 1.6rem);
+    font-size: ${({ theme }) => theme.typography.fontSize.h3};
   }
   h4 {
-    font-size: clamp(1.14rem, 1.35vw, 1.35rem);
+    font-size: ${({ theme }) => theme.typography.fontSize.h4};
   }
   h5 {
     font-size: 1.05rem;
@@ -46,23 +50,27 @@ export const MarkdownStyles = styled.div`
   }
 
   p {
-    margin: 0.9rem 0;
+    margin: 0.95rem 0;
   }
 
   a {
+    color: ${({ theme }) => theme.colors.primary.main};
     text-decoration: underline;
     text-underline-offset: 0.16em;
     text-decoration-thickness: 0.06em;
-    transition: opacity 0.18s ease;
+    transition:
+      color 0.18s ease,
+      opacity 0.18s ease;
     overflow-wrap: anywhere;
   }
-  a:hover {
-    opacity: 0.88;
+  a:hover,
+  a:focus-visible {
+    color: ${({ theme }) => theme.colors.accent.main};
   }
 
   ul,
   ol {
-    margin: 0.9rem 0 0.9rem 1.25rem;
+    margin: 0.95rem 0 0.95rem 1.25rem;
     padding: 0;
   }
   ul {
@@ -84,10 +92,11 @@ export const MarkdownStyles = styled.div`
   }
 
   blockquote {
-    margin: 1.1rem 0;
-    padding: 0.7rem 0.95rem;
-    border-left: 0.25rem solid;
-    border-radius: 0.5rem;
+    margin: 1.2rem 0;
+    padding: 0.9rem 1rem;
+    border-left: 0.28rem solid ${({ theme }) => theme.colors.accent.main};
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
+    background: ${({ theme }) => theme.colors.surface[1]};
   }
 
   code {
@@ -96,28 +105,34 @@ export const MarkdownStyles = styled.div`
       'Courier New', monospace;
     font-size: 0.95em;
     padding: 0.12em 0.34em;
-    border-radius: 0.3rem;
+    border-radius: ${({ theme }) => theme.borderRadius.small};
+    background: ${({ theme }) => theme.colors.surface[1]};
+    border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+    color: ${({ theme }) => theme.colors.text.main};
   }
 
   pre {
     overflow: auto;
-    padding: 0.9rem;
-    border-radius: 0.55rem;
+    padding: 1rem;
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
     line-height: 1.55;
     font-size: 0.95rem;
-    margin: 1.1rem 0;
+    margin: 1.2rem 0;
     max-width: 100%;
+    background: ${({ theme }) => theme.colors.surface[2]};
+    border: 1px solid ${({ theme }) => theme.colors.surface[4]};
   }
   pre code {
     padding: 0;
     background: transparent;
     white-space: pre;
+    border: 0;
   }
 
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1.1rem 0;
+    margin: 1.2rem 0;
     font-size: 0.96rem;
     display: block;
     overflow-x: auto;
@@ -128,9 +143,11 @@ export const MarkdownStyles = styled.div`
     padding: 0.6rem 0.7rem;
     text-align: left;
     vertical-align: top;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.surface[4]};
   }
   thead th {
     font-weight: 700;
+    background: ${({ theme }) => theme.colors.surface[1]};
   }
 
   img,
@@ -138,23 +155,25 @@ export const MarkdownStyles = styled.div`
     display: block;
     max-width: 100%;
     height: auto;
-    margin: 1rem auto;
-    border-radius: 0.5rem;
+    margin: 1.1rem auto;
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
   }
 
   hr {
     border: none;
     height: 1px;
     margin: 1.6rem 0;
+    background: ${({ theme }) => theme.colors.surface[4]};
   }
 
   .callout {
     display: grid;
-    gap: 0.45rem;
-    padding: 0.85rem 0.95rem;
-    border-left: 4px solid;
-    border-radius: 0.5rem;
-    margin: 1.1rem 0;
+    gap: 0.5rem;
+    padding: 0.95rem 1rem;
+    border-left: 4px solid ${({ theme }) => theme.colors.primary[3]};
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
+    margin: 1.2rem 0;
+    background: ${({ theme }) => theme.colors.surface[1]};
   }
   .callout-title {
     font-weight: 600;
@@ -166,10 +185,23 @@ export const MarkdownStyles = styled.div`
     margin-bottom: 0;
   }
 
+  .callout.note {
+    border-left-color: ${({ theme }) => theme.colors.accent[3]};
+  }
+  .callout.warning {
+    border-left-color: ${({ theme }) => theme.colors.highlight[3]};
+  }
+  .callout.success {
+    border-left-color: ${({ theme }) => theme.colors.secondary[3]};
+  }
+  .callout.tip {
+    border-left-color: ${({ theme }) => theme.colors.primary[4]};
+  }
+
   .numbered-summary {
     counter-reset: kyon-num;
     list-style: none;
-    margin: 1.1rem 0;
+    margin: 1.2rem 0;
     padding-left: 0;
   }
   .numbered-summary > li {
@@ -177,7 +209,7 @@ export const MarkdownStyles = styled.div`
     grid-template-columns: auto 1fr;
     gap: 0.7rem;
     align-items: start;
-    margin: 0.55rem 0;
+    margin: 0.6rem 0;
   }
   .numbered-summary > li::before {
     counter-increment: kyon-num;
@@ -192,98 +224,37 @@ export const MarkdownStyles = styled.div`
     font-size: 0.88rem;
     line-height: 1;
     transform: translateY(0.12rem);
+    background: ${({ theme }) => theme.gradients.primary};
+    color: ${({ theme }) => theme.colors.text.inverse};
   }
 
   .codeblock {
-    margin: 1.1rem 0;
-    border-radius: 0.55rem;
+    margin: 1.2rem 0;
+    border-radius: ${({ theme }) => theme.borderRadius.medium};
     overflow: hidden;
+    border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+    background: ${({ theme }) => theme.colors.surface[1]};
   }
   .codeblock-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.55rem 0.8rem;
+    padding: 0.6rem 0.85rem;
     font-size: 0.85rem;
     font-weight: 600;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.surface[4]};
+    background: ${({ theme }) => theme.colors.surface[2]};
+    color: ${({ theme }) => theme.colors.text.main};
   }
   .codeblock-body {
-    padding: 0.7rem;
+    padding: 0.8rem;
   }
   .codeblock-body pre {
     margin: 0;
-    border-radius: 0.4rem;
+    border-radius: ${({ theme }) => theme.borderRadius.small};
   }
 
   ${(p: any) => css`
     color: ${p.theme.colors.text.main};
-
-    a {
-      color: ${p.theme.colors.primary.main};
-    }
-    a:hover {
-      color: ${p.theme.colors.accent.main};
-    }
-
-    blockquote {
-      background: ${p.theme.colors.surface[1]};
-      border-left-color: ${p.theme.colors.accent.main};
-      color: ${p.theme.colors.text.main};
-    }
-    code {
-      background: ${p.theme.colors.surface[1]};
-      border: 1px solid ${p.theme.colors.surface[4]};
-      color: ${p.theme.colors.text.main};
-    }
-    pre {
-      background: ${p.theme.colors.surface[2]};
-      border: 1px solid ${p.theme.colors.surface[4]};
-    }
-    th,
-    td {
-      border-bottom: 1px solid ${p.theme.colors.surface[4]};
-    }
-    thead th {
-      background: ${p.theme.colors.surface[1]};
-    }
-    hr {
-      background: ${p.theme.colors.surface[4]};
-    }
-
-    .callout.info {
-      border-left-color: ${p.theme.colors.primary[3]};
-      background: ${p.theme.colors.surface[1]};
-    }
-    .callout.note {
-      border-left-color: ${p.theme.colors.accent[3]};
-      background: ${p.theme.colors.surface[1]};
-    }
-    .callout.warning {
-      border-left-color: ${p.theme.colors.highlight[3]};
-      background: ${p.theme.colors.surface[1]};
-    }
-    .callout.success {
-      border-left-color: ${p.theme.colors.secondary[3]};
-      background: ${p.theme.colors.surface[1]};
-    }
-    .callout.tip {
-      border-left-color: ${p.theme.colors.primary[4]};
-      background: ${p.theme.colors.surface[1]};
-    }
-
-    .numbered-summary > li::before {
-      background: ${p.theme.colors.primary[1]};
-      color: ${p.theme.colors.primary[6]};
-    }
-
-    .codeblock {
-      border: 1px solid ${p.theme.colors.surface[4]};
-      background: ${p.theme.colors.surface[1]};
-    }
-    .codeblock-header {
-      border-bottom: 1px solid ${p.theme.colors.surface[4]};
-      background: ${p.theme.colors.surface[2]};
-      color: ${p.theme.colors.text.main};
-    }
   `}
 `

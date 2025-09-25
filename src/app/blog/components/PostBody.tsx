@@ -1,24 +1,29 @@
 // src/app/blog/components/PostBody.tsx
+'use client'
+
 import React from 'react'
 import matter from 'gray-matter'
 import { MarkdownStyles } from '@/styles/MarkdownStyles'
 import type { PostFull } from '@/lib/blog/types'
 import { MDXRemote } from 'next-mdx-remote/rsc'
-
-import MDXImageCmp from '@/components/media/MDXImage'
+import dynamic from 'next/dynamic'
 import Badge from '@/components/badge/Badge'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
-import CardWrapper from '@/components/Wrapper/CardWrapper'
-import MediaDisplay from '@/components/data-display/MediaDisplay'
 import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
-import Lightbox from '@/components/lightbox/Lightbox'
-
 import FeatureCard from '@/components/card/FeatureCard'
 import ProjectCard from '@/components/card/ProjectCard'
+
+const MediaDisplay = dynamic(
+  () => import('@/components/data-display/MediaDisplay'),
+  { ssr: false }
+)
+const Lightbox = dynamic(() => import('@/components/lightbox/Lightbox'), {
+  ssr: false,
+})
 
 type Props = { post: PostFull }
 
@@ -86,7 +91,6 @@ function CodeBlock({
   children?: React.ReactNode
 }) {
   const language = lang ? lang.toLowerCase() : ''
-
   const childArray = React.Children.toArray(children)
   const allStrings = childArray.every((c) => typeof c === 'string')
   const text = allStrings ? (childArray as string[]).join('') : null
@@ -122,28 +126,33 @@ export default function PostBody({ post }: Props) {
 
   const components = {
     img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-      <MDXImageCmp {...props} base={post.meta.assetBasePath} />
-    ),
-    MDXImage: (props: React.ComponentProps<typeof MDXImageCmp>) => (
-      <MDXImageCmp {...props} base={post.meta.assetBasePath} />
+      <MediaDisplay
+        base={post.meta.assetBasePath}
+        variant="large"
+        media={[
+          {
+            type: 'image',
+            src: String(props.src || ''),
+            alt: String(props.alt || ''),
+            caption:
+              typeof props.title === 'string' ? String(props.title) : undefined,
+          },
+        ]}
+      />
     ),
     MediaDisplay: (p: React.ComponentProps<typeof MediaDisplay>) => (
       <MediaDisplay {...p} base={post.meta.assetBasePath} />
     ),
-
     Badge,
     BadgeGrid,
     Button,
     ButtonGrid,
-    CardWrapper,
     ListComponent,
     HighlightText,
     Lightbox,
     SmoothScroller,
-
     FeatureCard,
     ProjectCard,
-
     Callout,
     Note,
     Warning,

@@ -1,153 +1,271 @@
 // src/app/about/page.tsx
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
-import Typography from '@/styles/Typography'
+import styled from 'styled-components'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import Typography from '@/styles/Typography'
+import BadgeGrid from '@/components/badge/BadgeGrid'
+import ListComponent from '@/components/data-display/ListComponent'
 
 export const dynamic = 'force-static'
 
 export default function AboutPage() {
   return (
     <main>
-      <section
-        style={{
-          background: 'var(--about-hero-bg, transparent)',
-          borderBottom: '1px solid var(--about-hero-br, rgba(0,0,0,0.06))',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '72rem',
-            margin: '0 auto',
-            padding: '2rem 1rem 1rem',
-            display: 'grid',
-            gap: '1.25rem',
-          }}
-        >
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr',
-              gap: '1.25rem',
-              alignItems: 'center',
-            }}
-          >
-            <div
-              style={{
-                position: 'relative',
-                width: '100%',
-                aspectRatio: '21/9',
-                borderRadius: '0.9rem',
-                overflow: 'hidden',
-              }}
-            >
+      {/* Hero */}
+      <SectionBand>
+        <ContainerWrapper $size="wide">
+          <HeroGrid>
+            <HeroMedia>
               <Image
-                src="/assets/about/hero.webp"
-                alt="Über mich"
+                src="/og-default.png" // sicher vorhanden; bei Bedarf auf /assets/about/hero.webp ändern
+                alt="Kyon – ruhige, opake Flächen mit klarer Typografie"
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, 1200px"
                 style={{ objectFit: 'cover' }}
               />
-            </div>
-            <div style={{ display: 'grid', gap: '0.5rem' }}>
-              <Typography variant="h1" align="left" color="primary.main">
-                Wer &amp; Warum
+            </HeroMedia>
+            <HeroCopy>
+              <HeroKicker>Über</HeroKicker>
+              <HeroTitle>Wer &amp; warum</HeroTitle>
+              <p>
+                Prozess statt Pose. Natürlichkeit vor Methode. Ich baue
+                Interfaces und Systeme, die sich ruhig anfühlen und lange
+                halten.
+              </p>
+            </HeroCopy>
+          </HeroGrid>
+        </ContainerWrapper>
+      </SectionBand>
+
+      {/* Ich in kurz */}
+      <ContainerWrapper>
+        <SectionWrapper $spacious>
+          <Narrow>
+            <Typography variant="h2">Ich in kurz</Typography>
+            <p>
+              Ich bin <strong>Jonas Zeihe</strong> (1989), Designer &amp;
+              Entwickler in Niederbayern. Mich interessiert, wie Produkte
+              Menschen wirklich helfen: mit klarer Informationsarchitektur,
+              guter Sprache und pragmatischem Code. Ich arbeite gern iterativ –
+              kleine Schritte, sichtbarer Fortschritt.
+            </p>
+
+            <BadgeGrid
+              badges={[
+                { label: 'UX' },
+                { label: 'UI' },
+                { label: 'React' },
+                { label: 'TypeScript' },
+                { label: 'Java' },
+                { label: 'Python' },
+                { label: 'MD/MDX' },
+                { label: 'Accessibility' },
+              ]}
+              align="flex-start"
+            />
+          </Narrow>
+        </SectionWrapper>
+      </ContainerWrapper>
+
+      {/* Arbeit & Haltung */}
+      <ContainerWrapper>
+        <SectionWrapper>
+          <Narrow>
+            <Typography variant="h2">Arbeit &amp; Haltung</Typography>
+            <ListComponent
+              items={[
+                {
+                  id: 'ia',
+                  icon: '🧭',
+                  text: 'Klare Informationsarchitektur vor Effekten. Erst Struktur, dann Politur.',
+                },
+                {
+                  id: 'copy',
+                  icon: '✍️',
+                  text: 'Sprache als Interface: Labels, Microcopy und Lesefluss entscheiden über Tempo.',
+                },
+                {
+                  id: 'tokens',
+                  icon: '🎛️',
+                  text: 'Token-getriebenes UI (Farbe, Radius, Shadow, Motion) reduziert Drift und Wartung.',
+                },
+                {
+                  id: 'code',
+                  icon: '⚙️',
+                  text: 'Bevorzugt React/TypeScript. Lesbarer Code, kleine Komponenten, wenig Magie.',
+                },
+                {
+                  id: 'process',
+                  icon: '🪴',
+                  text: 'Natürlicher Prozess: beobachten, reduzieren, testen – wiederholen.',
+                },
+              ]}
+            />
+          </Narrow>
+        </SectionWrapper>
+      </ContainerWrapper>
+
+      {/* Womit ich arbeite */}
+      <ContainerWrapper>
+        <SectionWrapper>
+          <Narrow>
+            <Typography variant="h2">Womit ich arbeite</Typography>
+            <TwoCol>
+              <div>
+                <Subhead>Design</Subhead>
+                <ul>
+                  <li>IA, Wireframes, UI-Kits, Design-Tokens</li>
+                  <li>Farb- &amp; Typo-Systeme, Kontrast &amp; Lesbarkeit</li>
+                  <li>Content mit MD/MDX, Bildbearbeitung</li>
+                </ul>
+              </div>
+              <div>
+                <Subhead>Entwicklung</Subhead>
+                <ul>
+                  <li>React, Next.js, TypeScript</li>
+                  <li>Node-Basics, einfache Pipelines</li>
+                  <li>Tests &amp; Zugänglichkeit im Alltag</li>
+                </ul>
+              </div>
+            </TwoCol>
+          </Narrow>
+        </SectionWrapper>
+      </ContainerWrapper>
+
+      {/* Abseits */}
+      <ContainerWrapper>
+        <SectionWrapper>
+          <Narrow>
+            <Typography variant="h2">Abseits vom Bildschirm</Typography>
+            <p>
+              Natur, Wandern und <em>ruhige Praxis</em>: Yoga, Qigong,
+              Meditation. Außerdem Kochen &amp; Backen (gelernter Bäcker) und
+              Fotografie – vor allem draußen. Wichtigster Titel:{' '}
+              <strong>Vater</strong>.
+            </p>
+          </Narrow>
+        </SectionWrapper>
+      </ContainerWrapper>
+
+      {/* Kontakt */}
+      <ContainerWrapper>
+        <SectionWrapper>
+          <ContactCard role="region" aria-label="Kontakt">
+            <div>
+              <Typography variant="h2" color="primary.main">
+                Kontakt
               </Typography>
-              <Typography align="left" color="text.subtle">
-                Prozess statt Pose. Natürlichkeit vor Methode. Wofür Kyon steht
-                – und wer dahinter steckt.
-              </Typography>
+              <p>
+                Kurze Nachricht reicht. Wenn es passt, schlage ich einen Termin
+                vor.
+              </p>
+              <p>
+                <Link href="mailto:jonaszeihe@gmail.com">
+                  jonaszeihe@gmail.com
+                </Link>
+              </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <SectionWrapper $spacious>
-        <div
-          style={{
-            display: 'grid',
-            gap: '1.4rem',
-            maxWidth: '64rem',
-            margin: '0 auto',
-          }}
-        >
-          <Typography variant="h2" align="left">
-            Intention
-          </Typography>
-          <Typography>
-            Kyon ist mein Raum für klare Gedanken, scharfes Handwerk und
-            ehrliches Produktdenken. Keine Show, sondern Substanz: Systeme, die
-            tragfähig sind – Design, das Haltung hat – und Code, der morgen noch
-            lesbar ist.
-          </Typography>
-          <Typography>
-            Die Leitfrage: <em>Was hilft Menschen wirklich?</em> Daraus
-            entstehen Artikel, Notizen, kleine Fallstudien und Bausteine, die
-            sich wiederverwenden lassen.
-          </Typography>
-        </div>
-      </SectionWrapper>
-
-      <SectionWrapper>
-        <div
-          style={{
-            display: 'grid',
-            gap: '1.4rem',
-            maxWidth: '64rem',
-            margin: '0 auto',
-          }}
-        >
-          <Typography variant="h2" align="left">
-            Über mich
-          </Typography>
-          <Typography>
-            Ich bin Jonas Zeihe – Produktmensch, Designer und Entwickler. Ich
-            mag klare Kanten, opake Flächen, kräftige Farben und eine
-            Typografie, die trägt. Meine Arbeit verbindet Systematik mit
-            Intuition: erst Prinzipien, dann Politur.
-          </Typography>
-          <ul className="numbered-summary">
-            <li>
-              <div>Designsysteme &amp; Frontend-Architektur</div>
-            </li>
-            <li>
-              <div>UX Writing, Informationsarchitektur, Flow</div>
-            </li>
-            <li>
-              <div>MD/MDX-Content, Publishing-Pipelines, SEO-Basics</div>
-            </li>
-          </ul>
-          <Typography>
-            Schreib mir gern:{' '}
-            <Link href="mailto:jonaszeihe@gmail.com">jonaszeihe@gmail.com</Link>
-          </Typography>
-        </div>
-      </SectionWrapper>
-
-      <SectionWrapper>
-        <div
-          style={{
-            display: 'grid',
-            gap: '0.9rem',
-            maxWidth: '64rem',
-            margin: '0 auto',
-          }}
-        >
-          <Typography variant="h2" align="left">
-            Was dich hier erwartet
-          </Typography>
-          <ul>
-            <li>Analysen und Hands-on-Guides, schnell anwendbar</li>
-            <li>Case-Notes aus echten Projekten</li>
-            <li>Komponenten, Patterns, kleine Tools</li>
-          </ul>
-          <Typography>
-            Starte hier: <Link href="/blog">Blog</Link> ·{' '}
-            <Link href="/search">Suche</Link>
-          </Typography>
-        </div>
-      </SectionWrapper>
+          </ContactCard>
+        </SectionWrapper>
+      </ContainerWrapper>
     </main>
   )
 }
+
+/* — styled helpers (schlank, Rest kommt aus Theme/Wrappern) — */
+
+const SectionBand = styled.section`
+  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.colors.surface.backdrop};
+`
+
+const HeroGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: ${({ theme }) => theme.spacing(2)};
+  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(1)};
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    gap: ${({ theme }) => theme.spacing(3)};
+    padding: ${({ theme }) => theme.spacing(3)}
+      ${({ theme }) => theme.spacing(2)};
+  }
+`
+
+const HeroMedia = styled.div`
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  overflow: hidden;
+  background: ${({ theme }) => theme.colors.surface[2]};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    aspect-ratio: 16 / 9;
+  }
+`
+
+const HeroCopy = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1)};
+  p {
+    margin: 0;
+    color: ${({ theme }) => theme.colors.text.subtle};
+  }
+`
+
+const HeroKicker = styled.span`
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+  letter-spacing: ${({ theme }) => theme.typography.letterSpacing.wide};
+  text-transform: uppercase;
+`
+
+const HeroTitle = styled.h1`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.h1};
+  line-height: ${({ theme }) => theme.typography.lineHeight.tight};
+  letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
+  background: ${({ theme }) => theme.gradients.rainbow};
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`
+
+const Narrow = styled.div`
+  max-width: 64rem;
+  margin: 0 auto;
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1.25)};
+`
+
+const TwoCol = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1.25)};
+  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 1fr 1fr;
+  }
+  ul {
+    margin: 0.25rem 0 0 1.1rem;
+  }
+`
+
+const Subhead = styled.h3`
+  margin: 0;
+  font-size: ${({ theme }) => theme.typography.fontSize.h3};
+`
+
+const ContactCard = styled.div`
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: ${({ theme }) => theme.spacing(1.5)};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+`
