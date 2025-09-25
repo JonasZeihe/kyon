@@ -1,7 +1,7 @@
 // src/components/blog/StickyToc.tsx
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import ArticleTOC from './ArticleTOC'
 import type { TOCItem } from '@/lib/blog/types'
@@ -57,23 +57,22 @@ export default function StickyToc({ items, top }: Props) {
     }
   }, [compute, schedule])
 
-  const topPx =
-    typeof top === 'number'
-      ? top
-      : Number(
-          parseFloat(
-            getComputedStyle(document.documentElement).getPropertyValue(
-              '--site-header-height'
-            )
-          )
-        ) || 74
+  const topPx = useMemo(() => {
+    if (typeof top === 'number') return Math.max(0, top)
+    if (typeof window === 'undefined') return 74
+    const v = getComputedStyle(document.documentElement).getPropertyValue(
+      '--header-height'
+    )
+    const n = parseFloat(v)
+    return Number.isFinite(n) && n > 0 ? n + 14 : 74
+  }, [top])
 
   if (!items?.length) return null
 
   return (
     <Box
       style={{ left: style.left, width: style.width }}
-      $top={Math.max(0, topPx)}
+      $top={topPx}
       aria-label="Inhaltsverzeichnis"
     >
       <ArticleTOC items={items} embedded={false} />

@@ -28,7 +28,7 @@ export default function ArticleGrid({
       const anchor =
         (main.querySelector(anchorSelector) as HTMLElement | null) || main
       const rect = anchor.getBoundingClientRect()
-      return rect.top
+      return Math.round(rect.top)
     }
 
     const update = () => {
@@ -76,12 +76,12 @@ const Grid = styled.div<{ $hasAside: boolean }>`
   --article-gap: clamp(1rem, 2vw, 2rem);
   display: grid;
   align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(0, 1fr);
   column-gap: var(--article-gap);
   row-gap: var(--article-gap);
-  grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(260px, 1fr);
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: minmax(0, 1fr);
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(280px, 1fr);
   }
 `
 
@@ -90,18 +90,14 @@ const Main = styled.div`
   min-width: 0;
   position: relative;
   z-index: 1;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-column: 1;
-  }
 `
 
 const Aside = styled.aside`
-  grid-column: 3;
-  min-width: 0;
-  position: relative;
+  display: none;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    display: none;
+  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: block;
+    grid-column: 3;
+    min-width: 0;
   }
 `
