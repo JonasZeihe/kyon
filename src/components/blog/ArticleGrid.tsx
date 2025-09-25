@@ -67,7 +67,7 @@ export default function ArticleGrid({
   return (
     <Grid $hasAside={hasAside}>
       <Main ref={mainRef}>{children}</Main>
-      {hasAside ? <Aside>{asideWithTop}</Aside> : null}
+      {hasAside ? <Aside data-toc-aside>{asideWithTop}</Aside> : null}
     </Grid>
   )
 }
@@ -81,7 +81,7 @@ const Grid = styled.div<{ $hasAside: boolean }>`
   row-gap: var(--article-gap);
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(280px, 1fr);
   }
 `
 

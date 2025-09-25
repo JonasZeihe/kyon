@@ -1,14 +1,15 @@
-// --- src/app/(site)/page.tsx ---
+// src/app/(site)/page.tsx
 import Link from 'next/link'
 import Image from 'next/image'
 import styled from 'styled-components'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import BentoSection from '@/components/Wrapper/BentoSection'
 import AutoGrid from '@/components/Wrapper/AutoGrid'
-import CardWrapper from '@/components/Wrapper/CardWrapper'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import Typography from '@/styles/Typography'
+import Card from '@/components/blog/Card'
+import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
 export const dynamic = 'force-static'
 
@@ -78,18 +79,24 @@ export default function HomePage() {
           {latest.length === 0 ? (
             <EmptyHint>Keine Beiträge gefunden.</EmptyHint>
           ) : (
-            latest.map((p) => (
-              <PostCard key={p.id} href={`/blog/${p.category}/${p.slug}`}>
-                <CardInner>
-                  <MetaRow>
-                    <Meta>{p.category}</Meta>
-                    <Meta>{p.updated || p.date}</Meta>
-                  </MetaRow>
-                  <Title>{p.title}</Title>
-                  {p.excerpt ? <Excerpt>{p.excerpt}</Excerpt> : null}
-                </CardInner>
-              </PostCard>
-            ))
+            latest.map((p) => {
+              const href = `/blog/${p.category}/${p.slug}`
+              const cover = p.cover
+                ? toPublicAssetUrl(p.category, p.dirName, p.cover)
+                : undefined
+              return (
+                <Card
+                  key={p.id}
+                  href={href}
+                  title={p.title}
+                  cover={cover}
+                  date={p.updated || p.date}
+                  readingTime={p.readingTime}
+                  excerpt={p.excerpt}
+                  tag={p.category}
+                />
+              )
+            })
           )}
         </BentoSection>
       </ContainerWrapper>
@@ -180,44 +187,6 @@ const HeroVisual = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface[2]};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-`
-
-const PostCard = styled(CardWrapper).attrs({ as: Link })`
-  text-decoration: none;
-  color: inherit;
-  min-height: 10rem;
-`
-
-const CardInner = styled.div`
-  display: grid;
-  gap: ${({ theme }) => theme.spacing(1)};
-  padding: ${({ theme }) => theme.spacing(1.25)};
-`
-
-const MetaRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing(1)};
-  opacity: 0.8;
-`
-
-const Meta = styled.span`
-  font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
-`
-
-const Title = styled.h3`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h3};
-  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-  color: ${({ theme }) => theme.colors.text.main};
-`
-
-const Excerpt = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.text.main};
-  opacity: 0.95;
-  font-size: ${({ theme }) => theme.typography.fontSize.body};
 `
 
 const TagLink = styled(Link)`

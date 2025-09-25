@@ -56,11 +56,7 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
   if (!ids.length) return null
 
   return (
-    <Wrap
-      role="navigation"
-      aria-label="Inhaltsverzeichnis"
-      $embedded={embedded}
-    >
+    <Wrap $embedded={embedded} data-embedded={embedded ? 'true' : 'false'}>
       <Header>Inhalt</Header>
       <List>
         {filtered.map((i) => {
@@ -99,6 +95,12 @@ const Wrap = styled.aside<{ $embedded: boolean }>`
       : css`
           position: static;
           display: block;
+          padding: 0;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          min-width: 0;
+          max-width: none;
         `}
 `
 

@@ -2,7 +2,6 @@
 import type { MetadataRoute } from 'next'
 import {
   getAllPostMeta,
-  getAllCaseMeta,
   categoriesFromMetas,
   postPath,
 } from '@/lib/blog/indexer'
@@ -20,12 +19,10 @@ const abs = (p: string) => {
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPostMeta()
-  const cases = getAllCaseMeta()
-  const metas = [...posts, ...cases]
   const cats = categoriesFromMetas()
 
   const newest =
-    metas
+    posts
       .map((m) => m.updated || m.date)
       .filter(Boolean)
       .sort()
@@ -34,7 +31,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const baseEntries: MetadataRoute.Sitemap = [
     { url: abs('/'), lastModified: new Date(newest) },
     { url: abs('/blog'), lastModified: new Date(newest) },
-    { url: abs('/cases'), lastModified: new Date(newest) },
   ]
 
   const categoryEntries: MetadataRoute.Sitemap = cats.map((c) => {
@@ -48,10 +44,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(m.updated || m.date),
   }))
 
-  const caseEntries: MetadataRoute.Sitemap = cases.map((m) => ({
-    url: abs(postPath(m)),
-    lastModified: new Date(m.updated || m.date),
-  }))
-
-  return [...baseEntries, ...categoryEntries, ...postEntries, ...caseEntries]
+  return [...baseEntries, ...categoryEntries, ...postEntries]
 }

@@ -3,12 +3,10 @@
 
 import React from 'react'
 import Link from 'next/link'
-import MDXImage from '@/components/media/MDXImage'
 import Badge from '@/components/badge/Badge'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
-import CardWrapper from '@/components/Wrapper/CardWrapper'
 import MediaDisplay from '@/components/data-display/MediaDisplay'
 import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
@@ -131,6 +129,7 @@ type CalloutProps = {
   title?: string
   children?: React.ReactNode
 }
+
 const Callout: React.FC<CalloutProps> = ({
   type = 'info',
   title,
@@ -141,11 +140,13 @@ const Callout: React.FC<CalloutProps> = ({
     <div className="callout-body">{children}</div>
   </div>
 )
+
 const Note: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="note" title={title}>
     {children}
   </Callout>
 )
+
 const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="warning" title={title}>
     {children}
@@ -155,6 +156,7 @@ const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
 type NumberedSummaryProps = React.OlHTMLAttributes<HTMLOListElement> & {
   children?: React.ReactNode
 }
+
 const NumberedSummary: React.FC<NumberedSummaryProps> = ({
   children,
   ...rest
@@ -169,6 +171,7 @@ type CodeBlockProps = {
   lang?: string
   children?: React.ReactNode
 }
+
 const CodeBlock: React.FC<CodeBlockProps> = ({ title, lang, children }) => {
   const language = lang ? lang.toLowerCase() : ''
   const content =
@@ -216,13 +219,23 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   td: Td,
   a: A,
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <MDXImage {...props} base={assetBaseUrl} />
+    <MediaDisplay
+      base={assetBaseUrl}
+      media={[
+        {
+          type: 'image',
+          src: String(props.src || ''),
+          alt: String(props.alt || ''),
+          caption:
+            typeof props.title === 'string' ? String(props.title) : undefined,
+        },
+      ]}
+    />
   ),
   Badge,
   BadgeGrid,
   Button,
   ButtonGrid,
-  CardWrapper,
   MediaDisplay,
   ListComponent,
   HighlightText,

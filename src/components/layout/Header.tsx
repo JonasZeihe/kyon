@@ -28,11 +28,6 @@ const PRIMARY_LINKS = [
   { href: '/', label: 'Home', match: (p: string) => p === '/' },
   { href: '/blog', label: 'Blog', match: (p: string) => p.startsWith('/blog') },
   {
-    href: '/cases',
-    label: 'Cases',
-    match: (p: string) => p.startsWith('/cases'),
-  },
-  {
     href: '/about',
     label: 'About',
     match: (p: string) => p.startsWith('/about'),
@@ -406,7 +401,7 @@ const SubNavItem = styled.div<{ $isActive?: boolean }>`
     color 0.16s ease;
   &:hover,
   &:focus-visible {
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.colors.surface[1]};
     outline: none;
   }
 `
