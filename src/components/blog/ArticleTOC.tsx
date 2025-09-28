@@ -2,12 +2,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import styled, { css } from 'styled-components'
+import styled from 'styled-components'
 import type { TOCItem } from '@/lib/blog/types'
 
 type Props = { items: TOCItem[]; embedded?: boolean }
-
-const HEADER_OFFSET_PX = 88
 
 export default function ArticleTOC({ items, embedded = false }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -23,8 +21,18 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
       .map((id) => document.getElementById(id))
       .filter(Boolean) as HTMLElement[]
 
+    const getOffset = () => {
+      const v = getComputedStyle(document.documentElement).getPropertyValue(
+        '--article-scroll-margin'
+      )
+      const n = parseFloat(v)
+      return Number.isFinite(n) && n > 0 ? n : 88
+    }
+
+    const offset = getOffset()
+
     hs.forEach((h) => {
-      h.style.scrollMarginTop = `${HEADER_OFFSET_PX}px`
+      h.style.scrollMarginTop = `${offset}px`
       if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1')
     })
 
@@ -44,8 +52,8 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
       },
       {
         root: null,
-        rootMargin: `-${HEADER_OFFSET_PX}px 0px -60% 0px`,
-        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+        rootMargin: `-${offset}px 0px -60% 0px`,
+        threshold: [0, 0.25, 0.5, 1],
       }
     )
 
@@ -56,8 +64,8 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
   if (!ids.length) return null
 
   return (
-    <Wrap $embedded={embedded} data-embedded={embedded ? 'true' : 'false'}>
-      <Header>Inhalt</Header>
+    <Wrap $embedded={embedded}>
+      {!embedded && <Header>Inhalt</Header>}
       <List>
         {filtered.map((i) => {
           const active = activeId === i.id
@@ -79,29 +87,8 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
 }
 
 const Wrap = styled.aside<{ $embedded: boolean }>`
-  ${({ $embedded, theme }) =>
-    $embedded
-      ? css`
-          position: static;
-          display: block;
-          min-width: 240px;
-          max-width: 320px;
-          padding: ${theme.spacing(1.2)};
-          border-radius: ${theme.borderRadius.medium};
-          background: ${theme.colors.surface.card};
-          border: 1px solid ${theme.colors.neutral.border};
-          box-shadow: ${theme.boxShadow.xs};
-        `
-      : css`
-          position: static;
-          display: block;
-          padding: 0;
-          background: transparent;
-          border: 0;
-          box-shadow: none;
-          min-width: 0;
-          max-width: none;
-        `}
+  display: block;
+  min-width: ${({ $embedded }) => ($embedded ? '240px' : 'auto')};
 `
 
 const Header = styled.div`

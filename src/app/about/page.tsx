@@ -15,13 +15,12 @@ export const dynamic = 'force-static'
 export default function AboutPage() {
   return (
     <main>
-      {/* Hero */}
       <SectionBand>
         <ContainerWrapper $size="wide">
           <HeroGrid>
             <HeroMedia>
               <Image
-                src="/og-default.png" // sicher vorhanden; bei Bedarf auf /assets/about/hero.webp ändern
+                src="/og-default.png"
                 alt="Kyon – ruhige, opake Flächen mit klarer Typografie"
                 fill
                 priority
@@ -42,7 +41,6 @@ export default function AboutPage() {
         </ContainerWrapper>
       </SectionBand>
 
-      {/* Ich in kurz */}
       <ContainerWrapper>
         <SectionWrapper $spacious>
           <Narrow>
@@ -72,7 +70,6 @@ export default function AboutPage() {
         </SectionWrapper>
       </ContainerWrapper>
 
-      {/* Arbeit & Haltung */}
       <ContainerWrapper>
         <SectionWrapper>
           <Narrow>
@@ -110,7 +107,6 @@ export default function AboutPage() {
         </SectionWrapper>
       </ContainerWrapper>
 
-      {/* Womit ich arbeite */}
       <ContainerWrapper>
         <SectionWrapper>
           <Narrow>
@@ -151,33 +147,9 @@ export default function AboutPage() {
           </Narrow>
         </SectionWrapper>
       </ContainerWrapper>
-
-      {/* Kontakt */}
-      <ContainerWrapper>
-        <SectionWrapper>
-          <ContactCard role="region" aria-label="Kontakt">
-            <div>
-              <Typography variant="h2" color="primary.main">
-                Kontakt
-              </Typography>
-              <p>
-                Kurze Nachricht reicht. Wenn es passt, schlage ich einen Termin
-                vor.
-              </p>
-              <p>
-                <Link href="mailto:jonaszeihe@gmail.com">
-                  jonaszeihe@gmail.com
-                </Link>
-              </p>
-            </div>
-          </ContactCard>
-        </SectionWrapper>
-      </ContainerWrapper>
     </main>
   )
 }
-
-/* — styled helpers (schlank, Rest kommt aus Theme/Wrappern) — */
 
 const SectionBand = styled.section`
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};

@@ -1,4 +1,4 @@
-// --- src/components/Wrapper/AutoGrid.tsx ---
+// src/components/Wrapper/AutoGrid.tsx
 'use client'
 
 import styled, { css } from 'styled-components'

@@ -1,12 +1,10 @@
-// --- src/components/lightbox/Lightbox.tsx ---
+// src/components/lightbox/Lightbox.tsx
 'use client'
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
-import { useSwipeable } from 'react-swipeable'
-import Navigation from './Navigation'
 
 type MediaItem =
   | { type: 'image'; src: string; alt?: string }
@@ -23,7 +21,7 @@ const fadeIn = keyframes`from{opacity:0}to{opacity:1}`
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 14000;
+  z-index: 15000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -35,6 +33,14 @@ const ImageContainer = styled.div`
   max-width: 95vw;
   max-height: 95vh;
   display: inline-block;
+`
+
+const StyledImg = styled.img`
+  max-width: 95vw;
+  max-height: 95vh;
+  display: block;
+  object-fit: contain;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
 `
 
 const StyledVideo = styled.video`
@@ -57,8 +63,8 @@ const CloseButton = styled.button`
   justify-content: center;
   border: none;
   cursor: pointer;
-  z-index: 14100;
-  background: rgba(255, 255, 255, 0.9);
+  z-index: 15100;
+  background: rgba(255, 255, 255, 0.92);
   transition:
     background 0.2s ease,
     transform 0.2s ease;
@@ -83,7 +89,7 @@ const NavButton = styled.button<{ $direction: 'left' | 'right' }>`
   justify-content: center;
   border: none;
   cursor: pointer;
-  z-index: 14100;
+  z-index: 15100;
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
   transition:
@@ -101,11 +107,25 @@ export default function Lightbox({
   onClose,
 }: LightboxProps) {
   const [activeIndex, setActiveIndex] = useState(currentIndex)
+  const [mounted, setMounted] = useState(false)
   const isCarousel = media.length > 1
-  const mounted = useMemo(() => typeof document !== 'undefined', [])
   const overlayRef = useRef<HTMLDivElement | null>(null)
   const closeRef = useRef<HTMLButtonElement | null>(null)
   const restoreFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    setMounted(true)
+    return () => setMounted(false)
+  }, [])
+
+  const portalTarget = useMemo(() => {
+    if (!mounted) return null
+    const el =
+      document.getElementById('__next') ||
+      document.body ||
+      document.documentElement
+    return el
+  }, [mounted])
 
   const navigate = useCallback(
     (direction: -1 | 1) =>
@@ -122,7 +142,7 @@ export default function Lightbox({
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       )
     ).filter((el) => !el.hasAttribute('disabled') && el.tabIndex !== -1)
-    if (focusables.length === 0) return
+    if (!focusables.length) return
     const first = focusables[0]
     const last = focusables[focusables.length - 1]
     const active = document.activeElement as HTMLElement | null
@@ -169,39 +189,21 @@ export default function Lightbox({
     }
   }, [mounted, handleKeyDown])
 
-  const swipeHandlers = useSwipeable({
-    onSwipedLeft: () => isCarousel && navigate(1),
-    onSwipedRight: () => isCarousel && navigate(-1),
-    trackMouse: true,
-  })
-  const { ref: swipeRef, ...swipeProps } = swipeHandlers as unknown as {
-    ref: (el: HTMLElement | null) => void
-  } & React.HTMLAttributes<HTMLElement>
-
-  const setOverlayRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      overlayRef.current = node
-      if (typeof swipeRef === 'function') swipeRef(node)
-    },
-    [swipeRef]
-  )
-
-  if (!mounted) return null
+  if (!mounted || !portalTarget) return null
 
   const { type, src, alt } = media[activeIndex]
 
   return ReactDOM.createPortal(
     <Overlay
-      ref={setOverlayRef}
+      ref={overlayRef}
       role="dialog"
       aria-modal="true"
       aria-label="Media viewer"
       onClick={onClose}
-      {...swipeProps}
     >
       <ImageContainer onClick={(e) => e.stopPropagation()}>
         {type === 'image' ? (
-          <Navigation src={src} alt={alt} onClose={onClose} />
+          <StyledImg src={src} alt={alt || ''} />
         ) : (
           <StyledVideo
             src={src}
@@ -241,6 +243,6 @@ export default function Lightbox({
         </>
       )}
     </Overlay>,
-    document.body
+    portalTarget
   )
 }

@@ -1,4 +1,4 @@
-// --- src/components/Wrapper/BentoSection.tsx ---
+// src/components/Wrapper/BentoSection.tsx
 'use client'
 
 import { ReactNode } from 'react'
@@ -96,15 +96,11 @@ const CtaWrap = styled.div`
   gap: ${({ theme }) => theme.spacing(1)};
 `
 
-const Surface = styled(LumenWrapper).attrs({ $variant: 'subtle' as const })`
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border-radius: ${({ theme }) => theme.borderRadius.large};
-  padding: ${({ theme }) => theme.spacing(2)};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-
+const Surface = styled(LumenWrapper).attrs((p) => ({
+  $variant: 'subtle' as const,
+  $padding: p.theme.spacing(2),
+}))`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    border-radius: ${({ theme }) => theme.borderRadius.medium};
     padding: ${({ theme }) => theme.spacing(1.25)};
   }
 `

@@ -11,7 +11,6 @@ import MediaDisplay from '@/components/data-display/MediaDisplay'
 import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
-import Lightbox from '@/components/lightbox/Lightbox'
 
 type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: React.ReactNode
@@ -20,6 +19,7 @@ type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
 const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
   const c = children ?? href
   if (!href) return <a {...rest}>{c}</a>
+
   if (href.startsWith('#')) {
     const id = href.slice(1)
     return (
@@ -28,6 +28,18 @@ const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
       </SmoothScroller>
     )
   }
+
+  if (React.Children.count(c) === 1) {
+    const el = React.Children.only(c) as React.ReactElement<any> | null
+    if (el && typeof el === 'object') {
+      const t = (el.type as any) || {}
+      const name = t.displayName || t.name
+      if (name === 'MediaDisplay' && (el.props as any)?.mdxInline) {
+        return el
+      }
+    }
+  }
+
   if (/^https?:\/\//i.test(href)) {
     return (
       <a
@@ -40,6 +52,7 @@ const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
       </a>
     )
   }
+
   return (
     <Link href={href} {...rest}>
       {c}
@@ -220,6 +233,7 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   a: A,
   img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <MediaDisplay
+      mdxInline
       base={assetBaseUrl}
       media={[
         {
@@ -239,7 +253,6 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   MediaDisplay,
   ListComponent,
   HighlightText,
-  Lightbox,
   SmoothScroller,
   Callout,
   Note,

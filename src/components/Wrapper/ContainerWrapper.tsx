@@ -2,6 +2,7 @@
 'use client'
 
 import styled from 'styled-components'
+import LumenWrapper from './LumenWrapper'
 
 type Size = 'narrow' | 'default' | 'wide' | 'full'
 
@@ -26,7 +27,10 @@ const maxFor = (size: Size) => {
 const s = (t: any, n = 1) =>
   typeof t?.spacing === 'function' ? t.spacing(n) : `${8 * n}px`
 
-const ContainerWrapper = styled.div<Props>`
+const ContainerWrapper = styled(LumenWrapper).attrs({
+  variant: 'none' as const,
+  padding: '0',
+})<Props>`
   width: 100%;
   max-width: ${({ $size = 'default' }) => maxFor($size)};
   margin-inline: auto;

@@ -2,17 +2,19 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import ReactDOM from 'react-dom'
 import styled from 'styled-components'
 import ArticleTOC from './ArticleTOC'
 import type { TOCItem } from '@/lib/blog/types'
 
-type Props = { items: TOCItem[]; top?: number }
+type Props = { items: TOCItem[] }
 
-export default function StickyToc({ items, top }: Props) {
+export default function StickyToc({ items }: Props) {
   const [style, setStyle] = useState<{ left: number; width: number }>({
     left: 0,
     width: 280,
   })
+  const [mounted, setMounted] = useState(false)
   const rafRef = useRef<number | null>(null)
 
   const compute = useCallback(() => {
@@ -38,6 +40,7 @@ export default function StickyToc({ items, top }: Props) {
   }, [compute])
 
   useEffect(() => {
+    setMounted(true)
     compute()
     const ro = new ResizeObserver(schedule)
     const anchor = document.querySelector(
@@ -58,25 +61,25 @@ export default function StickyToc({ items, top }: Props) {
   }, [compute, schedule])
 
   const topPx = useMemo(() => {
-    if (typeof top === 'number') return Math.max(0, top)
-    if (typeof window === 'undefined') return 74
+    if (typeof window === 'undefined') return 88
     const v = getComputedStyle(document.documentElement).getPropertyValue(
-      '--header-height'
+      '--article-scroll-margin'
     )
     const n = parseFloat(v)
-    return Number.isFinite(n) && n > 0 ? n + 14 : 74
-  }, [top])
+    return Number.isFinite(n) && n > 0 ? n : 88
+  }, [])
 
-  if (!items?.length) return null
+  if (!items?.length || !mounted) return null
 
-  return (
+  return ReactDOM.createPortal(
     <Box
       style={{ left: style.left, width: style.width }}
       $top={topPx}
       aria-label="Inhaltsverzeichnis"
     >
       <ArticleTOC items={items} embedded={false} />
-    </Box>
+    </Box>,
+    document.body
   )
 }
 
@@ -88,9 +91,9 @@ const Box = styled.nav<{ $top: number }>`
   padding: ${({ theme }) => theme.spacing(1)};
   background: ${({ theme }) => theme.colors.surface.card};
   border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  z-index: 8;
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  z-index: 1200;
   pointer-events: auto;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {

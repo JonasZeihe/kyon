@@ -1,4 +1,4 @@
-// --- src/components/Wrapper/LumenWrapper.tsx ---
+// src/components/Wrapper/LumenWrapper.tsx
 'use client'
 
 import { forwardRef, memo, ReactNode } from 'react'
@@ -9,6 +9,7 @@ export const LUMEN_VARIANTS = {
   subtle: 'subtle',
   none: 'none',
 } as const
+
 export const LUMEN_RADII = {
   small: 'small',
   medium: 'medium',
@@ -42,7 +43,6 @@ const surfaceForVariant = (variant?: LumenVariant) => {
 
 const Container = styled.div<ContainerProps>`
   position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   border-radius: ${({ theme, $radius }) =>
@@ -81,7 +81,7 @@ const Container = styled.div<ContainerProps>`
   }
 `
 
-type LumenWrapperProps = {
+export type LumenWrapperProps = {
   children: ReactNode
   as?: any
   role?: string

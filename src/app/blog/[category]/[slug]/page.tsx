@@ -96,9 +96,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <main>
       <ContainerWrapper>
-        <SectionWrapper>
-          <Breadcrumbs items={crumbs} />
-        </SectionWrapper>
+        <Breadcrumbs items={crumbs} />
       </ContainerWrapper>
 
       <ContainerWrapper $size="wide">

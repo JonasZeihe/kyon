@@ -33,11 +33,9 @@ export default async function CategoryPage({
 
   return (
     <SectionWrapper $spacious>
-      <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-        <Breadcrumbs
-          items={[{ href: '/blog', label: 'Blog' }, { label: category }]}
-        />
-      </div>
+      <Breadcrumbs
+        items={[{ href: '/blog', label: 'Blog' }, { label: category }]}
+      />
 
       <header style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
         <Typography variant="h1" align="center" color="primary.main">

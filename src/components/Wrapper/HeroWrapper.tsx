@@ -1,4 +1,4 @@
-// --- src/components/Wrapper/HeroWrapper.tsx ---
+// src/components/Wrapper/HeroWrapper.tsx
 'use client'
 
 import { forwardRef, memo, ReactNode } from 'react'
@@ -49,7 +49,6 @@ const Container = styled.section<ContainerProps>`
     $variant === 'none' ? 'none' : `1px solid ${theme.colors.neutral.border}`};
   box-shadow: ${({ theme, $variant }) =>
     $variant === 'intense' ? theme.boxShadow.lg : theme.boxShadow.sm};
-  overflow: hidden;
   will-change: background, box-shadow;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {

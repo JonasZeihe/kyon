@@ -67,21 +67,29 @@ export default function ArticleGrid({
   return (
     <Grid $hasAside={hasAside}>
       <Main ref={mainRef}>{children}</Main>
-      {hasAside ? <Aside data-toc-aside>{asideWithTop}</Aside> : null}
+      {hasAside ? (
+        <Aside data-toc-aside>
+          <AsideInner>{asideWithTop}</AsideInner>
+        </Aside>
+      ) : null}
     </Grid>
   )
 }
 
 const Grid = styled.div<{ $hasAside: boolean }>`
   --article-gap: clamp(1rem, 2vw, 2rem);
+  --article-max: var(--article-max-width, 80ch);
   display: grid;
   align-items: start;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, var(--article-max)) minmax(
+      0,
+      1fr
+    );
   column-gap: var(--article-gap);
   row-gap: var(--article-gap);
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(280px, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, var(--article-max)) 320px;
   }
 `
 
@@ -99,5 +107,12 @@ const Aside = styled.aside`
     display: block;
     grid-column: 3;
     min-width: 0;
+    position: relative;
   }
+`
+
+const AsideInner = styled.div`
+  position: sticky;
+  top: var(--article-scroll-margin, calc(var(--header-height, 74px) + 12px));
+  align-self: start;
 `

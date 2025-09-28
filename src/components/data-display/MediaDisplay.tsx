@@ -22,6 +22,7 @@ type MediaDisplayProps = {
   media: MediaItem[]
   variant?: Variant
   base?: string
+  mdxInline?: boolean
 }
 
 const join = (b: string, r: string) =>
@@ -121,11 +122,7 @@ const VideoWrapper = styled.div`
   }
 `
 
-export default function MediaDisplay({
-  media,
-  variant = 'large',
-  base,
-}: MediaDisplayProps) {
+function MediaDisplay({ media, variant = 'large', base }: MediaDisplayProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -137,7 +134,9 @@ export default function MediaDisplay({
           : {
               ...m,
               src: resolveSrc(m.src, base),
-              trackSrc: m.trackSrc ? resolveSrc(m.trackSrc, base) : m.trackSrc,
+              trackSrc: (m as VideoMedia).trackSrc
+                ? resolveSrc((m as VideoMedia).trackSrc as string, base)
+                : (m as VideoMedia).trackSrc,
             }
       ),
     [media, base]
@@ -203,28 +202,27 @@ export default function MediaDisplay({
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
                     style={{ objectFit: 'cover' }}
-                    priority={index === 0}
                   />
                 </ImageWrapper>
               ) : (
                 <VideoWrapper>
                   <video controls aria-label={aria}>
-                    <source src={item.src} type="video/mp4" />
+                    <source src={(item as VideoMedia).src} type="video/mp4" />
                     <track
                       src={
-                        item.trackSrc ||
+                        (item as VideoMedia).trackSrc ||
                         'data:text/vtt,WEBVTT%0A%0A00:00.000%20--%3E%2000:10.000%0A'
                       }
                       kind="captions"
-                      srcLang={item.trackLang || 'en'}
-                      label={`${item.trackLang || 'en'} subtitles`}
+                      srcLang={(item as VideoMedia).trackLang || 'en'}
+                      label={`${(item as VideoMedia).trackLang || 'en'} subtitles`}
                       default
                     />
                   </video>
                 </VideoWrapper>
               )}
-              {'caption' in item && item.caption ? (
-                <MediaCaption>{item.caption}</MediaCaption>
+              {'caption' in item && (item as any).caption ? (
+                <MediaCaption>{(item as any).caption}</MediaCaption>
               ) : null}
             </MediaItemBox>
           )
@@ -233,7 +231,7 @@ export default function MediaDisplay({
 
       {lightboxOpen && images.length > 0 && (
         <Lightbox
-          media={images}
+          media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
           currentIndex={currentImageIndex}
           onClose={closeLightbox}
         />
@@ -241,3 +239,7 @@ export default function MediaDisplay({
     </>
   )
 }
+
+;(MediaDisplay as any).displayName = 'MediaDisplay'
+
+export default MediaDisplay

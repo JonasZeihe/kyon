@@ -15,6 +15,7 @@ import type { Root } from 'hast'
 import readingTime from 'reading-time'
 import matter from 'gray-matter'
 import { toPublicAssetUrl } from './helpers/paths'
+import { SITE_URL } from '@/lib/blog/constants'
 
 export type TOCItem = { id: string; depth: number; text: string }
 
@@ -83,20 +84,33 @@ const textFrom = (node: any): string => {
   return children.map((c) => textFrom(c)).join('')
 }
 
-const isExternalUrl = (s: string) =>
+const isHttpUrl = (s: string) => /^https?:\/\//i.test(s)
+const isSchemeUrl = (s: string) =>
   /^([a-z]+:)?\/\//i.test(s) ||
-  s.startsWith('/') ||
   s.startsWith('data:') ||
   s.startsWith('blob:') ||
   s.startsWith('mailto:') ||
   s.startsWith('tel:')
+
+const isSameOrigin = (href: string) => {
+  if (!isHttpUrl(href)) return false
+  try {
+    const a = new URL(href)
+    const b = new URL(SITE_URL)
+    return a.origin === b.origin
+  } catch {
+    return false
+  }
+}
 
 const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
   walk(tree as any, null, (node) => {
     if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
       const depth = Number(node.tagName.slice(1))
       const id = node.properties?.id || ''
-      if (depth >= 2 && id) list.push({ id, depth, text: textFrom(node) })
+      if ((depth === 2 || depth === 3) && id) {
+        list.push({ id, depth, text: textFrom(node) })
+      }
     }
   })
 }
@@ -107,10 +121,13 @@ const assetsPlugin =
   async (tree: Root) => {
     const toUrl = (src: string): string => {
       if (!src) return src
-      if (isExternalUrl(src)) return src
+      if (isSchemeUrl(src) || src.startsWith('/')) return src
       if (assetBase?.baseHref) {
         const clean = src.replace(/^\.?\//, '')
-        return `${assetBase.baseHref.replace(/\/+$/, '')}/${clean}`
+        return `${assetBase.baseHref.replace(/\/+$/, '')}/${clean}`.replace(
+          /\/{2,}/g,
+          '/'
+        )
       }
       if (assetBase?.category && assetBase?.dirName) {
         return toPublicAssetUrl(assetBase.category, assetBase.dirName, src)
@@ -124,6 +141,16 @@ const assetsPlugin =
       if (node.tagName === 'img' && node.properties) {
         const src = String(node.properties.src || '')
         node.properties.src = toUrl(src)
+        if (node.properties.srcset) {
+          const set = String(node.properties.srcset)
+          node.properties.srcset = set
+            .split(',')
+            .map((part) => {
+              const [u, d] = part.trim().split(/\s+/)
+              return [toUrl(u), d].filter(Boolean).join(' ')
+            })
+            .join(', ')
+        }
       }
 
       if (node.tagName === 'source' && node.properties) {
@@ -149,9 +176,15 @@ const assetsPlugin =
       if (node.tagName === 'a' && node.properties?.href) {
         const href = String(node.properties.href)
         if (href.startsWith('#')) return
-        if (isExternalUrl(href)) {
-          node.properties.target = '_blank'
-          node.properties.rel = 'noopener noreferrer nofollow'
+        if (isSchemeUrl(href)) {
+          if (isHttpUrl(href) && !isSameOrigin(href)) {
+            node.properties.target = '_blank'
+            node.properties.rel = 'noopener noreferrer nofollow'
+          }
+          return
+        }
+        if (href.startsWith('/')) {
+          node.properties.href = href
           return
         }
         node.properties.href = toUrl(href)
