@@ -1,4 +1,4 @@
-// --- src/app/blog/components/PostHeader.tsx ---
+// src/app/blog/components/PostHeader.tsx
 'use client'
 
 import styled from 'styled-components'
@@ -31,7 +31,7 @@ export default function PostHeader({ post }: Props) {
     })
 
   return (
-    <Wrap>
+    <Wrap data-post-header>
       {cover ? (
         <Hero>
           <HeroMedia>
@@ -50,14 +50,12 @@ export default function PostHeader({ post }: Props) {
       ) : (
         <HeroPlaceholder />
       )}
-
       <Header>
         <Title>
           <Typography variant="h1" align="left">
             {post.title}
           </Typography>
         </Title>
-
         <Meta aria-label="Artikel-Metadaten">
           {validPub ? (
             <time dateTime={validPub.toISOString()}>
@@ -72,13 +70,11 @@ export default function PostHeader({ post }: Props) {
           ) : null}
           {post.readingTime ? <span>· ⏱️ {post.readingTime} min</span> : null}
         </Meta>
-
         {badges.length ? (
           <Badges>
             <BadgeGrid badges={badges} align="flex-start" gapSize={1.2} />
           </Badges>
         ) : null}
-
         {post.excerpt ? <Excerpt>{post.excerpt}</Excerpt> : null}
       </Header>
     </Wrap>

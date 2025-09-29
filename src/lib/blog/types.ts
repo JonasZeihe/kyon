@@ -4,7 +4,7 @@ import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 export type Category = string
 
 export type TOCItem = {
-  depth: number
+  depth: 2 | 3
   value: string
   id: string
 }
@@ -51,7 +51,7 @@ export type PostMeta = {
 
 export type PostFull = {
   meta: PostMeta
-  bodySource: string
+  bodySource?: string
   isMDX: boolean
   bodyMdx?: MDXRemoteSerializeResult
   toc?: TOCItem[]

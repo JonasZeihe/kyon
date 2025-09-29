@@ -1,8 +1,9 @@
+// src/app/blog/[category]/page.tsx
 import Typography from '@/styles/Typography'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import PostList from '@/app/blog/components/PostList'
 import Pagination from '@/app/blog/components/Pagination'
-import Breadcrumbs from '@/components/navigation/Breadcrumbs'
+import Breadcrumbs from '@/app/blog/meta/Breadcrumbs'
 import { getAllPostMeta, getPostsByCategory } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
@@ -36,7 +37,6 @@ export default async function CategoryPage({
       <Breadcrumbs
         items={[{ href: '/blog', label: 'Blog' }, { label: category }]}
       />
-
       <header style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
         <Typography variant="h1" align="center" color="primary.main">
           {category}
@@ -45,7 +45,6 @@ export default async function CategoryPage({
           {all.length} Beitrag{all.length === 1 ? '' : 'e'} in „{category}“
         </Typography>
       </header>
-
       {p.items.length ? (
         <PostList posts={p.items} />
       ) : (
@@ -53,7 +52,6 @@ export default async function CategoryPage({
           Keine Beiträge in dieser Kategorie.
         </Typography>
       )}
-
       <Pagination
         basePath={`/blog/${category}`}
         page={p.page}

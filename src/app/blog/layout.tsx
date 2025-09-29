@@ -1,7 +1,7 @@
 // src/app/blog/layout.tsx
 import React from 'react'
 import ArticleLayout from '@/components/blog/ArticleLayout'
-import ReadingProgress from '@/components/blog/ReadingProgress'
+import ArticleGrid from '@/components/blog/ArticleGrid'
 
 export default function BlogLayout({
   children,
@@ -9,9 +9,8 @@ export default function BlogLayout({
   children: React.ReactNode
 }) {
   return (
-    <>
-      <ReadingProgress />
-      <ArticleLayout>{children}</ArticleLayout>
-    </>
+    <ArticleLayout>
+      <ArticleGrid aside={<div data-toc-aside />}>{children}</ArticleGrid>
+    </ArticleLayout>
   )
 }

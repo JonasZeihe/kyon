@@ -17,7 +17,7 @@ import matter from 'gray-matter'
 import { toPublicAssetUrl } from './helpers/paths'
 import { SITE_URL } from '@/lib/blog/constants'
 
-export type TOCItem = { id: string; depth: number; text: string }
+export type TOCItem = { id: string; depth: 2 | 3; text: string }
 
 export type Frontmatter = {
   title: string
@@ -109,7 +109,7 @@ const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
       const depth = Number(node.tagName.slice(1))
       const id = node.properties?.id || ''
       if ((depth === 2 || depth === 3) && id) {
-        list.push({ id, depth, text: textFrom(node) })
+        list.push({ id, depth: depth as 2 | 3, text: textFrom(node) })
       }
     }
   })

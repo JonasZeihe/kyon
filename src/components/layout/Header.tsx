@@ -1,7 +1,7 @@
 // src/components/layout/Header.tsx
 'use client'
 
-import React, { useReducer, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useReducer, useRef, useState } from 'react'
 import styled from 'styled-components'
 import Link from 'next/link'
 import {
@@ -41,10 +41,8 @@ const PRIMARY_LINKS = [
 
 export default function Header({ navSections = [] }: HeaderProps) {
   const pathname = usePathname() || '/'
-  const isArticle = /^\/blog\/[^/]+\/[^/]+\/?$/.test(pathname)
   const headerRef = useRef<HTMLElement | null>(null)
   const [activeSection, setActiveSection] = useState<string | null>(null)
-  const [hidden, setHidden] = useState(false)
 
   const initial: State = { menuOpen: false, openSubNav: null }
   const reducer = (s: State, a: Action): State =>
@@ -91,30 +89,6 @@ export default function Header({ navSections = [] }: HeaderProps) {
       window.removeEventListener('resize', applyVars)
     }
   }, [])
-
-  useEffect(() => {
-    if (!isArticle) {
-      setHidden(false)
-      return
-    }
-    let lastY = window.scrollY
-    let ticking = false
-    const onScroll = () => {
-      if (ticking) return
-      ticking = true
-      requestAnimationFrame(() => {
-        const y = window.scrollY
-        const down = y > lastY
-        const passed = y > 120
-        setHidden(down && passed)
-        if (y < 24) setHidden(false)
-        lastY = y
-        ticking = false
-      })
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [isArticle])
 
   const renderSectionChildren = (children: NavChild[]) =>
     children.map((c) => (
@@ -232,7 +206,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
   }
 
   return (
-    <HeaderContainer ref={headerRef as any} $hidden={hidden}>
+    <HeaderContainer ref={headerRef as any}>
       <HeaderContent>
         <LeftSide>
           <Logo
@@ -282,7 +256,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
   )
 }
 
-const HeaderContainer = styled.header<{ $hidden: boolean }>`
+const HeaderContainer = styled.header`
   position: fixed;
   top: 0;
   left: 0;
@@ -292,10 +266,8 @@ const HeaderContainer = styled.header<{ $hidden: boolean }>`
   box-shadow: ${({ theme }) => theme.boxShadow.sm};
   border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
   transition:
-    transform 0.22s ease,
     box-shadow 0.2s ease,
     background 0.2s ease;
-  transform: translateY(${({ $hidden }) => ($hidden ? '-110%' : '0')});
 `
 
 const HeaderContent = styled.div`

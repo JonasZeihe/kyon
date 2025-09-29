@@ -1,4 +1,4 @@
-// src/components/navigation/Breadcrumbs.tsx
+// src/app/blog/meta/Breadcrumbs.tsx
 'use client'
 
 import Link from 'next/link'
@@ -39,7 +39,6 @@ export default function Breadcrumbs({
               <CrumbLink href="/">{homeLabel}</CrumbLink>
             </Item>
           )}
-
           {items.map((it, i) => {
             const last = i === items.length - 1
             return (

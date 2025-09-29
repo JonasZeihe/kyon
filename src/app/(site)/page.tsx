@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import styled from 'styled-components'
+import PageLayout from '@/layouts/PageLayout'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import BentoSection from '@/components/Wrapper/BentoSection'
 import AutoGrid from '@/components/Wrapper/AutoGrid'
@@ -18,16 +19,15 @@ export default function HomePage() {
   const latest = all.slice(0, POSTS_PER_PAGE)
 
   const tagCounts = new Map<string, number>()
-  for (const m of all) {
+  for (const m of all)
     for (const t of m.tags || []) tagCounts.set(t, (tagCounts.get(t) || 0) + 1)
-  }
   const topTags = Array.from(tagCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 16)
     .map(([tag]) => tag)
 
   return (
-    <>
+    <PageLayout variant="none" size="wide">
       <ContainerWrapper $size="wide" $padY>
         <BentoSection
           title={
@@ -122,7 +122,7 @@ export default function HomePage() {
           </AutoGrid>
         </BentoSection>
       </ContainerWrapper>
-    </>
+    </PageLayout>
   )
 }
 
@@ -197,12 +197,9 @@ const TagLink = styled(Link)`
   text-align: center;
   border-radius: ${({ theme }) => theme.borderRadius.small};
   background: ${({ theme }) => theme.colors.surface[1]};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border}};
   color: ${({ theme }) => theme.colors.text.main};
-  transition:
-    background 0.15s ease,
-    transform 0.12s ease,
-    box-shadow 0.18s ease;
+  transition: background 0.15s ease, transform 0.12s ease, box-shadow 0.18s ease;
   &:hover,
   &:focus-visible {
     background: ${({ theme }) => theme.colors.surface.hover};

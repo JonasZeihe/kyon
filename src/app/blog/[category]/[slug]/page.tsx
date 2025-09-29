@@ -6,7 +6,6 @@ import type { Metadata } from 'next'
 import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
-import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import fs from 'node:fs'
 import path from 'node:path'
 import {
@@ -14,11 +13,10 @@ import {
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import ArticleLayout from '@/components/blog/ArticleLayout'
-import StickyToc from '@/components/blog/StickyToc'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import ArticleGrid from '@/components/blog/ArticleGrid'
+import BlogMetaLayer, { BreadcrumbItem } from '@/layouts/BlogMetaLayer'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -84,10 +82,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     value: t.text,
   }))
 
-  const hasTOC =
-    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
-
-  const crumbs = [
+  const crumbs: BreadcrumbItem[] = [
     { href: '/blog', label: 'Blog' },
     { href: `/blog/${post.meta.category}`, label: post.meta.category },
     { label: post.meta.title },
@@ -95,20 +90,15 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <main>
-      <ContainerWrapper>
-        <Breadcrumbs items={crumbs} />
-      </ContainerWrapper>
-
-      <ContainerWrapper $size="wide">
-        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
-          <ArticleLayout>
-            <SectionWrapper $spacious data-toc-anchor>
-              <PostHeader post={post.meta} />
-            </SectionWrapper>
-            <SectionWrapper $spacious>
-              <PostBody post={post as any} />
-            </SectionWrapper>
-          </ArticleLayout>
+      <BlogMetaLayer toc={toc} breadcrumbs={crumbs} showProgress />
+      <ContainerWrapper $size="wide" $padY>
+        <ArticleGrid>
+          <SectionWrapper $spacious data-toc-anchor>
+            <PostHeader post={post.meta} />
+          </SectionWrapper>
+          <SectionWrapper $spacious>
+            <PostBody post={post as any} />
+          </SectionWrapper>
         </ArticleGrid>
       </ContainerWrapper>
     </main>

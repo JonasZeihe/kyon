@@ -1,18 +1,26 @@
-// src/components/blog/ReadingProgress.tsx
+// src/app/blog/meta/ReadingProgress.tsx
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
-const flag =
+type Props = {
+  targetSelector?: string
+  pathPattern?: RegExp
+}
+
+const envFlag =
   typeof process !== 'undefined'
     ? (process.env.NEXT_PUBLIC_FEATURE_READING_PROGRESS || '').toLowerCase()
     : ''
-const enabledByEnv = flag === '' || flag === 'true'
+const enabledByEnv = envFlag === '' || envFlag === 'true'
 
-export default function ReadingProgress() {
-  const pathname = usePathname()
-  const isArticle = /^\/blog\/[^/]+\/[^/]+\/?$/.test(pathname || '')
+export default function ReadingProgress({
+  targetSelector = '[data-toc-anchor]',
+  pathPattern = /^\/blog\/[^/]+\/[^/]+\/?$/,
+}: Props) {
+  const pathname = usePathname() || ''
+  const isArticle = pathPattern.test(pathname)
   const [progress, setProgress] = useState(0)
   const [visible, setVisible] = useState(false)
   const rafRef = useRef<number | null>(null)
@@ -26,17 +34,14 @@ export default function ReadingProgress() {
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReduced) return
 
-    const getScrollTarget = () => {
-      const article =
-        document.querySelector('article') ||
-        document.querySelector('[data-article]') ||
-        document.querySelector('main') ||
-        document.body
-      return article as HTMLElement
-    }
+    const getTarget = () =>
+      (document.querySelector(targetSelector) as HTMLElement | null) ||
+      (document.querySelector('article') as HTMLElement | null) ||
+      (document.querySelector('main') as HTMLElement | null) ||
+      (document.body as HTMLElement)
 
     const update = () => {
-      const el = getScrollTarget()
+      const el = getTarget()
       const doc = document.documentElement
       const rect = el.getBoundingClientRect()
       const topFromDoc = rect.top + (window.pageYOffset || doc.scrollTop || 0)
@@ -69,7 +74,7 @@ export default function ReadingProgress() {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
     }
-  }, [mounted, isArticle, pathname])
+  }, [mounted, isArticle, pathname, targetSelector])
 
   if (!enabledByEnv || !visible || !isArticle) return null
 

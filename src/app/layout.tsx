@@ -1,8 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata } from 'next'
-import Providers from './providers'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
+import Shell from '@/layouts/Shell'
+import Providers from '@/providers'
 import { SITE_URL } from '@/lib/blog/constants'
 
 export const metadata: Metadata = {
@@ -17,14 +16,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="de">
+    <html lang="de" data-theme="light" suppressHydrationWarning>
+      <head>
+        <meta name="color-scheme" content="light dark" />
+      </head>
       <body>
         <Providers>
-          <Header navSections={[]} />
-          <main style={{ paddingTop: 'var(--header-height, 74px)' }}>
-            {children}
-          </main>
-          <Footer />
+          <Shell>{children}</Shell>
         </Providers>
       </body>
     </html>
