@@ -19,7 +19,7 @@ export type BadgeGridProps = {
   marginSize?: number
 }
 
-const StyledBadgeGrid = styled.div<{
+const Grid = styled.div<{
   $align: string
   $gap: number
   $margin: number
@@ -27,6 +27,7 @@ const StyledBadgeGrid = styled.div<{
   display: flex;
   flex-wrap: wrap;
   justify-content: ${({ $align }) => $align};
+  align-items: center;
   gap: ${({ theme, $gap }) => theme.spacing($gap)};
   margin: ${({ theme, $margin }) => theme.spacing($margin)} 0;
 `
@@ -38,9 +39,8 @@ export default function BadgeGrid({
   marginSize = 1,
 }: BadgeGridProps) {
   if (!badges?.length) return null
-
   return (
-    <StyledBadgeGrid $align={align} $gap={gapSize} $margin={marginSize}>
+    <Grid $align={align} $gap={gapSize} $margin={marginSize}>
       {badges.map((b, i) => {
         if (typeof b === 'string') {
           return <Badge key={`${b}-${i}`} label={b} />
@@ -48,6 +48,6 @@ export default function BadgeGrid({
         const { key, ...rest } = b
         return <Badge key={key ?? `badge-${i}`} {...rest} />
       })}
-    </StyledBadgeGrid>
+    </Grid>
   )
 }

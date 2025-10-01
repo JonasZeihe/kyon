@@ -1,4 +1,4 @@
-// next.config.js
+// next.config.ts
 const repo = process.env.GITHUB_REPOSITORY
   ? process.env.GITHUB_REPOSITORY.split('/')[1]
   : ''

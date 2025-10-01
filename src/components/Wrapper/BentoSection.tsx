@@ -1,11 +1,11 @@
-// --- src/components/Wrapper/BentoSection.tsx ---
+// src/components/Wrapper/BentoSection.tsx
 'use client'
 
 import { ReactNode } from 'react'
 import styled from 'styled-components'
-import LumenWrapper from './LumenWrapper'
 import ContainerWrapper from './ContainerWrapper'
 import AutoGrid from './AutoGrid'
+import LumenWrapper from './LumenWrapper'
 
 type Props = {
   title?: ReactNode
@@ -62,7 +62,6 @@ const Header = styled.div`
   align-items: end;
   gap: ${({ theme }) => theme.spacing(1.5)};
   margin-bottom: ${({ theme }) => theme.spacing(1.5)};
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
     align-items: start;
@@ -96,15 +95,11 @@ const CtaWrap = styled.div`
   gap: ${({ theme }) => theme.spacing(1)};
 `
 
-const Surface = styled(LumenWrapper).attrs({ $variant: 'subtle' as const })`
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border-radius: ${({ theme }) => theme.borderRadius.large};
-  padding: ${({ theme }) => theme.spacing(2)};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-
+const Surface = styled(LumenWrapper).attrs((p) => ({
+  variant: 'subtle' as const,
+  padding: p.theme.spacing(2),
+}))`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    border-radius: ${({ theme }) => theme.borderRadius.medium};
     padding: ${({ theme }) => theme.spacing(1.25)};
   }
 `

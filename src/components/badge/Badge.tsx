@@ -17,16 +17,14 @@ export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
 }
 
 const BadgeContainer = styled.span<{
-  $bg: string
   $pill: boolean
-  $color: string
 }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing(0.7)};
-  background-color: ${({ $bg }) => $bg};
-  color: ${({ $color }) => $color};
+  background: ${({ theme }) => theme.colors.accent.main};
+  color: ${({ theme }) => theme.colors.text.main};
   border-radius: ${({ theme, $pill }) =>
     $pill ? theme.borderRadius.pill : theme.borderRadius.medium};
   padding: ${({ theme }) => `${theme.spacing(0.7)} ${theme.spacing(2)}`};
@@ -35,7 +33,6 @@ const BadgeContainer = styled.span<{
   line-height: 1;
   white-space: nowrap;
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  transition: opacity 0.2s ease-out;
   user-select: none;
   cursor: default;
 
@@ -50,11 +47,10 @@ const BadgeContainer = styled.span<{
   }
 `
 
-const IconWrapper = styled.span`
-  display: flex;
+const Icon = styled.span`
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
   line-height: 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -65,38 +61,17 @@ const IconWrapper = styled.span`
 export default function Badge({
   label,
   icon,
-  bg,
-  bgLight,
-  bgDark,
-  textColor,
-  textColorLight,
-  textColorDark,
   pill = true,
   ...rest
 }: BadgeProps) {
-  const theme = useTheme()
-  const isDark = theme.mode === 'dark'
-
-  const resolvedBg =
-    bg ??
-    (isDark
-      ? (bgDark ?? theme.colors.accent?.border ?? '#5b4bb7')
-      : (bgLight ?? theme.colors.accent?.surface ?? '#f3e9ff'))
-
-  const resolvedColor =
-    textColor ??
-    (isDark
-      ? (textColorDark ?? theme.colors.text?.inverse ?? '#ffffff')
-      : (textColorLight ?? theme.colors.text?.main ?? '#16171D'))
-
+  useTheme()
   return (
     <BadgeContainer
-      $bg={resolvedBg}
       $pill={pill}
-      $color={resolvedColor}
+      aria-label={rest['aria-label'] || label}
       {...rest}
     >
-      {icon ? <IconWrapper aria-hidden="true">{icon}</IconWrapper> : null}
+      {icon ? <Icon aria-hidden="true">{icon}</Icon> : null}
       <span>{label}</span>
     </BadgeContainer>
   )

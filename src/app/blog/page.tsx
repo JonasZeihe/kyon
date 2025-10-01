@@ -2,7 +2,6 @@
 import Link from 'next/link'
 import Typography from '@/styles/Typography'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import AutoGrid from '@/components/Wrapper/AutoGrid'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta } from '@/lib/blog/indexer'
@@ -31,74 +30,75 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
 
   return (
     <main>
-      <ContainerWrapper>
-        <SectionWrapper $spacious>
-          <div style={{ textAlign: 'center', marginBottom: '1.2rem' }}>
-            <Typography variant="h1" align="center" color="primary.main">
-              Blog
-            </Typography>
-            <Typography align="center" color="text.subtle">
-              Prozess statt Pose. Natürlichkeit vor Methode.
-            </Typography>
-          </div>
-        </SectionWrapper>
+      <SectionWrapper $spacious>
+        <header style={{ textAlign: 'center' }}>
+          <Typography variant="h1" align="center" color="primary.main">
+            Blog
+          </Typography>
+          <Typography align="center" color="text.subtle">
+            Prozess statt Pose. Natürlichkeit vor Methode.
+          </Typography>
+        </header>
+      </SectionWrapper>
 
-        <SectionWrapper>
-          {items.length ? (
-            <AutoGrid $min="260px" $gap={1.5}>
-              {items.map((m) => {
-                const href = `/blog/${m.category}/${m.slug}`
-                const cover = m.cover
-                  ? toPublicAssetUrl(m.category, m.dirName, m.cover)
-                  : undefined
-                return (
-                  <Card
-                    key={m.id}
-                    href={href}
-                    title={m.title}
-                    cover={cover}
-                    date={m.updated || m.date}
-                    readingTime={m.readingTime}
-                    excerpt={m.excerpt}
-                    tag={m.category}
-                  />
-                )
-              })}
-            </AutoGrid>
+      <SectionWrapper $spacious>
+        {items.length ? (
+          <AutoGrid $min="260px" $gap={2}>
+            {items.map((m) => {
+              const href = `/blog/${m.category}/${m.slug}`
+              const cover = m.cover
+                ? toPublicAssetUrl(m.category, m.dirName, m.cover)
+                : undefined
+              return (
+                <Card
+                  key={m.id}
+                  href={href}
+                  title={m.title}
+                  cover={cover}
+                  date={m.updated || m.date}
+                  readingTime={m.readingTime}
+                  excerpt={m.excerpt}
+                  tag={m.category}
+                />
+              )
+            })}
+          </AutoGrid>
+        ) : (
+          <Typography align="center" color="text.subtle">
+            Keine Beiträge gefunden.
+          </Typography>
+        )}
+      </SectionWrapper>
+
+      <SectionWrapper>
+        <nav
+          style={{
+            display: 'flex',
+            gap: 16,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          aria-label="Seitennavigation"
+        >
+          {hasPrev ? (
+            <Link href={`/blog?page=${current - 1}`}>← Zurück</Link>
           ) : (
-            <p>Keine Beiträge gefunden.</p>
-          )}
-
-          <nav
-            style={{
-              display: 'flex',
-              gap: 12,
-              marginTop: 20,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            aria-label="Seitennavigation"
-          >
-            {hasPrev ? (
-              <Link href={`/blog?page=${current - 1}`}>← Zurück</Link>
-            ) : (
-              <span aria-disabled="true" style={{ opacity: 0.5 }}>
-                ← Zurück
-              </span>
-            )}
-            <span>
-              Seite {current} / {pageCount}
+            <span aria-disabled="true" style={{ opacity: 0.5 }}>
+              ← Zurück
             </span>
-            {hasNext ? (
-              <Link href={`/blog?page=${current + 1}`}>Weiter →</Link>
-            ) : (
-              <span aria-disabled="true" style={{ opacity: 0.5 }}>
-                Weiter →
-              </span>
-            )}
-          </nav>
-        </SectionWrapper>
-      </ContainerWrapper>
+          )}
+          <span>
+            Seite {current} / {pageCount}
+          </span>
+          {hasNext ? (
+            <Link href={`/blog?page=${current + 1}`}>Weiter →</Link>
+          ) : (
+            <span aria-disabled="true" style={{ opacity: 0.5 }}>
+              Weiter →
+            </span>
+          )}
+        </nav>
+      </SectionWrapper>
     </main>
   )
 }

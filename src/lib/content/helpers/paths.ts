@@ -7,7 +7,7 @@ const ensureLeading = (s: string) => (s.startsWith('/') ? s : `/${s}`)
 export const withBase = (p: string) => {
   const bp = trimSlashes(BASE_PATH || '')
   const clean = ensureLeading(trimSlashes(p || '/'))
-  return bp ? `/${bp}${clean}` : clean
+  return bp ? `/${bp}${clean}`.replace(/\/{2,}/g, '/') : clean
 }
 
 export const abs = (p: string) => {

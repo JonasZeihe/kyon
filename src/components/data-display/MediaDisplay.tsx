@@ -22,6 +22,7 @@ type MediaDisplayProps = {
   media: MediaItem[]
   variant?: Variant
   base?: string
+  mdxInline?: boolean
 }
 
 const join = (b: string, r: string) =>
@@ -93,16 +94,51 @@ const ImageWrapper = styled.div`
   overflow: hidden;
 `
 
-const MediaCaption = styled.div`
-  margin-top: ${({ theme }) => theme.spacing(2)};
-  margin-bottom: ${({ theme }) => theme.spacing(3)};
+const InlineWrapper = styled.span`
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  vertical-align: middle;
+`
+
+const InlineImgButton = styled.button`
+  all: unset;
+  cursor: zoom-in;
+  display: inline-block;
+  max-width: 100%;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  overflow: hidden;
+  line-height: 0;
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+  }
+`
+
+const InlineImg = styled.img`
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+`
+
+const InlineCaption = styled.small`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(1)};
   text-align: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
-  }
+`
+
+const MediaCaption = styled.figcaption`
+  margin-top: ${({ theme }) => theme.spacing(1.25)};
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
 `
 
 const VideoWrapper = styled.div`
@@ -118,13 +154,15 @@ const VideoWrapper = styled.div`
     width: 100%;
     height: 100%;
     object-fit: contain;
+    background: #000;
   }
 `
 
-export default function MediaDisplay({
+function MediaDisplay({
   media,
   variant = 'large',
   base,
+  mdxInline,
 }: MediaDisplayProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -137,7 +175,9 @@ export default function MediaDisplay({
           : {
               ...m,
               src: resolveSrc(m.src, base),
-              trackSrc: m.trackSrc ? resolveSrc(m.trackSrc, base) : m.trackSrc,
+              trackSrc: (m as VideoMedia).trackSrc
+                ? resolveSrc((m as VideoMedia).trackSrc as string, base)
+                : (m as VideoMedia).trackSrc,
             }
       ),
     [media, base]
@@ -167,6 +207,36 @@ export default function MediaDisplay({
   const closeLightbox = () => setLightboxOpen(false)
 
   if (!normalized?.length) return null
+
+  const singleInline =
+    mdxInline && normalized.length === 1 && normalized[0].type === 'image'
+
+  if (singleInline) {
+    const item = normalized[0] as ImageMedia
+    const aria = item.alt || 'Bild'
+    return (
+      <>
+        <InlineWrapper>
+          <InlineImgButton
+            type="button"
+            onClick={() => openLightbox(0)}
+            aria-label={`Bild vergrößern: ${aria}`}
+          >
+            <InlineImg src={item.src} alt={aria} />
+          </InlineImgButton>
+          {item.caption ? <InlineCaption>{item.caption}</InlineCaption> : null}
+        </InlineWrapper>
+
+        {lightboxOpen && images.length > 0 && (
+          <Lightbox
+            media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
+            currentIndex={currentImageIndex}
+            onClose={closeLightbox}
+          />
+        )}
+      </>
+    )
+  }
 
   return (
     <>
@@ -198,33 +268,32 @@ export default function MediaDisplay({
               {isImage ? (
                 <ImageWrapper>
                   <Image
-                    src={item.src}
+                    src={(item as ImageMedia).src}
                     alt={aria}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
                     style={{ objectFit: 'cover' }}
-                    priority={index === 0}
                   />
                 </ImageWrapper>
               ) : (
                 <VideoWrapper>
                   <video controls aria-label={aria}>
-                    <source src={item.src} type="video/mp4" />
+                    <source src={(item as VideoMedia).src} type="video/mp4" />
                     <track
                       src={
-                        item.trackSrc ||
+                        (item as VideoMedia).trackSrc ||
                         'data:text/vtt,WEBVTT%0A%0A00:00.000%20--%3E%2000:10.000%0A'
                       }
                       kind="captions"
-                      srcLang={item.trackLang || 'en'}
-                      label={`${item.trackLang || 'en'} subtitles`}
+                      srcLang={(item as VideoMedia).trackLang || 'en'}
+                      label={`${(item as VideoMedia).trackLang || 'en'} subtitles`}
                       default
                     />
                   </video>
                 </VideoWrapper>
               )}
-              {'caption' in item && item.caption ? (
-                <MediaCaption>{item.caption}</MediaCaption>
+              {'caption' in item && (item as any).caption ? (
+                <MediaCaption as="div">{(item as any).caption}</MediaCaption>
               ) : null}
             </MediaItemBox>
           )
@@ -233,7 +302,7 @@ export default function MediaDisplay({
 
       {lightboxOpen && images.length > 0 && (
         <Lightbox
-          media={images}
+          media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
           currentIndex={currentImageIndex}
           onClose={closeLightbox}
         />
@@ -241,3 +310,7 @@ export default function MediaDisplay({
     </>
   )
 }
+
+;(MediaDisplay as any).displayName = 'MediaDisplay'
+
+export default MediaDisplay

@@ -8,10 +8,9 @@ tags:
   - Design
   - Entwicklung
   - Prozess
-  - Freelancing
   - UX
-  - Java
-  - React
+  - Einführung
+
 draft: false
 cover: ./cover.webp
 ---

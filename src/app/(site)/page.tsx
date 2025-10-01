@@ -2,8 +2,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import styled from 'styled-components'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import BentoSection from '@/components/Wrapper/BentoSection'
+import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 import AutoGrid from '@/components/Wrapper/AutoGrid'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
@@ -18,42 +18,31 @@ export default function HomePage() {
   const latest = all.slice(0, POSTS_PER_PAGE)
 
   const tagCounts = new Map<string, number>()
-  for (const m of all) {
+  for (const m of all)
     for (const t of m.tags || []) tagCounts.set(t, (tagCounts.get(t) || 0) + 1)
-  }
   const topTags = Array.from(tagCounts.entries())
     .sort((a, b) => b[1] - a[1])
     .slice(0, 16)
     .map(([tag]) => tag)
 
   return (
-    <>
-      <ContainerWrapper $size="wide" $padY>
-        <BentoSection
-          title={
+    <main>
+      <SectionWrapper $spacious>
+        <LumenWrapper as="header" variant="subtle" radius="large">
+          <div style={{ textAlign: 'center' }}>
             <GradientTitle>
               Prozess statt Pose <span>·</span> Natürlichkeit vor Methode
             </GradientTitle>
-          }
-          subtitle={
             <Subtitle>
               Ein technischer Blog mit Haltung – klar, präzise, praxisnah.
             </Subtitle>
-          }
-          cta={
             <CTAGroup>
               <CTA href="/blog" data-variant="primary">
                 Neueste Beiträge
               </CTA>
               <CTA href="/about">Purpose & About</CTA>
             </CTAGroup>
-          }
-          min="20rem"
-          gap={2}
-          columns={1}
-          padY
-          wide
-        >
+          </div>
           <HeroVisual>
             <Image
               src="/og-default.png"
@@ -64,51 +53,46 @@ export default function HomePage() {
               priority
             />
           </HeroVisual>
-        </BentoSection>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      <ContainerWrapper $size="default" $padY>
-        <BentoSection
-          title="Neu & lesenswert"
-          subtitle="Frisch aus dem Prozess – Auswahl der neuesten Artikel."
-          cta={<CTA href="/blog">Alle Beiträge →</CTA>}
-          min="20rem"
-          gap={2}
-          columns="auto"
-        >
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
+          <Typography variant="h2" align="left" gutter>
+            Neu & lesenswert
+          </Typography>
           {latest.length === 0 ? (
             <EmptyHint>Keine Beiträge gefunden.</EmptyHint>
           ) : (
-            latest.map((p) => {
-              const href = `/blog/${p.category}/${p.slug}`
-              const cover = p.cover
-                ? toPublicAssetUrl(p.category, p.dirName, p.cover)
-                : undefined
-              return (
-                <Card
-                  key={p.id}
-                  href={href}
-                  title={p.title}
-                  cover={cover}
-                  date={p.updated || p.date}
-                  readingTime={p.readingTime}
-                  excerpt={p.excerpt}
-                  tag={p.category}
-                />
-              )
-            })
+            <AutoGrid $min="260px" $gap={1.5}>
+              {latest.map((p) => {
+                const href = `/blog/${p.category}/${p.slug}`
+                const cover = p.cover
+                  ? toPublicAssetUrl(p.category, p.dirName, p.cover)
+                  : undefined
+                return (
+                  <Card
+                    key={p.id}
+                    href={href}
+                    title={p.title}
+                    cover={cover}
+                    date={p.updated || p.date}
+                    readingTime={p.readingTime}
+                    excerpt={p.excerpt}
+                    tag={p.category}
+                  />
+                )
+              })}
+            </AutoGrid>
           )}
-        </BentoSection>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      <ContainerWrapper $size="default" $padY>
-        <BentoSection
-          title="Themen"
-          subtitle="Worüber hier gesprochen wird."
-          min="12rem"
-          gap={1.5}
-          columns="auto"
-        >
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
+          <Typography variant="h2" align="left" gutter>
+            Themen
+          </Typography>
           <AutoGrid $min="10rem" $gap={1.2} $columns="auto">
             {topTags.length === 0 ? (
               <EmptyHint>Keine Tags vorhanden.</EmptyHint>
@@ -120,9 +104,9 @@ export default function HomePage() {
               ))
             )}
           </AutoGrid>
-        </BentoSection>
-      </ContainerWrapper>
-    </>
+        </LumenWrapper>
+      </SectionWrapper>
+    </main>
   )
 }
 
@@ -140,16 +124,17 @@ const GradientTitle = styled.h1`
 `
 
 const Subtitle = styled.p`
-  margin: 0.25rem 0 0 0;
+  margin: 0.5rem 0 1rem 0;
   color: ${({ theme }) => theme.colors.text.subtle};
   font-size: ${({ theme }) => theme.typography.fontSize.body};
 `
 
 const CTAGroup = styled.div`
-  display: inline-flex;
+  display: flex;
   gap: ${({ theme }) => theme.spacing(1)};
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  margin-top: ${({ theme }) => theme.spacing(1)};
 `
 
 const CTA = styled(Link)`
@@ -180,6 +165,7 @@ const CTA = styled(Link)`
 
 const HeroVisual = styled.div`
   position: relative;
+  margin-top: ${({ theme }) => theme.spacing(2)};
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: ${({ theme }) => theme.borderRadius.large};

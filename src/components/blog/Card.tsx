@@ -34,38 +34,36 @@ export default function Card({
 
   return (
     <CardWrap>
-      <Link href={href} aria-label={title} passHref legacyBehavior>
-        <CardLink>
-          {cover ? (
-            <Thumb>
-              <Image
-                src={cover}
-                alt={title}
-                fill
-                sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 400px"
-                style={{ objectFit: 'cover' }}
-                priority={false}
-              />
-              {tag ? <Tag aria-hidden="true">{tag}</Tag> : null}
-            </Thumb>
-          ) : (
-            <ThumbFallback aria-hidden="true" />
-          )}
+      <CardLink href={href} aria-label={title}>
+        {cover ? (
+          <Thumb>
+            <Image
+              src={cover}
+              alt={title}
+              fill
+              sizes="(max-width:768px) 100vw, (max-width:1200px) 50vw, 400px"
+              style={{ objectFit: 'cover' }}
+              priority={false}
+            />
+            {tag ? <Tag aria-hidden="true">{tag}</Tag> : null}
+          </Thumb>
+        ) : (
+          <ThumbFallback aria-hidden="true" />
+        )}
 
-          <Content>
-            <Title variant="h3" gutter={false}>
-              {title}
-            </Title>
+        <Content>
+          <Title variant="h3" gutter={false}>
+            {title}
+          </Title>
 
-            {excerpt ? <Excerpt color="text.subtle">{excerpt}</Excerpt> : null}
+          {excerpt ? <Excerpt color="text.subtle">{excerpt}</Excerpt> : null}
 
-            <Meta>
-              <time dateTime={dateISO}>{dateLabel}</time>
-              {readingTime ? <span>· {readingTime} min</span> : null}
-            </Meta>
-          </Content>
-        </CardLink>
-      </Link>
+          <Meta>
+            <time dateTime={dateISO}>{dateLabel}</time>
+            {readingTime ? <span>· {readingTime} min</span> : null}
+          </Meta>
+        </Content>
+      </CardLink>
     </CardWrap>
   )
 }
@@ -79,11 +77,13 @@ const CardWrap = styled.article`
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+
   &:has(a:focus-visible),
   &:hover {
     transform: translateY(-2px);
     box-shadow: ${({ theme }) => theme.boxShadow.md};
   }
+
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     border-radius: ${({ theme }) => theme.borderRadius.medium};
     &:hover {
@@ -93,12 +93,13 @@ const CardWrap = styled.article`
   }
 `
 
-const CardLink = styled.a`
+const CardLink = styled(Link)`
   display: grid;
   grid-template-rows: auto 1fr;
   text-decoration: none;
   color: inherit;
   outline: none;
+
   &:focus-visible {
     box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55 inset;
   }

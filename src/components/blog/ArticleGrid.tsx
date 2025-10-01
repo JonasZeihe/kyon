@@ -1,87 +1,46 @@
 // src/components/blog/ArticleGrid.tsx
 'use client'
-
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 type Props = {
-  aside?: React.ReactNode
   children: React.ReactNode
-  anchorSelector?: string
 }
 
-export default function ArticleGrid({
-  aside,
-  children,
-  anchorSelector = '[data-toc-anchor]',
-}: Props) {
-  const mainRef = useRef<HTMLDivElement | null>(null)
-  const [tocTop, setTocTop] = useState<number | undefined>(undefined)
-
-  useEffect(() => {
-    const main = mainRef.current
-    if (!main) return
-    let ro: ResizeObserver | null = null
-    let frame = 0
-
-    const getTop = () => {
-      const anchor =
-        (main.querySelector(anchorSelector) as HTMLElement | null) || main
-      const rect = anchor.getBoundingClientRect()
-      return Math.round(rect.top)
-    }
-
-    const update = () => {
-      cancelAnimationFrame(frame)
-      frame = requestAnimationFrame(() => setTocTop(getTop()))
-    }
-
-    ro = new ResizeObserver(update)
-    ro.observe(document.documentElement)
-    ro.observe(main)
-    const anchor =
-      (main.querySelector(anchorSelector) as HTMLElement | null) || null
-    if (anchor) ro.observe(anchor)
-
-    update()
-    window.addEventListener('resize', update)
-    window.addEventListener('load', update)
-
-    return () => {
-      window.removeEventListener('resize', update)
-      window.removeEventListener('load', update)
-      cancelAnimationFrame(frame)
-      ro && ro.disconnect()
-    }
-  }, [anchorSelector])
-
-  const asideWithTop = useMemo(() => {
-    if (!aside) return null
-    if (React.isValidElement(aside))
-      return React.cloneElement(aside as any, { top: tocTop })
-    return aside
-  }, [aside, tocTop])
-
-  const hasAside = !!aside
-
+export default function ArticleGrid({ children }: Props) {
   return (
-    <Grid $hasAside={hasAside}>
-      <Main ref={mainRef}>{children}</Main>
-      {hasAside ? <Aside data-toc-aside>{asideWithTop}</Aside> : null}
+    <Grid data-article-root>
+      <Main>
+        <MainInner>{children}</MainInner>
+      </Main>
+      <Aside>
+        <AsideInner data-toc-aside />
+      </Aside>
     </Grid>
   )
 }
 
-const Grid = styled.div<{ $hasAside: boolean }>`
-  --article-gap: clamp(1rem, 2vw, 2rem);
-  display: grid;
-  align-items: start;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(0, 1fr);
-  column-gap: var(--article-gap);
-  row-gap: var(--article-gap);
+const Grid = styled.div`
+  --gap: clamp(
+    ${({ theme }) => theme.spacing(2)},
+    2vw,
+    ${({ theme }) => theme.spacing(4)}
+  );
+  --content: var(--article-max-width, 78ch);
+  --toc: var(--toc-width, 320px);
 
-  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 80ch) minmax(280px, 1fr);
+  display: grid;
+  width: 100%;
+  align-items: start;
+  grid-template-columns:
+    minmax(var(--toc), 1fr)
+    minmax(0, var(--content))
+    minmax(var(--toc), 1fr);
+  column-gap: var(--gap);
+  row-gap: var(--gap);
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-template-columns: minmax(0, 1fr);
   }
 `
 
@@ -90,6 +49,14 @@ const Main = styled.div`
   min-width: 0;
   position: relative;
   z-index: 1;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    grid-column: 1;
+  }
+`
+
+const MainInner = styled.div`
+  min-width: 0;
 `
 
 const Aside = styled.aside`
@@ -99,5 +66,15 @@ const Aside = styled.aside`
     display: block;
     grid-column: 3;
     min-width: 0;
+    position: relative;
+    justify-self: start;
+    width: var(--toc);
+    max-width: var(--toc);
   }
+`
+
+const AsideInner = styled.div`
+  position: sticky;
+  top: 0;
+  align-self: start;
 `

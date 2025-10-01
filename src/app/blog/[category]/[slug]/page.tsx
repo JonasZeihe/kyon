@@ -6,19 +6,14 @@ import type { Metadata } from 'next'
 import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
-import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import fs from 'node:fs'
-import path from 'node:path'
 import {
-  renderToHTML,
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import ArticleLayout from '@/components/blog/ArticleLayout'
-import StickyToc from '@/components/blog/StickyToc'
-import ArticleGrid from '@/components/blog/ArticleGrid'
+import BlogMetaLayer, { BreadcrumbItem } from '@/layouts/BlogMetaLayer'
+import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -46,37 +41,20 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!meta) notFound()
 
   const raw = fs.readFileSync(meta.sourcePath, 'utf8')
-  const ext = path.extname(meta.sourcePath).toLowerCase()
-  const isMDX = ext === '.mdx'
 
-  const post = await (async () => {
-    if (isMDX) {
-      const mdx = await compileToMdx({
-        source: raw,
-        assetBase: { category: meta.category, dirName: meta.dirName },
-      })
-      return {
-        meta,
-        isMDX: true as const,
-        raw,
-        bodyMdx: { code: mdx.code },
-        toc: mdx.toc,
-        readingTime: mdx.readingTime,
-      }
-    }
-    const html = await renderToHTML({
-      source: raw,
-      assetBase: { category: meta.category, dirName: meta.dirName },
-    })
-    return {
-      meta,
-      isMDX: false as const,
-      raw,
-      bodySource: html.html,
-      toc: html.toc,
-      readingTime: html.readingTime,
-    }
-  })()
+  const mdx = await compileToMdx({
+    source: raw,
+    assetBase: { category: meta.category, dirName: meta.dirName },
+  })
+
+  const post = {
+    meta,
+    isMDX: true as const,
+    raw,
+    bodyMdx: { code: mdx.code },
+    toc: mdx.toc,
+    readingTime: mdx.readingTime,
+  }
 
   const toc: BlogTOCItem[] = (post.toc || []).map((t: PipelineTOCItem) => ({
     id: t.id,
@@ -84,10 +62,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     value: t.text,
   }))
 
-  const hasTOC =
-    Array.isArray(toc) && toc.some((i) => i.depth === 2 || i.depth === 3)
-
-  const crumbs = [
+  const crumbs: BreadcrumbItem[] = [
     { href: '/blog', label: 'Blog' },
     { href: `/blog/${post.meta.category}`, label: post.meta.category },
     { label: post.meta.title },
@@ -95,24 +70,27 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <main>
-      <ContainerWrapper>
-        <SectionWrapper>
-          <Breadcrumbs items={crumbs} />
-        </SectionWrapper>
-      </ContainerWrapper>
-
-      <ContainerWrapper $size="wide">
-        <ArticleGrid aside={hasTOC ? <StickyToc items={toc} /> : undefined}>
-          <ArticleLayout>
-            <SectionWrapper $spacious data-toc-anchor>
-              <PostHeader post={post.meta} />
-            </SectionWrapper>
-            <SectionWrapper $spacious>
-              <PostBody post={post as any} />
-            </SectionWrapper>
-          </ArticleLayout>
-        </ArticleGrid>
-      </ContainerWrapper>
+      <BlogMetaLayer toc={toc} breadcrumbs={crumbs} showProgress />
+      <SectionWrapper $spacious>
+        <LumenWrapper
+          as="header"
+          variant="subtle"
+          radius="large"
+          data-toc-anchor
+        >
+          <PostHeader post={post.meta} />
+        </LumenWrapper>
+      </SectionWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper
+          as="article"
+          variant="subtle"
+          radius="large"
+          data-reading-root
+        >
+          <PostBody post={post as any} />
+        </LumenWrapper>
+      </SectionWrapper>
     </main>
   )
 }

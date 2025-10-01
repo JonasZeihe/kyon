@@ -31,8 +31,6 @@ const ContainerWrapper = styled.div<Props>`
   max-width: ${({ $size = 'default' }) => maxFor($size)};
   margin-inline: auto;
   box-sizing: border-box;
-  padding-inline: ${({ theme }) =>
-    `clamp(${s(theme, 1)}, 3vw, ${s(theme, 2)})`};
   ${({ $padY, theme }) =>
     $padY ? `padding-top:${s(theme, 2)}; padding-bottom:${s(theme, 2)};` : ''}
 `

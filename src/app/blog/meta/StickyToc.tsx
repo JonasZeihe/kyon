@@ -1,14 +1,26 @@
-// src/components/blog/StickyToc.tsx
+// src/app/blog/meta/StickyToc.tsx
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import ArticleTOC from './ArticleTOC'
+import ArticleTOC from '@/components/blog/ArticleTOC'
 import type { TOCItem } from '@/lib/blog/types'
 
-type Props = { items: TOCItem[]; top?: number }
+type Props = {
+  items: TOCItem[]
+  articleAnchorSelector?: string
+  tocAsideAnchor?: string
+  top?: number
+}
 
-export default function StickyToc({ items, top }: Props) {
+export default function StickyTOC({
+  items,
+  articleAnchorSelector: _articleAnchorSelector = '[data-toc-anchor]',
+  tocAsideAnchor = '[data-toc-aside]',
+  top,
+}: Props) {
+  const [mounted, setMounted] = useState(false)
   const [style, setStyle] = useState<{ left: number; width: number }>({
     left: 0,
     width: 280,
@@ -16,9 +28,7 @@ export default function StickyToc({ items, top }: Props) {
   const rafRef = useRef<number | null>(null)
 
   const compute = useCallback(() => {
-    const anchor = document.querySelector(
-      '[data-toc-aside]'
-    ) as HTMLElement | null
+    const anchor = document.querySelector(tocAsideAnchor) as HTMLElement | null
     if (!anchor) return
     const rect = anchor.getBoundingClientRect()
     const scrollX =
@@ -27,7 +37,7 @@ export default function StickyToc({ items, top }: Props) {
     const width = Math.max(240, Math.min(320, available))
     const left = Math.round(rect.left + scrollX + available - width)
     setStyle({ left, width })
-  }, [])
+  }, [tocAsideAnchor])
 
   const schedule = useCallback(() => {
     if (rafRef.current != null) return
@@ -38,11 +48,10 @@ export default function StickyToc({ items, top }: Props) {
   }, [compute])
 
   useEffect(() => {
+    setMounted(true)
     compute()
     const ro = new ResizeObserver(schedule)
-    const anchor = document.querySelector(
-      '[data-toc-aside]'
-    ) as HTMLElement | null
+    const anchor = document.querySelector(tocAsideAnchor) as HTMLElement | null
     if (anchor) ro.observe(anchor)
     ro.observe(document.documentElement)
     window.addEventListener('resize', schedule, { passive: true })
@@ -55,28 +64,32 @@ export default function StickyToc({ items, top }: Props) {
       window.removeEventListener('scroll', schedule)
       window.removeEventListener('load', schedule)
     }
-  }, [compute, schedule])
+  }, [schedule, compute, tocAsideAnchor])
 
   const topPx = useMemo(() => {
-    if (typeof top === 'number') return Math.max(0, top)
-    if (typeof window === 'undefined') return 74
+    if (typeof top === 'number' && Number.isFinite(top)) return top
+    if (typeof window === 'undefined') return 88
     const v = getComputedStyle(document.documentElement).getPropertyValue(
-      '--header-height'
+      '--article-scroll-margin'
     )
     const n = parseFloat(v)
-    return Number.isFinite(n) && n > 0 ? n + 14 : 74
+    return Number.isFinite(n) && n > 0 ? n : 88
   }, [top])
 
-  if (!items?.length) return null
+  const hasTOC =
+    Array.isArray(items) && items.some((i) => i.depth === 2 || i.depth === 3)
+  if (!hasTOC || !mounted) return null
 
-  return (
+  return ReactDOM.createPortal(
     <Box
+      role="navigation"
+      aria-label="Inhaltsverzeichnis"
       style={{ left: style.left, width: style.width }}
       $top={topPx}
-      aria-label="Inhaltsverzeichnis"
     >
       <ArticleTOC items={items} embedded={false} />
-    </Box>
+    </Box>,
+    document.body
   )
 }
 
@@ -88,9 +101,9 @@ const Box = styled.nav<{ $top: number }>`
   padding: ${({ theme }) => theme.spacing(1)};
   background: ${({ theme }) => theme.colors.surface.card};
   border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  z-index: 8;
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  z-index: 1200;
   pointer-events: auto;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
