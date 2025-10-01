@@ -3,8 +3,9 @@
 
 import styled from 'styled-components'
 import Image from 'next/image'
+import Link from 'next/link'
 import Typography from '@/styles/Typography'
-import BadgeGrid from '@/components/badge/BadgeGrid'
+import Badge from '@/components/badge/Badge'
 import type { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
@@ -14,7 +15,8 @@ export default function PostHeader({ post }: Props) {
   const cover = post.cover
     ? toPublicAssetUrl(post.category, post.dirName, post.cover)
     : null
-  const badges = (post.tags || []).map((t) => ({ label: t }))
+
+  const tags = Array.isArray(post.tags) ? post.tags.filter(Boolean) : []
 
   const published = post.date ? new Date(post.date) : null
   const updated = post.updated ? new Date(post.updated) : null
@@ -41,6 +43,7 @@ export default function PostHeader({ post }: Props) {
               fill
               sizes="(max-width:768px) 100vw, (max-width:1200px) 90vw, 1200px"
               priority
+              fetchPriority="high"
               style={{ objectFit: 'cover' }}
             />
             <HeroShade />
@@ -50,12 +53,14 @@ export default function PostHeader({ post }: Props) {
       ) : (
         <HeroPlaceholder />
       )}
+
       <Header>
         <Title>
           <Typography variant="h1" align="left">
             {post.title}
           </Typography>
         </Title>
+
         <Meta aria-label="Artikel-Metadaten">
           {validPub ? (
             <time dateTime={validPub.toISOString()}>
@@ -70,11 +75,21 @@ export default function PostHeader({ post }: Props) {
           ) : null}
           {post.readingTime ? <span>· ⏱️ {post.readingTime} min</span> : null}
         </Meta>
-        {badges.length ? (
-          <Badges>
-            <BadgeGrid badges={badges} align="flex-start" gapSize={1.2} />
-          </Badges>
+
+        {tags.length > 0 ? (
+          <TagsWrap aria-label="Tags">
+            {tags.map((t) => (
+              <TagLink
+                key={t}
+                href={{ pathname: '/blog', query: { tag: t } }}
+                title={`Beiträge mit „${t}“ anzeigen`}
+              >
+                <Badge label={`#${t}`} pill style={{ cursor: 'pointer' }} />
+              </TagLink>
+            ))}
+          </TagsWrap>
         ) : null}
+
         {post.excerpt ? <Excerpt>{post.excerpt}</Excerpt> : null}
       </Header>
     </Wrap>
@@ -159,11 +174,22 @@ const Meta = styled.div`
   }
 `
 
-const Badges = styled.div`
+const TagsWrap = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: ${({ theme }) => theme.spacingHalf(2)} ${({ theme }) => theme.spacing(1)};
+`
+
+const TagLink = styled(Link)`
+  text-decoration: none;
+  display: inline-block;
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+    border-radius: ${({ theme }) => theme.borderRadius.pill};
+  }
 `
 
 const Excerpt = styled.p`

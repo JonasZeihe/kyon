@@ -94,16 +94,17 @@ const ImageWrapper = styled.div`
   overflow: hidden;
 `
 
-const InlineFigure = styled.figure`
-  display: grid;
-  justify-items: center;
-  margin: ${({ theme }) => theme.spacing(2)} 0;
+const InlineWrapper = styled.span`
+  display: inline-block;
+  max-width: 100%;
+  line-height: 0;
+  vertical-align: middle;
 `
 
 const InlineImgButton = styled.button`
   all: unset;
   cursor: zoom-in;
-  display: block;
+  display: inline-block;
   max-width: 100%;
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   overflow: hidden;
@@ -121,6 +122,15 @@ const InlineImg = styled.img`
   height: auto;
   object-fit: contain;
   border-radius: ${({ theme }) => theme.borderRadius.medium};
+`
+
+const InlineCaption = styled.small`
+  display: block;
+  margin-top: ${({ theme }) => theme.spacing(1)};
+  text-align: center;
+  font-size: ${({ theme }) => theme.typography.fontSize.small};
+  color: ${({ theme }) => theme.colors.text.subtle};
+  line-height: ${({ theme }) => theme.typography.lineHeight.normal};
 `
 
 const MediaCaption = styled.figcaption`
@@ -206,7 +216,7 @@ function MediaDisplay({
     const aria = item.alt || 'Bild'
     return (
       <>
-        <InlineFigure>
+        <InlineWrapper>
           <InlineImgButton
             type="button"
             onClick={() => openLightbox(0)}
@@ -214,8 +224,8 @@ function MediaDisplay({
           >
             <InlineImg src={item.src} alt={aria} />
           </InlineImgButton>
-          {item.caption ? <MediaCaption>{item.caption}</MediaCaption> : null}
-        </InlineFigure>
+          {item.caption ? <InlineCaption>{item.caption}</InlineCaption> : null}
+        </InlineWrapper>
 
         {lightboxOpen && images.length > 0 && (
           <Lightbox

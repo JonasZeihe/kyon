@@ -1,5 +1,5 @@
 // src/lib/markdown/mdx-components.tsx
-import React from 'react'
+import * as React from 'react'
 import Link from 'next/link'
 import Badge from '@/components/badge/Badge'
 import BadgeGrid from '@/components/badge/BadgeGrid'
@@ -14,47 +14,16 @@ type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: React.ReactNode
 }
 
-const isMediaDisplayElement = (node: React.ReactNode) => {
-  if (!node || typeof node !== 'object') return false
-  const el = node as React.ReactElement<any>
-  const t = (el.type as any) || {}
-  const name = t.displayName || t.name
-  return name === 'MediaDisplay'
-}
-
-const filterMeaningful = (nodes: React.ReactNode): React.ReactNode[] =>
-  React.Children.toArray(nodes).filter((n) => {
-    if (typeof n === 'string') return n.trim().length > 0
-    if (typeof n === 'number') return true
-    return n != null
-  })
-
 const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
   const c = children ?? href
   if (!href) return <a {...rest}>{c}</a>
-
-  if (href.startsWith('#')) {
-    const id = href.slice(1)
+  if (href.startsWith('#'))
     return (
-      <SmoothScroller targetId={id} href={href} {...rest}>
+      <SmoothScroller targetId={href.slice(1)} href={href} {...rest}>
         {c}
       </SmoothScroller>
     )
-  }
-
-  const arr = filterMeaningful(c)
-  if (arr.length === 1) {
-    const only = arr[0]
-    if (
-      React.isValidElement(only) &&
-      isMediaDisplayElement(only) &&
-      (only.props as any)?.mdxInline
-    ) {
-      return only
-    }
-  }
-
-  if (/^https?:\/\//i.test(href)) {
+  if (/^https?:\/\//i.test(href))
     return (
       <a
         href={href}
@@ -65,13 +34,43 @@ const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
         {c}
       </a>
     )
-  }
-
   return (
     <Link href={href} {...rest}>
       {c}
     </Link>
   )
+}
+
+const isMediaDisplayElement = (el: unknown) => {
+  if (!React.isValidElement(el)) return false
+  if (el.type === MediaDisplay) return true
+  const anyType: any = el.type
+  const dn = anyType?.displayName || anyType?.name
+  return dn === 'MediaDisplay' || (el.props as any)?.mdxInline
+}
+
+const isOnlyImageLike = (children: React.ReactNode) => {
+  const arr = React.Children.toArray(children).filter(Boolean)
+  if (arr.length !== 1) return false
+  const only = arr[0]
+  if (!React.isValidElement(only)) return false
+  const t = only.type as any
+  if (typeof t === 'string') return t === 'img' || t === 'figure'
+  return isMediaDisplayElement(only)
+}
+
+const hasBlockyChild = (children: React.ReactNode): boolean => {
+  let blocky = false
+  React.Children.forEach(children as any, (child) => {
+    if (!React.isValidElement(child)) return
+    const t = child.type as any
+    if (typeof t === 'string') {
+      if (t === 'figure' || t === 'div' || t === 'img') blocky = true
+      return
+    }
+    if (isMediaDisplayElement(child)) blocky = true
+  })
+  return blocky
 }
 
 const H1: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
@@ -101,17 +100,11 @@ const H6: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
 
 const P: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({
   children,
-  ...r
+  ...rest
 }) => {
-  const arr = filterMeaningful(children)
-  if (
-    arr.length === 1 &&
-    React.isValidElement(arr[0]) &&
-    isMediaDisplayElement(arr[0])
-  ) {
-    return <>{arr[0]}</>
-  }
-  return <p {...r}>{children ?? ''}</p>
+  if (isOnlyImageLike(children)) return <div {...rest}>{children}</div>
+  if (hasBlockyChild(children)) return <div {...rest}>{children}</div>
+  return <p {...rest}>{children ?? ''}</p>
 }
 
 const UL: React.FC<React.HTMLAttributes<HTMLUListElement>> = ({
@@ -168,7 +161,6 @@ type CalloutProps = {
   title?: string
   children?: React.ReactNode
 }
-
 const Callout: React.FC<CalloutProps> = ({
   type = 'info',
   title,
@@ -179,13 +171,11 @@ const Callout: React.FC<CalloutProps> = ({
     <div className="callout-body">{children}</div>
   </div>
 )
-
 const Note: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="note" title={title}>
     {children}
   </Callout>
 )
-
 const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
   <Callout type="warning" title={title}>
     {children}
@@ -195,7 +185,6 @@ const Warning: React.FC<Omit<CalloutProps, 'type'>> = ({ title, children }) => (
 type NumberedSummaryProps = React.OlHTMLAttributes<HTMLOListElement> & {
   children?: React.ReactNode
 }
-
 const NumberedSummary: React.FC<NumberedSummaryProps> = ({
   children,
   ...rest
@@ -210,7 +199,6 @@ type CodeBlockProps = {
   lang?: string
   children?: React.ReactNode
 }
-
 const CodeBlock: React.FC<CodeBlockProps> = ({ title, lang, children }) => {
   const language = lang ? lang.toLowerCase() : ''
   const content =

@@ -4,7 +4,6 @@
 import Link from 'next/link'
 import styled from 'styled-components'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 
 type Crumb = { href?: string; label: string }
 
@@ -62,10 +61,7 @@ export default function Breadcrumbs({
   )
 }
 
-const Outer = styled(LumenWrapper).attrs({
-  variant: 'none' as const,
-  padding: '0',
-})`
+const Outer = styled.nav`
   width: 100%;
   background: transparent;
 `
