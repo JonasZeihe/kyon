@@ -53,11 +53,6 @@ const ClearBtn = styled.button`
   }
 `
 
-const Hint = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
-`
-
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -74,32 +69,12 @@ const Card = styled.article`
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
 `
 
-const Title = styled.h2`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h3};
-  a {
-    color: ${({ theme }) => theme.colors.text.main};
-    text-decoration: none;
-  }
-  a:hover,
-  a:focus-visible {
-    color: ${({ theme }) => theme.colors.primary.main};
-    text-decoration: underline;
-  }
-`
-
 const Meta = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
-`
-
-const Excerpt = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.text.main};
-  opacity: 0.92;
 `
 
 const Tags = styled.div`
@@ -156,16 +131,6 @@ const EmptyState = styled.section`
   border: 1px solid ${({ theme }) => theme.colors.surface[4]};
   background: ${({ theme }) => theme.colors.surface.card};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-`
-
-const EmptyTitle = styled.h2`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h3};
-`
-
-const EmptyText = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.text.subtle};
 `
 
 const EmptySectionTitle = styled.h3`
@@ -305,19 +270,21 @@ export default function SearchClient({ metas }: Props) {
             </ClearBtn>
           ) : null}
         </SearchRow>
-        <Hint>
+        <Typography as="p" variant="caption" color="text.subtle">
           {input.trim()
             ? `${filtered.length} Ergebnis(se) für „${input.trim()}“`
             : `${filtered.length} Beiträge`}
-        </Hint>
+        </Typography>
       </Header>
 
       {!filtered.length ? (
         <EmptyState role="status" aria-live="polite">
-          <EmptyTitle>Keine Ergebnisse</EmptyTitle>
-          <EmptyText>
+          <Typography as="h2" variant="h3">
+            Keine Ergebnisse
+          </Typography>
+          <Typography as="p" color="text.subtle">
             Versuch’s mit kürzeren Begriffen oder wähle unten eine Abkürzung.
-          </EmptyText>
+          </Typography>
 
           {!!topTags.length && (
             <>
@@ -328,8 +295,6 @@ export default function SearchClient({ metas }: Props) {
                     key={t}
                     onClick={() => onChip(t)}
                     onKeyDown={chipKeyHandler(t)}
-                    role="button"
-                    tabIndex={0}
                     aria-label={`Nach Tag ${t} suchen`}
                   >
                     #{t}
@@ -348,8 +313,6 @@ export default function SearchClient({ metas }: Props) {
                     key={c}
                     onClick={() => onChip(c)}
                     onKeyDown={chipKeyHandler(c)}
-                    role="button"
-                    tabIndex={0}
                     aria-label={`Nach Kategorie ${c} suchen`}
                   >
                     {c}
@@ -368,9 +331,9 @@ export default function SearchClient({ metas }: Props) {
           <Grid>
             {items.map((m) => (
               <Card key={m.id}>
-                <Title>
+                <Typography as="h2" variant="h3" gutter={false}>
                   <Link href={`/blog/${m.category}/${m.slug}`}>{m.title}</Link>
-                </Title>
+                </Typography>
                 <Meta>
                   <span>
                     {new Date(m.updated || m.date).toLocaleDateString('de-DE')}
@@ -378,7 +341,11 @@ export default function SearchClient({ metas }: Props) {
                   {m.readingTime ? <span>· ⏱️ {m.readingTime} min</span> : null}
                   <span>· {m.category}</span>
                 </Meta>
-                {m.excerpt ? <Excerpt>{m.excerpt}</Excerpt> : null}
+                {m.excerpt ? (
+                  <Typography as="p" variant="body">
+                    {m.excerpt}
+                  </Typography>
+                ) : null}
                 {m.tags?.length ? (
                   <Tags aria-label="Tags">
                     {m.tags.slice(0, 6).map((t) => (
@@ -393,8 +360,6 @@ export default function SearchClient({ metas }: Props) {
                             onChip(t)
                           }
                         }}
-                        role="button"
-                        tabIndex={0}
                         aria-label={`Nach Tag ${t} filtern`}
                       >
                         #{t}

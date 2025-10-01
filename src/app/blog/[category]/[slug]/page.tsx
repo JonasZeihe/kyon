@@ -11,9 +11,10 @@ import {
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import BlogMetaLayer, { BreadcrumbItem } from '@/layouts/BlogMetaLayer'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
+import ArticleRecipe from '@/components/pagekit/recipes/ArticleRecipe'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import { resolveSkin } from '@/components/pagekit/skins'
+import PageMeta from '@/components/pagekit/islands/PageMeta'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -41,7 +42,6 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!meta) notFound()
 
   const raw = fs.readFileSync(meta.sourcePath, 'utf8')
-
   const mdx = await compileToMdx({
     source: raw,
     assetBase: { category: meta.category, dirName: meta.dirName },
@@ -62,35 +62,29 @@ export default async function BlogPostPage({ params }: PageProps) {
     value: t.text,
   }))
 
-  const crumbs: BreadcrumbItem[] = [
-    { href: '/blog', label: 'Blog' },
-    { href: `/blog/${post.meta.category}`, label: post.meta.category },
-    { label: post.meta.title },
-  ]
+  const skin = resolveSkin('blogPost')
 
   return (
     <main>
-      <BlogMetaLayer toc={toc} breadcrumbs={crumbs} showProgress />
-      <SectionWrapper $spacious>
-        <LumenWrapper
-          as="header"
-          variant="subtle"
-          radius="large"
-          data-toc-anchor
-        >
-          <PostHeader post={post.meta} />
-        </LumenWrapper>
-      </SectionWrapper>
-      <SectionWrapper $spacious>
-        <LumenWrapper
-          as="article"
-          variant="subtle"
-          radius="large"
-          data-reading-root
-        >
-          <PostBody post={post as any} />
-        </LumenWrapper>
-      </SectionWrapper>
+      <SectionRecipe
+        title={null}
+        intro={null}
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="post-header"
+      >
+        <></>
+      </SectionRecipe>
+
+      <ArticleRecipe
+        header={<PostHeader post={post.meta} />}
+        body={<PostBody post={post as any} />}
+        asideMeta={<PageMeta tocItems={toc} showProgress />}
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        narrow={false}
+      />
     </main>
   )
 }

@@ -1,192 +1,159 @@
 // src/components/button/Button.tsx
 'use client'
 
-import React from 'react'
-import styled, { css, DefaultTheme } from 'styled-components'
+import styled, { css } from 'styled-components'
+import { forwardRef } from 'react'
 
-type Variant = 'primary' | 'github' | 'casestudy' | 'prototype' | 'success'
-
-type BaseStyle = {
-  background: string
-  border: string
-  hover: string
-  active: string
-  color: string
-  shadow: string
-}
+type Variant = 'primary' | 'secondary' | 'ghost' | 'link'
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant
-  customBackground?: string
-  disabled?: boolean
-  children: React.ReactNode
+  as?: any
+  href?: string
 }
 
-const baseStyles = (theme: DefaultTheme): Record<Variant, BaseStyle> => ({
-  primary: {
-    background: theme.colors.primary.base,
-    border: 'none',
-    hover: theme.colors.primary.hover,
-    active: theme.colors.primary.active,
-    color: '#fff',
-    shadow: theme.boxShadow.sm,
-  },
-  github: {
-    background: '#24292e',
-    border: 'none',
-    hover: '#2f363d',
-    active: '#1b1f23',
-    color: '#fff',
-    shadow: theme.boxShadow.sm,
-  },
-  casestudy: {
-    background: theme.colors.secondary.base,
-    border: 'none',
-    hover: theme.colors.secondary.hover,
-    active: theme.colors.secondary.active,
-    color: '#fff',
-    shadow: theme.boxShadow.sm,
-  },
-  prototype: {
-    background: theme.colors.accent.base,
-    border: 'none',
-    hover: theme.colors.accent.hover,
-    active: theme.colors.accent.active,
-    color: '#fff',
-    shadow: theme.boxShadow.sm,
-  },
-  success: {
-    background: theme.colors.highlight.base,
-    border: 'none',
-    hover: theme.colors.highlight.hover,
-    active: theme.colors.highlight.active,
-    color: '#fff',
-    shadow: theme.boxShadow.sm,
-  },
-})
-
-const StyledButton = styled.button<{
-  $variant: Variant
-  $customBackground?: string
-  $disabled?: boolean
-}>`
-  font-family: ${({ theme }) => theme.typography.fontFamily.button};
-  font-size: ${({ theme }) => theme.typography.fontSize.body};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
-  line-height: ${({ theme }) => theme.typography.lineHeight.tight};
-  padding: ${({ theme }) => `${theme.spacing(1.15)} ${theme.spacing(2.5)}`};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
+const base = css`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 128px;
+  gap: 0.5ch;
+  min-height: 44px;
+  padding: 0 1rem;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  font-family: ${({ theme }) => theme.typography.fontFamily.button};
+  font-size: ${({ theme }) => theme.typography.fontSize.body};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  line-height: 1;
+  text-decoration: none;
   cursor: pointer;
-  text-align: center;
   user-select: none;
   white-space: nowrap;
-  border: none;
-  outline: none;
   transition:
-    background 0.19s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.14s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.16s cubic-bezier(0.4, 0, 0.2, 1);
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.22s ease,
+    transform 0.12s ease,
+    filter 0.16s ease;
+  -webkit-tap-highlight-color: transparent;
+`
 
-  ${({ $variant, theme, $customBackground, $disabled }) => {
-    const base = baseStyles(theme)[$variant]
-    const bg = $customBackground || base.background
-    const { border, hover, active, color, shadow } = base
+const Primary = css`
+  color: ${({ theme }) => theme.colors.text.inverse};
+  background: ${({ theme }) => theme.gradients.primary};
+  border: none;
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  &:hover {
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.97);
+  }
+  &:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
+  }
+`
 
-    return css`
-      background: ${bg};
-      color: ${color};
-      border: ${border};
-      box-shadow: ${shadow};
+const Secondary = css`
+  color: ${({ theme }) => theme.colors.text.inverse};
+  background: ${({ theme }) => theme.gradients.secondary};
+  border: none;
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
+  &:hover {
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.97);
+  }
+  &:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
+  }
+`
 
-      &:hover,
-      &:focus-visible {
-        background: ${hover};
-        color: ${color};
-        transform: translateY(-1.5px) scale(1.018);
-        box-shadow: 0 2px 14px 0 rgba(32, 46, 99, 0.13);
-        outline: none;
-        z-index: 2;
-      }
+const Ghost = css`
+  color: ${({ theme }) => theme.colors.text.main};
+  background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  &:hover {
+    background: ${({ theme }) => theme.colors.surface.hover};
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0);
+    filter: brightness(0.98);
+  }
+  &:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
+  }
+`
 
-      &:active {
-        background: ${active};
-        color: ${color};
-        transform: scale(0.978);
-        box-shadow: 0 1px 5px rgba(20, 24, 44, 0.12) inset;
-        filter: brightness(0.97);
-      }
+const Linkish = css`
+  color: ${({ theme }) => theme.colors.link};
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0 0.25rem;
+  min-height: 0;
+  height: auto;
+  box-shadow: none;
+  &:hover {
+    color: ${({ theme }) => theme.semantic.linkHover};
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 0.06em;
+  }
+  &:active {
+    filter: brightness(0.98);
+  }
+  &:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
+    border-radius: ${({ theme }) => theme.borderRadius.small};
+  }
+`
 
-      ${$disabled &&
-      css`
-        opacity: 0.46;
-        cursor: not-allowed;
-        pointer-events: none;
-        filter: grayscale(0.37) brightness(0.97);
-        box-shadow: none;
-      `}
-    `
-  }}
+const StyledButton = styled.button<{ $variant: Variant }>`
+  ${base}
+  ${({ $variant }) =>
+    $variant === 'primary'
+      ? Primary
+      : $variant === 'secondary'
+        ? Secondary
+        : $variant === 'ghost'
+          ? Ghost
+          : Linkish}
 
-  &:focus:not(:focus-visible) {
-    outline: none;
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    filter: grayscale(0.1);
     box-shadow: none;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     width: 100%;
-    min-width: unset;
-    font-size: ${({ theme }) => theme.typography.fontSize.small};
-    padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(2.1)}`};
-    border-radius: ${({ theme }) => theme.borderRadius.small};
-  }
-
-  @media (pointer: coarse) {
-    &:hover,
-    &:focus-visible {
-      filter: brightness(1.02);
-      background: ${({ $variant, theme, $customBackground }) => {
-        const base = baseStyles(theme)[$variant]
-        return $customBackground || base.background
-      }};
-      box-shadow: none;
-      transform: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none !important;
   }
 `
 
-export default function Button({
-  variant = 'primary',
-  customBackground,
-  children,
-  onClick,
-  disabled = false,
-  ...rest
-}: ButtonProps) {
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'primary', children, ...rest },
+  ref
+) {
   return (
-    <StyledButton
-      as={(rest as any).as}
-      href={(rest as any).href as any}
-      $variant={variant}
-      $customBackground={customBackground}
-      $disabled={disabled}
-      onClick={onClick}
-      disabled={disabled}
-      type={(rest as any).type || 'button'}
-      tabIndex={disabled ? -1 : 0}
-      {...rest}
-    >
+    <StyledButton ref={ref} $variant={variant} {...rest}>
       {children}
     </StyledButton>
   )
-}
+})
+
+export default Button

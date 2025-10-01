@@ -1,13 +1,14 @@
 // src/app/blog/page.tsx
-import Link from 'next/link'
 import Typography from '@/styles/Typography'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import AutoGrid from '@/components/Wrapper/AutoGrid'
+import BentoSection from '@/components/Wrapper/BentoSection'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
+import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import Pager from '@/components/pagination/Pager'
 
 export const dynamic = 'force-static'
 
@@ -28,22 +29,30 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
     hasNext,
   } = paginate(all, page, POSTS_PER_PAGE)
 
+  const prevHref = hasPrev ? `/blog?page=${current - 1}` : null
+  const nextHref = hasNext ? `/blog?page=${current + 1}` : null
+
   return (
     <main>
       <SectionWrapper $spacious>
-        <header style={{ textAlign: 'center' }}>
-          <Typography variant="h1" align="center" color="primary.main">
+        <ContainerWrapper>
+          <Typography variant="h1" align="center" color="primary.main" as="h1">
             Blog
           </Typography>
-          <Typography align="center" color="text.subtle">
-            Prozess statt Pose. Natürlichkeit vor Methode.
+          <Typography
+            variant="subhead"
+            align="center"
+            color="text.subtle"
+            as="p"
+          >
+            Gedanken, Notizen und Systembau – ruhig, präzise, nützlich.
           </Typography>
-        </header>
+        </ContainerWrapper>
       </SectionWrapper>
 
-      <SectionWrapper $spacious>
+      <ContainerWrapper $padY>
         {items.length ? (
-          <AutoGrid $min="260px" $gap={2}>
+          <BentoSection columns="auto" gap={2} padY={false}>
             {items.map((m) => {
               const href = `/blog/${m.category}/${m.slug}`
               const cover = m.cover
@@ -62,42 +71,28 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                 />
               )
             })}
-          </AutoGrid>
+          </BentoSection>
         ) : (
-          <Typography align="center" color="text.subtle">
-            Keine Beiträge gefunden.
-          </Typography>
+          <SectionWrapper>
+            <ContainerWrapper>
+              <Typography align="center" color="text.subtle">
+                Keine Beiträge gefunden.
+              </Typography>
+            </ContainerWrapper>
+          </SectionWrapper>
         )}
-      </SectionWrapper>
+      </ContainerWrapper>
 
       <SectionWrapper>
-        <nav
-          style={{
-            display: 'flex',
-            gap: 16,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          aria-label="Seitennavigation"
-        >
-          {hasPrev ? (
-            <Link href={`/blog?page=${current - 1}`}>← Zurück</Link>
-          ) : (
-            <span aria-disabled="true" style={{ opacity: 0.5 }}>
-              ← Zurück
-            </span>
-          )}
-          <span>
-            Seite {current} / {pageCount}
-          </span>
-          {hasNext ? (
-            <Link href={`/blog?page=${current + 1}`}>Weiter →</Link>
-          ) : (
-            <span aria-disabled="true" style={{ opacity: 0.5 }}>
-              Weiter →
-            </span>
-          )}
-        </nav>
+        <ContainerWrapper>
+          <Pager
+            current={current}
+            pageCount={pageCount}
+            prevHref={prevHref}
+            nextHref={nextHref}
+            ariaLabel="Seitennavigation"
+          />
+        </ContainerWrapper>
       </SectionWrapper>
     </main>
   )

@@ -1,19 +1,22 @@
 // src/app/(site)/page.tsx
-import Link from 'next/link'
 import Image from 'next/image'
-import styled from 'styled-components'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
-import AutoGrid from '@/components/Wrapper/AutoGrid'
+import Link from 'next/link'
+import Typography from '@/styles/Typography'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
-import Typography from '@/styles/Typography'
-import Card from '@/components/blog/Card'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
+import Card from '@/components/blog/Card'
+import HeroRecipe from '@/components/pagekit/recipes/HeroRecipe'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
+import Button from '@/components/button/Button'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 
 export default function HomePage() {
+  const skin = resolveSkin('home')
+
   const all = getAllPostMeta().filter((p) => !p.draft)
   const latest = all.slice(0, POSTS_PER_PAGE)
 
@@ -27,178 +30,132 @@ export default function HomePage() {
 
   return (
     <main>
-      <SectionWrapper $spacious>
-        <LumenWrapper as="header" variant="subtle" radius="large">
-          <div style={{ textAlign: 'center' }}>
-            <GradientTitle>
-              Prozess statt Pose <span>·</span> Natürlichkeit vor Methode
-            </GradientTitle>
-            <Subtitle>
-              Ein technischer Blog mit Haltung – klar, präzise, praxisnah.
-            </Subtitle>
-            <CTAGroup>
-              <CTA href="/blog" data-variant="primary">
-                Neueste Beiträge
-              </CTA>
-              <CTA href="/about">Purpose & About</CTA>
-            </CTAGroup>
-          </div>
-          <HeroVisual>
+      <HeroRecipe
+        isPageHeader
+        title={
+          <span>
+            Prozess statt Pose <span aria-hidden="true">·</span> Natürlichkeit
+            vor Methode
+          </span>
+        }
+        kicker="Kyon"
+        lead="Ein technischer Blog mit Haltung – klar, präzise, praxisnah."
+        motif="edgeToEdge"
+        accent={skin.accent as any}
+        container="wide"
+        media={
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              aspectRatio: '16 / 9',
+              borderRadius: '1rem',
+              overflow: 'hidden',
+              border: '1px solid var(--_border, rgba(0,0,0,0.08))',
+            }}
+          >
             <Image
               src="/og-default.png"
               alt="Kyon – klare, ruhige Oberfläche"
               fill
-              sizes="(max-width: 768px) 100vw, 960px"
+              sizes="(max-width: 768px) 100vw, 1200px"
               style={{ objectFit: 'cover' }}
               priority
             />
-          </HeroVisual>
-        </LumenWrapper>
-      </SectionWrapper>
-
-      <SectionWrapper $spacious>
-        <LumenWrapper as="section" variant="subtle" radius="large">
-          <Typography variant="h2" align="left" gutter>
-            Neu & lesenswert
+          </div>
+        }
+      />
+      <SectionRecipe
+        title={
+          <Typography variant="h2" as="h2">
+            Neu &amp; lesenswert
           </Typography>
-          {latest.length === 0 ? (
-            <EmptyHint>Keine Beiträge gefunden.</EmptyHint>
-          ) : (
-            <AutoGrid $min="260px" $gap={1.5}>
-              {latest.map((p) => {
-                const href = `/blog/${p.category}/${p.slug}`
-                const cover = p.cover
-                  ? toPublicAssetUrl(p.category, p.dirName, p.cover)
-                  : undefined
-                return (
-                  <Card
-                    key={p.id}
-                    href={href}
-                    title={p.title}
-                    cover={cover}
-                    date={p.updated || p.date}
-                    readingTime={p.readingTime}
-                    excerpt={p.excerpt}
-                    tag={p.category}
-                  />
-                )
-              })}
-            </AutoGrid>
-          )}
-        </LumenWrapper>
-      </SectionWrapper>
+        }
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="home-latest"
+      >
+        {latest.length === 0 ? (
+          <Typography align="center" color="text.subtle">
+            Keine Beiträge gefunden.
+          </Typography>
+        ) : (
+          <GridRecipe
+            items={latest}
+            min={skin.grid?.min || '18rem'}
+            columns={skin.grid?.columns ?? 'auto'}
+            gap={skin.grid?.gap ?? 2}
+            renderItem={(p) => {
+              const href = `/blog/${p.category}/${p.slug}`
+              const cover = p.cover
+                ? toPublicAssetUrl(p.category, p.dirName, p.cover)
+                : undefined
+              return (
+                <Card
+                  key={p.id}
+                  href={href}
+                  title={p.title}
+                  cover={cover}
+                  date={p.updated || p.date}
+                  readingTime={p.readingTime}
+                  excerpt={p.excerpt}
+                  tag={p.category}
+                />
+              )
+            }}
+          />
+        )}
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'center',
+            marginTop: '12px',
+          }}
+        >
+          <Button as={Link} href="/blog" variant="primary">
+            Neueste Beiträge
+          </Button>
+          <Button as={Link} href="/about" variant="secondary">
+            Purpose &amp; About
+          </Button>
+        </div>
+      </SectionRecipe>
 
-      <SectionWrapper $spacious>
-        <LumenWrapper as="section" variant="subtle" radius="large">
-          <Typography variant="h2" align="left" gutter>
+      <SectionRecipe
+        title={
+          <Typography variant="h2" as="h2">
             Themen
           </Typography>
-          <AutoGrid $min="10rem" $gap={1.2} $columns="auto">
-            {topTags.length === 0 ? (
-              <EmptyHint>Keine Tags vorhanden.</EmptyHint>
-            ) : (
-              topTags.map((t) => (
-                <TagLink key={t} href={`/tags/${encodeURIComponent(t)}`}>
-                  #{t}
-                </TagLink>
-              ))
+        }
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="home-topics"
+      >
+        {topTags.length === 0 ? (
+          <Typography align="center" color="text.subtle">
+            Keine Tags vorhanden.
+          </Typography>
+        ) : (
+          <GridRecipe
+            items={topTags}
+            min="10rem"
+            columns="auto"
+            gap={1.2 as any}
+            renderItem={(t) => (
+              <Button
+                as={Link}
+                href={`/tags/${encodeURIComponent(t)}`}
+                variant="ghost"
+              >
+                #{t}
+              </Button>
             )}
-          </AutoGrid>
-        </LumenWrapper>
-      </SectionWrapper>
+          />
+        )}
+      </SectionRecipe>
     </main>
   )
 }
-
-const GradientTitle = styled.h1`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h1};
-  line-height: ${({ theme }) => theme.typography.lineHeight.tight};
-  letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
-  background: ${({ theme }) => theme.gradients.rainbow};
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  span {
-    opacity: 0.4;
-  }
-`
-
-const Subtitle = styled.p`
-  margin: 0.5rem 0 1rem 0;
-  color: ${({ theme }) => theme.colors.text.subtle};
-  font-size: ${({ theme }) => theme.typography.fontSize.body};
-`
-
-const CTAGroup = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing(1)};
-  align-items: center;
-  justify-content: center;
-  margin-top: ${({ theme }) => theme.spacing(1)};
-`
-
-const CTA = styled(Link)`
-  display: inline-block;
-  padding: 0.65rem 0.95rem;
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  text-decoration: none;
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
-  color: ${({ theme }) => theme.colors.text.main};
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-  &[data-variant='primary'] {
-    border: none;
-    background: ${({ theme }) => theme.gradients.primary};
-    color: ${({ theme }) => theme.colors.text.inverse};
-    box-shadow: ${({ theme }) => theme.boxShadow.sm};
-  }
-  &:hover,
-  &:focus-visible {
-    transform: translateY(-1px);
-    box-shadow: ${({ theme }) => theme.boxShadow.md};
-    outline: none;
-  }
-`
-
-const HeroVisual = styled.div`
-  position: relative;
-  margin-top: ${({ theme }) => theme.spacing(2)};
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: ${({ theme }) => theme.borderRadius.large};
-  overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface[2]};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-`
-
-const TagLink = styled(Link)`
-  display: inline-block;
-  width: 100%;
-  text-decoration: none;
-  padding: 0.55rem 0.75rem;
-  text-align: center;
-  border-radius: ${({ theme }) => theme.borderRadius.small};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  color: ${({ theme }) => theme.colors.text.main};
-  transition:
-    background 0.15s ease,
-    transform 0.12s ease,
-    box-shadow 0.18s ease;
-  &:hover,
-  &:focus-visible {
-    background: ${({ theme }) => theme.colors.surface.hover};
-    box-shadow: ${({ theme }) => theme.boxShadow.xs};
-    transform: translateY(-1px);
-    outline: none;
-  }
-`
-
-const EmptyHint = styled(Typography)`
-  opacity: 0.8;
-  text-align: center;
-`

@@ -1,67 +1,54 @@
-// src/app/blog/meta/Breadcrumbs.tsx
+// src/components/navigation/Breadcrumbs.tsx
 'use client'
 
 import Link from 'next/link'
 import styled from 'styled-components'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
+import Typography from '@/styles/Typography'
 
 type Crumb = { href?: string; label: string }
 
 type Props = {
   items: Crumb[]
-  homeLabel?: string
-  showHome?: boolean
-  separator?: string
   ariaLabel?: string
-  className?: string
+  separator?: string
 }
 
 export default function Breadcrumbs({
   items,
-  homeLabel = 'Home',
-  showHome = true,
-  separator = '/',
   ariaLabel = 'Brotkrumen',
-  className,
+  separator = '/',
 }: Props) {
   return (
-    <Outer
-      as="nav"
-      role="navigation"
-      aria-label={ariaLabel}
-      className={className}
-    >
-      <ContainerWrapper $size="default" $padY={false}>
-        <List>
-          {showHome && (
-            <Item>
-              <CrumbLink href="/">{homeLabel}</CrumbLink>
+    <Nav role="navigation" aria-label={ariaLabel}>
+      <List>
+        <Item>
+          <CrumbLink href="/">Home</CrumbLink>
+        </Item>
+        {items.map((it, i) => {
+          const last = i === items.length - 1
+          return (
+            <Item key={`${it.label}-${i}`}>
+              <Separator aria-hidden="true">{separator}</Separator>
+              {last || !it.href ? (
+                <Current aria-current="page" title={it.label}>
+                  <Typography as="span" variant="caption">
+                    {it.label}
+                  </Typography>
+                </Current>
+              ) : (
+                <CrumbLink href={it.href} title={it.label}>
+                  {it.label}
+                </CrumbLink>
+              )}
             </Item>
-          )}
-          {items.map((it, i) => {
-            const last = i === items.length - 1
-            return (
-              <Item key={`${it.label}-${i}`}>
-                <Separator aria-hidden="true">{separator}</Separator>
-                {last || !it.href ? (
-                  <Current aria-current="page" title={it.label}>
-                    {it.label}
-                  </Current>
-                ) : (
-                  <CrumbLink href={it.href} title={it.label}>
-                    {it.label}
-                  </CrumbLink>
-                )}
-              </Item>
-            )
-          })}
-        </List>
-      </ContainerWrapper>
-    </Outer>
+          )
+        })}
+      </List>
+    </Nav>
   )
 }
 
-const Outer = styled.nav`
+const Nav = styled.nav`
   width: 100%;
   background: transparent;
 `
@@ -74,8 +61,6 @@ const List = styled.ol`
   margin: 0;
   padding: ${({ theme }) => `${theme.spacing(1)} 0`};
   list-style: none;
-  font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
 `
 
 const Item = styled.li`
@@ -92,9 +77,6 @@ const Separator = styled.span`
   line-height: 1;
 `
 
-const focusRing = (p: any) =>
-  `0 0 0 3px ${p.theme.colors.accent?.[2] || p.theme.colors.primary[1]}`
-
 const CrumbLink = styled(Link)`
   color: ${({ theme }) => theme.colors.text.subtle};
   text-decoration: none;
@@ -102,7 +84,7 @@ const CrumbLink = styled(Link)`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
   line-height: 1.2;
   display: inline-block;
-  max-width: 32ch;
+  max-width: 36ch;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -110,7 +92,6 @@ const CrumbLink = styled(Link)`
     background 0.16s ease,
     color 0.16s ease,
     text-decoration-color 0.16s ease;
-
   &:hover {
     color: ${({ theme }) => theme.colors.accent.main};
     background: ${({ theme }) => theme.colors.surface[1]};
@@ -118,25 +99,19 @@ const CrumbLink = styled(Link)`
     text-underline-offset: 0.16em;
     text-decoration-thickness: 0.06em;
   }
-
   &:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: ${focusRing};
-    color: ${({ theme }) => theme.colors.accent.main};
-    background: ${({ theme }) => theme.colors.surface[1]};
-    text-decoration: underline;
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 `
 
 const Current = styled.span`
   color: ${({ theme }) => theme.colors.text.main};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  background: transparent;
-  max-width: 32ch;
+  line-height: 1.2;
+  max-width: 36ch;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  line-height: 1.2;
 `

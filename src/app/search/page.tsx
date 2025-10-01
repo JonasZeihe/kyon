@@ -2,8 +2,7 @@
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import type { Metadata } from 'next'
 import Typography from '@/styles/Typography'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import SearchClient from './SearchClient'
 
 export const dynamic = 'force-static'
@@ -19,17 +18,18 @@ export default function Page() {
 
   return (
     <main>
-      <SectionWrapper $spacious>
-        <Typography variant="h1" align="center" color="primary.main">
+      <SectionRecipe surface="subtle" rhythm="default">
+        <Typography variant="h1" align="center" color="primary.main" as="h1">
           Suche
         </Typography>
-        <Typography align="center" color="text.subtle">
+        <Typography align="center" color="text.subtle" as="p">
           Beiträge durchsuchen
         </Typography>
-        <LumenWrapper as="header" variant="subtle" radius="large">
-          <SearchClient metas={metas} />
-        </LumenWrapper>
-      </SectionWrapper>
+      </SectionRecipe>
+
+      <SectionRecipe surface="subtle" rhythm="default">
+        <SearchClient metas={metas} />
+      </SectionRecipe>
     </main>
   )
 }
