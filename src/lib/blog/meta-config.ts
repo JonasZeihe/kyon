@@ -18,6 +18,11 @@ export const ARTICLE_ANCHOR_SELECTOR =
     process.env.NEXT_PUBLIC_ARTICLE_ANCHOR_SELECTOR) ||
   '[data-toc-anchor]'
 
+export const READING_ROOT_SELECTOR =
+  (typeof process !== 'undefined' &&
+    process.env.NEXT_PUBLIC_READING_ROOT_SELECTOR) ||
+  '[data-reading-root]'
+
 export const TOC_ASIDE_SELECTOR =
   (typeof process !== 'undefined' &&
     process.env.NEXT_PUBLIC_TOC_ASIDE_SELECTOR) ||
@@ -55,6 +60,7 @@ export const FEATURE_BREADCRUMBS = boolFromEnv(
 export const metaConfig = {
   ARTICLE_PATH_REGEX,
   ARTICLE_ANCHOR_SELECTOR,
+  READING_ROOT_SELECTOR,
   TOC_ASIDE_SELECTOR,
   FEATURE_READING_PROGRESS,
   FEATURE_STICKY_TOC,

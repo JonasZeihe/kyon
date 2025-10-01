@@ -3,9 +3,9 @@
 
 import { ReactNode } from 'react'
 import styled from 'styled-components'
-import LumenWrapper from './LumenWrapper'
 import ContainerWrapper from './ContainerWrapper'
 import AutoGrid from './AutoGrid'
+import LumenWrapper from './LumenWrapper'
 
 type Props = {
   title?: ReactNode
@@ -62,7 +62,6 @@ const Header = styled.div`
   align-items: end;
   gap: ${({ theme }) => theme.spacing(1.5)};
   margin-bottom: ${({ theme }) => theme.spacing(1.5)};
-
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
     align-items: start;
@@ -97,8 +96,8 @@ const CtaWrap = styled.div`
 `
 
 const Surface = styled(LumenWrapper).attrs((p) => ({
-  $variant: 'subtle' as const,
-  $padding: p.theme.spacing(2),
+  variant: 'subtle' as const,
+  padding: p.theme.spacing(2),
 }))`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     padding: ${({ theme }) => theme.spacing(1.25)};

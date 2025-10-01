@@ -3,45 +3,46 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import {
+  ARTICLE_PATH_REGEX,
+  FEATURE_READING_PROGRESS,
+  READING_ROOT_SELECTOR,
+  ARTICLE_ANCHOR_SELECTOR,
+} from '@/lib/blog/meta-config'
 
 type Props = {
   targetSelector?: string
-  pathPattern?: RegExp
 }
 
-const envFlag =
-  typeof process !== 'undefined'
-    ? (process.env.NEXT_PUBLIC_FEATURE_READING_PROGRESS || '').toLowerCase()
-    : ''
-const enabledByEnv = envFlag === '' || envFlag === 'true'
-
-export default function ReadingProgress({
-  targetSelector = '[data-toc-anchor]',
-  pathPattern = /^\/blog\/[^/]+\/[^/]+\/?$/,
-}: Props) {
+export default function ReadingProgress({ targetSelector }: Props) {
   const pathname = usePathname() || ''
-  const isArticle = pathPattern.test(pathname)
   const [progress, setProgress] = useState(0)
   const [visible, setVisible] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
   const rafRef = useRef<number | null>(null)
+  const moRef = useRef<MutationObserver | null>(null)
   const mounted = useMemo(() => typeof window !== 'undefined', [])
+  const selector =
+    targetSelector || READING_ROOT_SELECTOR || ARTICLE_ANCHOR_SELECTOR
+
+  const enabled = FEATURE_READING_PROGRESS && ARTICLE_PATH_REGEX.test(pathname)
 
   useEffect(() => {
-    if (!mounted || !enabledByEnv || !isArticle) return
+    if (!mounted || !enabled) return
 
     const prefersReduced =
       typeof window.matchMedia === 'function' &&
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced) return
+    setReduceMotion(!!prefersReduced)
 
     const getTarget = () =>
-      (document.querySelector(targetSelector) as HTMLElement | null) ||
-      (document.querySelector('article') as HTMLElement | null) ||
+      (document.querySelector(selector) as HTMLElement | null) ||
       (document.querySelector('main') as HTMLElement | null) ||
-      (document.body as HTMLElement)
+      document.body
 
     const update = () => {
       const el = getTarget()
+      if (!el) return
       const doc = document.documentElement
       const rect = el.getBoundingClientRect()
       const topFromDoc = rect.top + (window.pageYOffset || doc.scrollTop || 0)
@@ -53,48 +54,73 @@ export default function ReadingProgress({
       )
       const pct = total > 0 ? (current / total) * 100 : 0
       setProgress(pct)
-      setVisible(el.scrollHeight > viewportH * 1.6)
+      setVisible(el.scrollHeight > viewportH * 1.05)
       rafRef.current = null
     }
 
     const onScroll = () => {
       if (rafRef.current != null) return
-      rafRef.current = window.requestAnimationFrame(update)
+      if (reduceMotion) {
+        update()
+      } else {
+        rafRef.current = window.requestAnimationFrame(update)
+      }
     }
 
     const onResize = () => update()
 
-    setProgress(0)
-    setVisible(false)
+    let target = getTarget()
+    const ro = new ResizeObserver(update)
+    if (target) ro.observe(target)
+    ro.observe(document.documentElement)
+
+    if (!target) {
+      moRef.current = new MutationObserver(() => {
+        const found = getTarget()
+        if (found) {
+          target = found
+          ro.observe(found)
+          update()
+          moRef.current?.disconnect()
+          moRef.current = null
+        }
+      })
+      moRef.current.observe(document.body, { childList: true, subtree: true })
+    }
+
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize, { passive: true })
+    window.addEventListener('load', update)
+
     return () => {
       if (rafRef.current != null) cancelAnimationFrame(rafRef.current)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onResize)
+      window.removeEventListener('load', update)
+      ro.disconnect()
+      moRef.current?.disconnect()
+      moRef.current = null
     }
-  }, [mounted, isArticle, pathname, targetSelector])
+  }, [mounted, enabled, selector, pathname, reduceMotion])
 
-  if (!enabledByEnv || !visible || !isArticle) return null
+  if (!enabled || !visible) return null
 
   return (
     <div
       aria-hidden="true"
       style={{
         position: 'fixed',
-        top: 0,
+        top: 'var(--header-height, 74px)',
         left: 0,
-        height:
-          typeof window !== 'undefined' &&
-          window.matchMedia('(max-width: 600px)').matches
-            ? '4px'
-            : '3px',
+        height: '3px',
         width: `${progress}%`,
         background:
           'linear-gradient(90deg, var(--rp-start, #3068FF), var(--rp-end, #CA21B6))',
-        transition: 'width 0.12s ease-out, opacity 0.18s ease',
-        zIndex: 9999,
+        transition: reduceMotion
+          ? 'none'
+          : 'width 0.12s ease-out, opacity 0.18s ease',
+        zIndex: 10010,
         pointerEvents: 'none',
         opacity: 0.98,
       }}

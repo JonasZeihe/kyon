@@ -2,7 +2,6 @@
 'use client'
 
 import styled, { css } from 'styled-components'
-import LumenWrapper from './LumenWrapper'
 
 type SectionProps = {
   $spacious?: boolean
@@ -23,19 +22,13 @@ const getVerticalSpacing = (theme: any, spacious?: boolean) =>
         margin-bottom: ${theme.spacing(3)};
       `
 
-const SectionWrapper = styled(LumenWrapper).attrs({
-  variant: 'subtle' as const,
-})<SectionProps>`
+const SectionWrapper = styled.section<SectionProps>`
   width: 100%;
-  max-width: clamp(26rem, 92vw, 72rem);
-  margin-left: auto;
-  margin-right: auto;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   gap: ${({ theme }) => theme.spacing(2)};
   ${({ theme, $spacious }) => getVerticalSpacing(theme, $spacious)}
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     gap: ${({ theme }) => theme.spacing(1.2)};
     ${({ theme, $spacious }) =>

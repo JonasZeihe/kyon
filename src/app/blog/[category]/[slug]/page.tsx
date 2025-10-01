@@ -14,9 +14,8 @@ import {
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import ArticleGrid from '@/components/blog/ArticleGrid'
 import BlogMetaLayer, { BreadcrumbItem } from '@/layouts/BlogMetaLayer'
+import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -91,16 +90,26 @@ export default async function BlogPostPage({ params }: PageProps) {
   return (
     <main>
       <BlogMetaLayer toc={toc} breadcrumbs={crumbs} showProgress />
-      <ContainerWrapper $size="wide" $padY>
-        <ArticleGrid>
-          <SectionWrapper $spacious data-toc-anchor>
-            <PostHeader post={post.meta} />
-          </SectionWrapper>
-          <SectionWrapper $spacious>
-            <PostBody post={post as any} />
-          </SectionWrapper>
-        </ArticleGrid>
-      </ContainerWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper
+          as="header"
+          variant="subtle"
+          radius="large"
+          data-toc-anchor
+        >
+          <PostHeader post={post.meta} />
+        </LumenWrapper>
+      </SectionWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper
+          as="article"
+          variant="subtle"
+          radius="large"
+          data-reading-root
+        >
+          <PostBody post={post as any} />
+        </LumenWrapper>
+      </SectionWrapper>
     </main>
   )
 }

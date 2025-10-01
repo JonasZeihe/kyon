@@ -225,7 +225,7 @@ export default function PostBody({ post }: Props) {
   }, [post.raw, post.bodySource, post.isMDX])
 
   return (
-    <MarkdownStyles as="div" ref={containerRef}>
+    <MarkdownStyles as="div" ref={containerRef} data-toc-anchor>
       {post.isMDX ? (
         <MDXRemote source={mdxSource} components={components as any} />
       ) : (

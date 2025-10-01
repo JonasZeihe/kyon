@@ -10,7 +10,7 @@ export default function BlogLayout({
 }) {
   return (
     <ArticleLayout>
-      <ArticleGrid aside={<div data-toc-aside />}>{children}</ArticleGrid>
+      <ArticleGrid>{children}</ArticleGrid>
     </ArticleLayout>
   )
 }

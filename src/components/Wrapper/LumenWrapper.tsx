@@ -51,7 +51,8 @@ const Container = styled.div<ContainerProps>`
   background: ${({ theme, $backgroundColor, $variant }) => {
     if ($backgroundColor) return $backgroundColor
     const mode = surfaceForVariant($variant)
-    if (mode === 'none') return theme.colors.neutral.background
+    if (mode === 'none') return 'transparent'
+    if (mode === 'intense') return theme.gradients.primary
     return theme.colors.surface.card
   }};
   border: ${({ theme, $variant }) =>
@@ -69,7 +70,6 @@ const Container = styled.div<ContainerProps>`
     background 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.1s ease;
-
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     padding: clamp(0.9rem, 2.2vw, 1.3rem);
     border-radius: ${({ theme }) =>

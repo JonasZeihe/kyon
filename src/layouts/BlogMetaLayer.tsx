@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import { Breadcrumbs, StickyTOC, ReadingProgress } from '@/app/blog/meta'
+import { Breadcrumbs, StickyTOC } from '@/app/blog/meta'
+import ReadingProgress from '@/app/blog/meta/ReadingProgress'
 import type { TOCItem } from '@/lib/blog/types'
 import {
   ARTICLE_ANCHOR_SELECTOR,
@@ -55,16 +56,6 @@ export default function BlogMetaLayer({
       const r = anchor.getBoundingClientRect()
       const candidate = Math.max(scrollMargin, Math.round(r.top))
       setTop(candidate)
-      return
-    }
-
-    const crumbs = document.querySelector(
-      'nav[aria-label="Brotkrumen"]'
-    ) as HTMLElement | null
-    if (crumbs) {
-      const cr = crumbs.getBoundingClientRect()
-      const fallback = Math.max(scrollMargin, Math.round(cr.bottom))
-      setTop(fallback)
       return
     }
 
@@ -126,7 +117,9 @@ export default function BlogMetaLayer({
         </TopBar>
       ) : null}
 
-      {FEATURE_READING_PROGRESS && showProgress ? <ReadingProgress /> : null}
+      {FEATURE_READING_PROGRESS && showProgress ? (
+        <ReadingProgress targetSelector="[data-reading-root]" />
+      ) : null}
 
       {FEATURE_STICKY_TOC && hasToc ? (
         <StickyTOC

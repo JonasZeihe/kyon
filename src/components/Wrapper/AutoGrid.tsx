@@ -4,7 +4,14 @@
 import styled, { css } from 'styled-components'
 
 type Align = 'start' | 'center' | 'end' | 'stretch'
-type Justify = 'start' | 'center' | 'end' | 'space-between' | 'stretch'
+type Justify =
+  | 'start'
+  | 'center'
+  | 'end'
+  | 'space-between'
+  | 'space-around'
+  | 'space-evenly'
+  | 'stretch'
 
 type Props = {
   $min?: string
@@ -27,8 +34,7 @@ const AutoGrid = styled.div<Props>`
       row-gap: ${theme.spacing($rowGap)};
     `}
   align-items: ${({ $align = 'stretch' }) => $align};
-  justify-items: ${({ $justify = 'stretch' }) =>
-    $justify === 'space-between' ? 'stretch' : $justify};
+  justify-content: ${({ $justify = 'stretch' }) => $justify};
   grid-auto-flow: ${({ $dense }) => ($dense ? 'row dense' : 'row')};
   ${({ $min = '18rem', $columns = 'auto' }) =>
     $columns === 'auto'
@@ -38,7 +44,6 @@ const AutoGrid = styled.div<Props>`
       : css`
           grid-template-columns: repeat(${$columns}, minmax(0, 1fr));
         `}
-
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     ${({ $min = '18rem' }) => css`
       grid-template-columns: repeat(auto-fit, minmax(${$min}, 1fr));
