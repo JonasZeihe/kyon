@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import ReactDOM from 'react-dom'
 import styled, { keyframes } from 'styled-components'
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
+import Navigation from './Navigation'
 
 type MediaItem =
   | { type: 'image'; src: string; alt?: string }
@@ -29,18 +30,12 @@ const Overlay = styled.div`
   animation: ${fadeIn} 0.3s ease-out;
 `
 
-const ImageContainer = styled.div`
+const Frame = styled.div`
   max-width: 95vw;
   max-height: 95vh;
-  display: inline-block;
-`
-
-const StyledImg = styled.img`
-  max-width: 95vw;
-  max-height: 95vh;
-  display: block;
-  object-fit: contain;
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 `
 
 const StyledVideo = styled.video`
@@ -48,6 +43,8 @@ const StyledVideo = styled.video`
   max-height: 95vh;
   display: block;
   object-fit: contain;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  background: #000;
 `
 
 const CloseButton = styled.button`
@@ -201,9 +198,9 @@ export default function Lightbox({
       aria-label="Media viewer"
       onClick={onClose}
     >
-      <ImageContainer onClick={(e) => e.stopPropagation()}>
+      <Frame onClick={(e) => e.stopPropagation()}>
         {type === 'image' ? (
-          <StyledImg src={src} alt={alt || ''} />
+          <Navigation src={src} alt={alt} onClose={onClose} />
         ) : (
           <StyledVideo
             src={src}
@@ -212,7 +209,7 @@ export default function Lightbox({
             aria-label={alt || `Video ${activeIndex + 1}`}
           />
         )}
-      </ImageContainer>
+      </Frame>
 
       <CloseButton ref={closeRef} onClick={onClose} aria-label="Close dialog">
         <FaTimes size={20} />

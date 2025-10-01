@@ -6,7 +6,6 @@ import remarkFrontmatter from 'remark-frontmatter'
 import remarkMdx from 'remark-mdx'
 import remarkRehype from 'remark-rehype'
 import rehypeRaw from 'rehype-raw'
-import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import rehypeStringify from 'rehype-stringify'
 import { compile } from '@mdx-js/mdx'
@@ -16,9 +15,9 @@ import readingTime from 'reading-time'
 import matter from 'gray-matter'
 import { toPublicAssetUrl } from './helpers/paths'
 import { SITE_URL } from '@/lib/blog/constants'
+import { createSlugger, slugify } from './slug'
 
 export type TOCItem = { id: string; depth: 2 | 3; text: string }
-
 export type Frontmatter = {
   title: string
   excerpt?: string
@@ -31,12 +30,10 @@ export type Frontmatter = {
   summary?: string
   cta?: { label?: string; href?: string }
 }
-
 export type PipelineInput = {
   source: VFileCompatible
   assetBase?: { category?: string; dirName?: string; baseHref?: string }
 }
-
 export type HtmlResult = {
   html: string
   toc: TOCItem[]
@@ -44,7 +41,6 @@ export type HtmlResult = {
   words: number
   minutes: number
 }
-
 export type MdxResult = {
   code: string
   toc: TOCItem[]
@@ -53,21 +49,15 @@ export type MdxResult = {
   minutes: number
 }
 
-export const parseFrontmatter = (
-  source: VFileCompatible
-): {
-  data: Frontmatter
-  content: string
-} => {
+export const parseFrontmatter = (source: VFileCompatible) => {
   const text = typeof source === 'string' ? source : String(source as any)
   const { data, content } = matter(text)
-  const fm = (data || {}) as Frontmatter
-  return { data: fm, content }
+  return { data: (data || {}) as Frontmatter, content }
 }
 
 const walk = (
   node: any,
-  parent: any,
+  _parent: any,
   visit: (n: any, i: number, p: any) => void
 ) => {
   const children: any[] = node?.children || []
@@ -103,11 +93,25 @@ const isSameOrigin = (href: string) => {
   }
 }
 
+const slugPlugin = () => () => async (tree: Root) => {
+  const slugger = createSlugger()
+  walk(tree as any, null, (node) => {
+    if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
+      const depth = Number(node.tagName.slice(1))
+      if (depth < 1 || depth > 6) return
+      const already = node.properties?.id as string | undefined
+      if (already && already.trim()) return
+      const id = slugger(textFrom(node))
+      node.properties = { ...(node.properties || {}), id }
+    }
+  })
+}
+
 const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
   walk(tree as any, null, (node) => {
     if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
       const depth = Number(node.tagName.slice(1))
-      const id = node.properties?.id || ''
+      const id = (node.properties?.id as string) || ''
       if ((depth === 2 || depth === 3) && id) {
         list.push({ id, depth: depth as 2 | 3, text: textFrom(node) })
       }
@@ -154,9 +158,8 @@ const assetsPlugin =
       }
 
       if (node.tagName === 'source' && node.properties) {
-        if (node.properties.src) {
+        if (node.properties.src)
           node.properties.src = toUrl(String(node.properties.src))
-        }
         if (node.properties.srcset) {
           const set = String(node.properties.srcset)
           node.properties.srcset = set
@@ -208,7 +211,7 @@ export const renderToHTML = async ({
     .use(remarkFrontmatter, ['yaml', 'toml'])
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(rehypeSlug)
+    .use(slugPlugin())
     .use(rehypeAutolinkHeadings, { behavior: 'append' })
     .use(tocPlugin(toc))
     .use(assetsPlugin(assetBase))
@@ -242,7 +245,7 @@ export const compileToMdx = async ({
       [remarkFrontmatter as any, ['yaml', 'toml']],
     ],
     rehypePlugins: [
-      rehypeSlug as any,
+      [slugPlugin() as any] as any,
       [rehypeAutolinkHeadings as any, { behavior: 'append' }] as any,
       [tocPlugin(toc) as any] as any,
       [assetsPlugin(assetBase) as any] as any,

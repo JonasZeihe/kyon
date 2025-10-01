@@ -94,16 +94,41 @@ const ImageWrapper = styled.div`
   overflow: hidden;
 `
 
-const MediaCaption = styled.div`
-  margin-top: ${({ theme }) => theme.spacing(2)};
-  margin-bottom: ${({ theme }) => theme.spacing(3)};
+const InlineFigure = styled.figure`
+  display: grid;
+  justify-items: center;
+  margin: ${({ theme }) => theme.spacing(2)} 0;
+`
+
+const InlineImgButton = styled.button`
+  all: unset;
+  cursor: zoom-in;
+  display: block;
+  max-width: 100%;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  overflow: hidden;
+  line-height: 0;
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+  }
+`
+
+const InlineImg = styled.img`
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+`
+
+const MediaCaption = styled.figcaption`
+  margin-top: ${({ theme }) => theme.spacing(1.25)};
   text-align: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    margin-bottom: ${({ theme }) => theme.spacing(2)};
-  }
 `
 
 const VideoWrapper = styled.div`
@@ -119,10 +144,16 @@ const VideoWrapper = styled.div`
     width: 100%;
     height: 100%;
     object-fit: contain;
+    background: #000;
   }
 `
 
-function MediaDisplay({ media, variant = 'large', base }: MediaDisplayProps) {
+function MediaDisplay({
+  media,
+  variant = 'large',
+  base,
+  mdxInline,
+}: MediaDisplayProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
@@ -167,6 +198,36 @@ function MediaDisplay({ media, variant = 'large', base }: MediaDisplayProps) {
 
   if (!normalized?.length) return null
 
+  const singleInline =
+    mdxInline && normalized.length === 1 && normalized[0].type === 'image'
+
+  if (singleInline) {
+    const item = normalized[0] as ImageMedia
+    const aria = item.alt || 'Bild'
+    return (
+      <>
+        <InlineFigure>
+          <InlineImgButton
+            type="button"
+            onClick={() => openLightbox(0)}
+            aria-label={`Bild vergrößern: ${aria}`}
+          >
+            <InlineImg src={item.src} alt={aria} />
+          </InlineImgButton>
+          {item.caption ? <MediaCaption>{item.caption}</MediaCaption> : null}
+        </InlineFigure>
+
+        {lightboxOpen && images.length > 0 && (
+          <Lightbox
+            media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
+            currentIndex={currentImageIndex}
+            onClose={closeLightbox}
+          />
+        )}
+      </>
+    )
+  }
+
   return (
     <>
       <MediaGrid $variant={variant}>
@@ -197,7 +258,7 @@ function MediaDisplay({ media, variant = 'large', base }: MediaDisplayProps) {
               {isImage ? (
                 <ImageWrapper>
                   <Image
-                    src={item.src}
+                    src={(item as ImageMedia).src}
                     alt={aria}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
@@ -222,7 +283,7 @@ function MediaDisplay({ media, variant = 'large', base }: MediaDisplayProps) {
                 </VideoWrapper>
               )}
               {'caption' in item && (item as any).caption ? (
-                <MediaCaption>{(item as any).caption}</MediaCaption>
+                <MediaCaption as="div">{(item as any).caption}</MediaCaption>
               ) : null}
             </MediaItemBox>
           )

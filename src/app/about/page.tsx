@@ -2,10 +2,9 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
 import styled from 'styled-components'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
+import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 import Typography from '@/styles/Typography'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import ListComponent from '@/components/data-display/ListComponent'
@@ -15,8 +14,8 @@ export const dynamic = 'force-static'
 export default function AboutPage() {
   return (
     <main>
-      <SectionBand>
-        <ContainerWrapper $size="wide">
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
           <HeroGrid>
             <HeroMedia>
               <Image
@@ -38,11 +37,11 @@ export default function AboutPage() {
               </p>
             </HeroCopy>
           </HeroGrid>
-        </ContainerWrapper>
-      </SectionBand>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      <ContainerWrapper>
-        <SectionWrapper $spacious>
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
           <Narrow>
             <Typography variant="h2">Ich in kurz</Typography>
             <p>
@@ -52,7 +51,6 @@ export default function AboutPage() {
               guter Sprache und pragmatischem Code. Ich arbeite gern iterativ –
               kleine Schritte, sichtbarer Fortschritt.
             </p>
-
             <BadgeGrid
               badges={[
                 { label: 'UX' },
@@ -67,11 +65,11 @@ export default function AboutPage() {
               align="flex-start"
             />
           </Narrow>
-        </SectionWrapper>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      <ContainerWrapper>
-        <SectionWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
           <Narrow>
             <Typography variant="h2">Arbeit &amp; Haltung</Typography>
             <ListComponent
@@ -104,11 +102,11 @@ export default function AboutPage() {
               ]}
             />
           </Narrow>
-        </SectionWrapper>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      <ContainerWrapper>
-        <SectionWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
           <Narrow>
             <Typography variant="h2">Womit ich arbeite</Typography>
             <TwoCol>
@@ -130,12 +128,11 @@ export default function AboutPage() {
               </div>
             </TwoCol>
           </Narrow>
-        </SectionWrapper>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
 
-      {/* Abseits */}
-      <ContainerWrapper>
-        <SectionWrapper>
+      <SectionWrapper $spacious>
+        <LumenWrapper as="section" variant="subtle" radius="large">
           <Narrow>
             <Typography variant="h2">Abseits vom Bildschirm</Typography>
             <p>
@@ -145,28 +142,20 @@ export default function AboutPage() {
               <strong>Vater</strong>.
             </p>
           </Narrow>
-        </SectionWrapper>
-      </ContainerWrapper>
+        </LumenWrapper>
+      </SectionWrapper>
     </main>
   )
 }
-
-const SectionBand = styled.section`
-  border-bottom: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.backdrop};
-`
 
 const HeroGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: ${({ theme }) => theme.spacing(2)};
-  padding: ${({ theme }) => theme.spacing(2)} ${({ theme }) => theme.spacing(1)};
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1.2fr 1fr;
     align-items: center;
     gap: ${({ theme }) => theme.spacing(3)};
-    padding: ${({ theme }) => theme.spacing(3)}
-      ${({ theme }) => theme.spacing(2)};
   }
 `
 
@@ -230,14 +219,4 @@ const TwoCol = styled.div`
 const Subhead = styled.h3`
   margin: 0;
   font-size: ${({ theme }) => theme.typography.fontSize.h3};
-`
-
-const ContactCard = styled.div`
-  max-width: 64rem;
-  margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing(1.5)};
-  border-radius: ${({ theme }) => theme.borderRadius.large};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
 `

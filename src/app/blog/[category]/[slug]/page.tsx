@@ -7,9 +7,7 @@ import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import fs from 'node:fs'
-import path from 'node:path'
 import {
-  renderToHTML,
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
@@ -43,37 +41,20 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!meta) notFound()
 
   const raw = fs.readFileSync(meta.sourcePath, 'utf8')
-  const ext = path.extname(meta.sourcePath).toLowerCase()
-  const isMDX = ext === '.mdx'
 
-  const post = await (async () => {
-    if (isMDX) {
-      const mdx = await compileToMdx({
-        source: raw,
-        assetBase: { category: meta.category, dirName: meta.dirName },
-      })
-      return {
-        meta,
-        isMDX: true as const,
-        raw,
-        bodyMdx: { code: mdx.code },
-        toc: mdx.toc,
-        readingTime: mdx.readingTime,
-      }
-    }
-    const html = await renderToHTML({
-      source: raw,
-      assetBase: { category: meta.category, dirName: meta.dirName },
-    })
-    return {
-      meta,
-      isMDX: false as const,
-      raw,
-      bodySource: html.html,
-      toc: html.toc,
-      readingTime: html.readingTime,
-    }
-  })()
+  const mdx = await compileToMdx({
+    source: raw,
+    assetBase: { category: meta.category, dirName: meta.dirName },
+  })
+
+  const post = {
+    meta,
+    isMDX: true as const,
+    raw,
+    bodyMdx: { code: mdx.code },
+    toc: mdx.toc,
+    readingTime: mdx.readingTime,
+  }
 
   const toc: BlogTOCItem[] = (post.toc || []).map((t: PipelineTOCItem) => ({
     id: t.id,

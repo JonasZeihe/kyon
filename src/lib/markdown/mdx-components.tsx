@@ -1,6 +1,4 @@
 // src/lib/markdown/mdx-components.tsx
-'use client'
-
 import React from 'react'
 import Link from 'next/link'
 import Badge from '@/components/badge/Badge'
@@ -16,6 +14,21 @@ type AnchorProps = React.AnchorHTMLAttributes<HTMLAnchorElement> & {
   children?: React.ReactNode
 }
 
+const isMediaDisplayElement = (node: React.ReactNode) => {
+  if (!node || typeof node !== 'object') return false
+  const el = node as React.ReactElement<any>
+  const t = (el.type as any) || {}
+  const name = t.displayName || t.name
+  return name === 'MediaDisplay'
+}
+
+const filterMeaningful = (nodes: React.ReactNode): React.ReactNode[] =>
+  React.Children.toArray(nodes).filter((n) => {
+    if (typeof n === 'string') return n.trim().length > 0
+    if (typeof n === 'number') return true
+    return n != null
+  })
+
 const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
   const c = children ?? href
   if (!href) return <a {...rest}>{c}</a>
@@ -29,14 +42,15 @@ const A: React.FC<AnchorProps> = ({ href = '', children, ...rest }) => {
     )
   }
 
-  if (React.Children.count(c) === 1) {
-    const el = React.Children.only(c) as React.ReactElement<any> | null
-    if (el && typeof el === 'object') {
-      const t = (el.type as any) || {}
-      const name = t.displayName || t.name
-      if (name === 'MediaDisplay' && (el.props as any)?.mdxInline) {
-        return el
-      }
+  const arr = filterMeaningful(c)
+  if (arr.length === 1) {
+    const only = arr[0]
+    if (
+      React.isValidElement(only) &&
+      isMediaDisplayElement(only) &&
+      (only.props as any)?.mdxInline
+    ) {
+      return only
     }
   }
 
@@ -84,10 +98,22 @@ const H6: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   children,
   ...r
 }) => <h6 {...r}>{children ?? ''}</h6>
+
 const P: React.FC<React.HTMLAttributes<HTMLParagraphElement>> = ({
   children,
   ...r
-}) => <p {...r}>{children ?? ''}</p>
+}) => {
+  const arr = filterMeaningful(children)
+  if (
+    arr.length === 1 &&
+    React.isValidElement(arr[0]) &&
+    isMediaDisplayElement(arr[0])
+  ) {
+    return <>{arr[0]}</>
+  }
+  return <p {...r}>{children ?? ''}</p>
+}
+
 const UL: React.FC<React.HTMLAttributes<HTMLUListElement>> = ({
   children,
   ...r
