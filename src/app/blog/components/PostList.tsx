@@ -1,25 +1,40 @@
 // src/app/blog/components/PostList.tsx
-'use client'
-
-import CardGrid from '@/components/card/CardGrid'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import Card from '@/components/blog/Card'
-import styled from 'styled-components'
 import type { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
+import Typography from '@/styles/Typography'
 
-type Props = { posts: PostMeta[] }
+type Props = {
+  posts: PostMeta[]
+  min?: string
+  gap?: number
+  columns?: number | 'auto'
+  asBento?: boolean
+}
 
-export default function PostList({ posts }: Props) {
-  if (!posts?.length) return <EmptyState>Keine Beiträge gefunden.</EmptyState>
+export default function PostList({
+  posts,
+  min = '18rem',
+  gap = 2,
+  columns = 'auto',
+  asBento = false,
+}: Props) {
+  if (!posts?.length)
+    return <Typography color="text.subtle">Keine Beiträge gefunden.</Typography>
 
   return (
-    <CardGrid>
-      {posts.map((m) => {
-        const href = `/blog/${m.category}/${m.slug}/`
+    <GridRecipe
+      items={posts}
+      min={min}
+      gap={gap}
+      columns={columns}
+      asBento={asBento}
+      renderItem={(m) => {
+        const href = `/blog/${m.category}/${m.slug}`
         const cover = m.cover
           ? toPublicAssetUrl(m.category, m.dirName, m.cover)
-          : null
-
+          : undefined
         return (
           <Card
             key={m.id}
@@ -29,18 +44,10 @@ export default function PostList({ posts }: Props) {
             date={m.updated || m.date}
             readingTime={m.readingTime}
             excerpt={m.excerpt}
+            tag={m.category}
           />
         )
-      })}
-    </CardGrid>
+      }}
+    />
   )
 }
-
-const EmptyState = styled.p`
-  margin: 0;
-  padding: ${({ theme }) => theme.spacing(2)};
-  color: ${({ theme }) => theme.colors.text.subtle};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-`

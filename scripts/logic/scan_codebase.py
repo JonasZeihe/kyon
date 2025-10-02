@@ -289,7 +289,10 @@ def split_large_file(lines, rel_path):
         end = start
         last_blank = None
         while end < n:
-            if block_bytes(header + "\n" + "\n".join(lines[start : end + 1])) > HARD_LIMIT:
+            if (
+                block_bytes(header + "\n" + "\n".join(lines[start : end + 1]))
+                > HARD_LIMIT
+            ):
                 break
             if not lines[end].strip():
                 last_blank = end
@@ -318,14 +321,18 @@ def collect_codebase_blocks():
         if is_binary_path(rel_path):
             continue
         lines, err = read_text_lines(abs_path)
-        raw = "\n".join(lines)
         header = f"// --- {rel_path} ---"
-        full_text = "\n".join([header] + lines)
-        if err:
-            full_text = "\n".join([header, lines[0]])
+        full_text = (
+            "\n".join([header] + lines) if not err else "\n".join([header, lines[0]])
+        )
         if block_bytes(full_text) <= HARD_LIMIT:
             blocks.append(
-                {"file": rel_path, "header": header, "text": full_text, "bytes": block_bytes(full_text)}
+                {
+                    "file": rel_path,
+                    "header": header,
+                    "text": full_text,
+                    "bytes": block_bytes(full_text),
+                }
             )
         else:
             blocks.extend(split_large_file(lines, rel_path))
@@ -385,7 +392,12 @@ def tokenize_commalist(q):
     ext_like = all(t.startswith(".") and len(t) > 1 for t in tokens)
     if ext_like:
         return None
-    plaus = any("/" in t or "\\" in t or (("." in os.path.basename(t)) and not os.path.basename(t).startswith(".")) for t in tokens)
+    plaus = any(
+        "/" in t
+        or "\\" in t
+        or (("." in os.path.basename(t)) and not os.path.basename(t).startswith("."))
+        for t in tokens
+    )
     if not plaus:
         return None
     return tokens
@@ -441,11 +453,18 @@ def collect_selected_blocks(tokens):
             continue
         lines, err = read_text_lines(abs_path)
         header = f"// --- {rel} ---"
-        full_text = "\n".join([header] + lines)
-        if err:
-            full_text = "\n".join([header, lines[0]])
+        full_text = (
+            "\n".join([header] + lines) if not err else "\n".join([header, lines[0]])
+        )
         if block_bytes(full_text) <= HARD_LIMIT:
-            blocks.append({"file": rel, "header": header, "text": full_text, "bytes": block_bytes(full_text)})
+            blocks.append(
+                {
+                    "file": rel,
+                    "header": header,
+                    "text": full_text,
+                    "bytes": block_bytes(full_text),
+                }
+            )
         else:
             blocks.extend(split_large_file(lines, rel))
     return blocks, notices
@@ -471,7 +490,11 @@ def write_selected_files(tokens):
         if not current_payloads:
             return
         payload = BLOCK_SEP.join(current_payloads)
-        name = f"{timestamp}-files.txt" if part_idx == 1 and written == 0 else f"{timestamp}-files-part-{part_idx:03d}.txt"
+        name = (
+            f"{timestamp}-files.txt"
+            if part_idx == 1 and written == 0
+            else f"{timestamp}-files-part-{part_idx:03d}.txt"
+        )
         out_path = os.path.join(OUTPUT_DIR, name)
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(payload)
@@ -494,6 +517,103 @@ def write_selected_files(tokens):
         print(f" - {b['header'].splitlines()[0]}")
     flush_part()
     print(f"\n✅ Files written in {written} part(s)\n")
+
+
+def is_single_basename_query(q):
+    if "," in q:
+        return None
+    if "/" in q or "\\" in q:
+        return None
+    name = q.strip()
+    if not name:
+        return None
+    if name.startswith(".") and name.count(".") == 1:
+        return None
+    if "." not in os.path.basename(name):
+        return None
+    return os.path.basename(name)
+
+
+def find_paths_by_basename(basename):
+    matches = []
+    for root, dirs, files in os.walk(SRC_DIR):
+        dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+        for f in files:
+            if f == basename:
+                rel = normalize_rel(os.path.relpath(os.path.join(root, f), SRC_DIR))
+                matches.append(rel)
+    matches.sort(key=lambda p: p.lower())
+    return matches
+
+
+def collect_blocks_for_paths(paths):
+    blocks = []
+    for rel in paths:
+        abs_path = os.path.join(SRC_DIR, rel)
+        if is_binary_path(rel):
+            continue
+        lines, err = read_text_lines(abs_path)
+        header = f"// --- {rel} ---"
+        full_text = (
+            "\n".join([header] + lines) if not err else "\n".join([header, lines[0]])
+        )
+        if block_bytes(full_text) <= HARD_LIMIT:
+            blocks.append(
+                {
+                    "file": rel,
+                    "header": header,
+                    "text": full_text,
+                    "bytes": block_bytes(full_text),
+                }
+            )
+        else:
+            blocks.extend(split_large_file(lines, rel))
+    return blocks
+
+
+def write_found_by_basename(basename):
+    paths = find_paths_by_basename(basename)
+    if not paths:
+        print(f"⚠️ No files named '{basename}' under src.")
+        return
+    blocks = collect_blocks_for_paths(paths)
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+    part_idx = 1
+    current_payloads = []
+    current_bytes = 0
+    written = 0
+
+    def flush_part():
+        nonlocal current_payloads, current_bytes, part_idx, written
+        if not current_payloads:
+            return
+        payload = BLOCK_SEP.join(current_payloads)
+        name = (
+            f"{timestamp}-find-{basename}.txt"
+            if part_idx == 1 and written == 0
+            else f"{timestamp}-find-{basename}-part-{part_idx:03d}.txt"
+        )
+        out_path = os.path.join(OUTPUT_DIR, name)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(payload)
+        print(f"✅ Wrote {out_path}")
+        part_idx += 1
+        written += 1
+        current_payloads.clear()
+        current_bytes = 0
+
+    print(f"\n📄 Searching for '{basename}' under src ...\n")
+    for rel in paths:
+        print(f" - {rel}")
+    for b in blocks:
+        if current_bytes and current_bytes + b["bytes"] > SOFT_LIMIT:
+            flush_part()
+        if current_bytes + b["bytes"] > HARD_LIMIT:
+            flush_part()
+        current_payloads.append(b["text"])
+        current_bytes += b["bytes"]
+    flush_part()
+    print(f"\n✅ Found {len(paths)} file(s) for '{basename}'\n")
 
 
 def main():
@@ -529,6 +649,10 @@ def main():
         tokens = tokenize_commalist(q)
         if tokens:
             write_selected_files(tokens)
+            continue
+        basename = is_single_basename_query(q)
+        if basename:
+            write_found_by_basename(basename)
             continue
         if is_type_query(q):
             exts = parse_extensions(q)

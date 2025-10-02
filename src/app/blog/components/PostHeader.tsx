@@ -98,10 +98,10 @@ export default function PostHeader({ post }: Props) {
 
 const Wrap = styled.header`
   display: grid;
-  gap: ${({ theme }) => theme.spacing(2)};
+  gap: ${({ theme }) => theme.spacing(1.25)};
   max-width: 72rem;
   margin-inline: auto;
-  padding: ${({ theme }) => theme.spacing(2)};
+  padding: 0;
 `
 
 const Hero = styled.div`
@@ -150,7 +150,7 @@ const HeroPlaceholder = styled.div`
 
 const Header = styled.div`
   display: grid;
-  gap: ${({ theme }) => theme.spacing(1.25)};
+  gap: ${({ theme }) => theme.spacing(1)};
 `
 
 const Title = styled.div`

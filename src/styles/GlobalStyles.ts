@@ -5,6 +5,11 @@ const GlobalStyles = createGlobalStyle`
   :root {
     --header-height: 74px;
     --article-scroll-margin: 88px;
+    --section-gap: ${({ theme }) => theme.rhythm.default.sectionGap};
+    --section-pad: ${({ theme }) => theme.rhythm.default.sectionPad};
+    --accent-main: ${({ theme }) => theme.colors.accent.main};
+    --accent-weak: ${({ theme }) => theme.semantic.focusRing};
+    --focus-ring: ${({ theme }) => theme.semantic.focusRing};
   }
 
   *, *::before, *::after {
@@ -44,7 +49,7 @@ const GlobalStyles = createGlobalStyle`
   }
 
   ::selection {
-    background: ${({ theme }) => theme.colors.primary[2]};
+    background: var(--accent-weak);
     color: ${({ theme }) => theme.colors.text.inverse};
   }
 
@@ -86,9 +91,9 @@ const GlobalStyles = createGlobalStyle`
     -webkit-tap-highlight-color: transparent;
   }
   button:focus-visible {
-    outline: 2.5px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2.5px solid var(--accent-main);
     outline-offset: 2px;
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.colors.accent[2]}55;
+    box-shadow: 0 0 0 4px var(--focus-ring);
   }
   button:hover {
     box-shadow: ${({ theme }) => theme.boxShadow.md};
@@ -118,9 +123,9 @@ const GlobalStyles = createGlobalStyle`
     text-decoration: underline;
   }
   a:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2px solid var(--accent-main);
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+    box-shadow: 0 0 0 3px var(--focus-ring);
   }
 
   img, svg {

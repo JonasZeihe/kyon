@@ -1,18 +1,24 @@
 // src/app/blog/[category]/page.tsx
 import Typography from '@/styles/Typography'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import PostList from '@/app/blog/components/PostList'
-import Pagination from '@/app/blog/components/Pagination'
-import Breadcrumbs from '@/app/blog/meta/Breadcrumbs'
-import { getAllPostMeta, getPostsByCategory } from '@/lib/blog/indexer'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
+import { getAllPostMeta, getPostsByCategory } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
-
-type Params = { category: string }
+import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
+import Card from '@/components/blog/Card'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
+import Pager from '@/components/pagination/Pager'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
 export const revalidate = false
+
+type Params = { category: string }
+type PageProps = {
+  params: Promise<Params>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
+}
 
 export async function generateStaticParams() {
   const cats = Array.from(new Set(getAllPostMeta().map((m) => m.category)))
@@ -22,41 +28,101 @@ export async function generateStaticParams() {
 export default async function CategoryPage({
   params,
   searchParams,
-}: {
-  params: Promise<Params>
-  searchParams?: Promise<Record<string, string | string[] | undefined>>
-}) {
+}: PageProps) {
   const { category } = await params
   const sp = (await searchParams) || {}
-  const pageNum = getPageParamFromSearchParams(sp)
+  const page = getPageParamFromSearchParams(sp)
+
   const all = getPostsByCategory(category)
-  const p = paginate(all, pageNum, POSTS_PER_PAGE)
+  const {
+    items,
+    page: current,
+    pageCount,
+    hasPrev,
+    hasNext,
+  } = paginate(all, page, POSTS_PER_PAGE)
+
+  const prevHref = hasPrev ? `/blog/${category}?page=${current - 1}` : null
+  const nextHref = hasNext ? `/blog/${category}?page=${current + 1}` : null
+
+  const skin = resolveSkin('blogCategory')
 
   return (
-    <SectionWrapper $spacious>
-      <Breadcrumbs
-        items={[{ href: '/blog', label: 'Blog' }, { label: category }]}
-      />
-      <header style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-        <Typography variant="h1" align="center" color="primary.main">
-          {category}
-        </Typography>
-        <Typography align="center" color="text.subtle">
-          {all.length} Beitrag{all.length === 1 ? '' : 'e'} in „{category}“
-        </Typography>
-      </header>
-      {p.items.length ? (
-        <PostList posts={p.items} />
-      ) : (
-        <Typography align="center">
-          Keine Beiträge in dieser Kategorie.
-        </Typography>
-      )}
-      <Pagination
-        basePath={`/blog/${category}`}
-        page={p.page}
-        pageCount={p.pageCount}
-      />
-    </SectionWrapper>
+    <main>
+      <SectionRecipe
+        title={
+          <Typography variant="h1" align="center" color="primary.main" as="h1">
+            {category}
+          </Typography>
+        }
+        intro={
+          <Typography
+            variant="subhead"
+            align="center"
+            color="text.subtle"
+            as="p"
+          >
+            {all.length} Beitrag{all.length === 1 ? '' : 'e'} in „{category}“
+          </Typography>
+        }
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="category-title"
+      >
+        <></>
+      </SectionRecipe>
+
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
+        {items.length ? (
+          <GridRecipe
+            items={items}
+            min={skin.grid?.min || '18rem'}
+            columns={skin.grid?.columns ?? 'auto'}
+            gap={skin.grid?.gap ?? 2}
+            renderItem={(m) => {
+              const href = `/blog/${m.category}/${m.slug}`
+              const cover = m.cover
+                ? toPublicAssetUrl(m.category, m.dirName, m.cover)
+                : undefined
+              return (
+                <Card
+                  key={m.id}
+                  href={href}
+                  title={m.title}
+                  cover={cover}
+                  date={m.updated || m.date}
+                  readingTime={m.readingTime}
+                  excerpt={m.excerpt}
+                  tag={m.category}
+                />
+              )
+            }}
+          />
+        ) : (
+          <Typography align="center" color="text.subtle">
+            Keine Beiträge in dieser Kategorie.
+          </Typography>
+        )}
+      </SectionRecipe>
+
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
+        <Pager
+          current={current}
+          pageCount={pageCount}
+          prevHref={prevHref}
+          nextHref={nextHref}
+          ariaLabel="Seitennavigation"
+        />
+      </SectionRecipe>
+    </main>
   )
 }

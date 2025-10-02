@@ -27,16 +27,24 @@ const SearchRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   gap: ${({ theme }) => theme.spacing(1)};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `
 
 const SearchBox = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing(1.1)} ${theme.spacing(1.5)}`};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface.card};
   color: ${({ theme }) => theme.colors.text.main};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
+  }
 `
 
 const ClearBtn = styled.button`
@@ -44,7 +52,7 @@ const ClearBtn = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   background: ${({ theme }) => theme.colors.surface[1]};
   color: ${({ theme }) => theme.colors.text.main};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:hover,
   &:focus-visible {
@@ -53,15 +61,13 @@ const ClearBtn = styled.button`
   }
 `
 
-const Hint = styled.div`
-  font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
-`
-
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
   gap: ${({ theme }) => theme.spacing(2)};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `
 
 const Card = styled.article`
@@ -69,22 +75,20 @@ const Card = styled.article`
   gap: ${({ theme }) => theme.spacing(1)};
   padding: ${({ theme }) => theme.spacing(1.5)};
   background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   border-radius: ${({ theme }) => theme.borderRadius.large};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-`
-
-const Title = styled.h2`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h3};
-  a {
-    color: ${({ theme }) => theme.colors.text.main};
-    text-decoration: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.2s ease;
+  &:hover,
+  &:focus-within {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
   }
-  a:hover,
-  a:focus-visible {
-    color: ${({ theme }) => theme.colors.primary.main};
-    text-decoration: underline;
+  h2 a {
+    text-decoration: none;
   }
 `
 
@@ -94,12 +98,7 @@ const Meta = styled.div`
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
-`
-
-const Excerpt = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.text.main};
-  opacity: 0.92;
+  flex-wrap: wrap;
 `
 
 const Tags = styled.div`
@@ -115,7 +114,7 @@ const Tag = styled.button`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   &:hover,
   &:focus-visible {
     outline: none;
@@ -135,7 +134,7 @@ const PageBtn = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.pill};
   border: 1px solid
     ${({ theme, $active }) =>
-      $active ? theme.colors.primary[3] : theme.colors.surface[4]};
+      $active ? theme.colors.primary[3] : theme.colors.neutral.border};
   background: ${({ theme, $active }) =>
     $active ? theme.colors.primary[1] : theme.colors.surface.card};
   color: ${({ theme }) => theme.colors.text.main};
@@ -153,19 +152,9 @@ const EmptyState = styled.section`
   gap: ${({ theme }) => theme.spacing(1.4)};
   padding: ${({ theme }) => theme.spacing(2)};
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface.card};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-`
-
-const EmptyTitle = styled.h2`
-  margin: 0;
-  font-size: ${({ theme }) => theme.typography.fontSize.h3};
-`
-
-const EmptyText = styled.p`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.text.subtle};
 `
 
 const EmptySectionTitle = styled.h3`
@@ -183,7 +172,7 @@ const ChipRow = styled.div`
 const Chip = styled.button`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.1)}`};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface[1]};
   color: ${({ theme }) => theme.colors.text.main};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
@@ -286,9 +275,10 @@ export default function SearchClient({ metas }: Props) {
 
   return (
     <Wrap>
-      <Header role="search">
+      <Header role="search" aria-labelledby="searchbox-label">
         <SearchRow>
           <SearchBox
+            id="searchbox"
             type="search"
             placeholder="Suche nach Titel, Tags, Kategorie…"
             value={input}
@@ -305,19 +295,26 @@ export default function SearchClient({ metas }: Props) {
             </ClearBtn>
           ) : null}
         </SearchRow>
-        <Hint>
+        <Typography
+          as="p"
+          variant="caption"
+          color="text.subtle"
+          id="searchbox-label"
+        >
           {input.trim()
             ? `${filtered.length} Ergebnis(se) für „${input.trim()}“`
             : `${filtered.length} Beiträge`}
-        </Hint>
+        </Typography>
       </Header>
 
       {!filtered.length ? (
         <EmptyState role="status" aria-live="polite">
-          <EmptyTitle>Keine Ergebnisse</EmptyTitle>
-          <EmptyText>
+          <Typography as="h2" variant="h3">
+            Keine Ergebnisse
+          </Typography>
+          <Typography as="p" color="text.subtle">
             Versuch’s mit kürzeren Begriffen oder wähle unten eine Abkürzung.
-          </EmptyText>
+          </Typography>
 
           {!!topTags.length && (
             <>
@@ -328,8 +325,6 @@ export default function SearchClient({ metas }: Props) {
                     key={t}
                     onClick={() => onChip(t)}
                     onKeyDown={chipKeyHandler(t)}
-                    role="button"
-                    tabIndex={0}
                     aria-label={`Nach Tag ${t} suchen`}
                   >
                     #{t}
@@ -348,8 +343,6 @@ export default function SearchClient({ metas }: Props) {
                     key={c}
                     onClick={() => onChip(c)}
                     onKeyDown={chipKeyHandler(c)}
-                    role="button"
-                    tabIndex={0}
                     aria-label={`Nach Kategorie ${c} suchen`}
                   >
                     {c}
@@ -365,12 +358,12 @@ export default function SearchClient({ metas }: Props) {
         </EmptyState>
       ) : (
         <>
-          <Grid>
+          <Grid role="list">
             {items.map((m) => (
-              <Card key={m.id}>
-                <Title>
+              <Card key={m.id} role="listitem">
+                <Typography as="h2" variant="h3" gutter={false}>
                   <Link href={`/blog/${m.category}/${m.slug}`}>{m.title}</Link>
-                </Title>
+                </Typography>
                 <Meta>
                   <span>
                     {new Date(m.updated || m.date).toLocaleDateString('de-DE')}
@@ -378,7 +371,11 @@ export default function SearchClient({ metas }: Props) {
                   {m.readingTime ? <span>· ⏱️ {m.readingTime} min</span> : null}
                   <span>· {m.category}</span>
                 </Meta>
-                {m.excerpt ? <Excerpt>{m.excerpt}</Excerpt> : null}
+                {m.excerpt ? (
+                  <Typography as="p" variant="body">
+                    {m.excerpt}
+                  </Typography>
+                ) : null}
                 {m.tags?.length ? (
                   <Tags aria-label="Tags">
                     {m.tags.slice(0, 6).map((t) => (
@@ -393,8 +390,6 @@ export default function SearchClient({ metas }: Props) {
                             onChip(t)
                           }
                         }}
-                        role="button"
-                        tabIndex={0}
                         aria-label={`Nach Tag ${t} filtern`}
                       >
                         #{t}

@@ -1,13 +1,14 @@
 // src/app/blog/page.tsx
-import Link from 'next/link'
 import Typography from '@/styles/Typography'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import AutoGrid from '@/components/Wrapper/AutoGrid'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
+import Pager from '@/components/pagination/Pager'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 
@@ -16,6 +17,7 @@ type PageProps = {
 }
 
 export default async function BlogIndexPage({ searchParams }: PageProps) {
+  const skin = resolveSkin('blogIndex')
   const sp = (await searchParams) || {}
   const page = getPageParamFromSearchParams(sp)
 
@@ -28,23 +30,47 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
     hasNext,
   } = paginate(all, page, POSTS_PER_PAGE)
 
+  const prevHref = hasPrev ? `/blog?page=${current - 1}` : null
+  const nextHref = hasNext ? `/blog?page=${current + 1}` : null
+
   return (
     <main>
-      <SectionWrapper $spacious>
-        <header style={{ textAlign: 'center' }}>
-          <Typography variant="h1" align="center" color="primary.main">
+      <SectionRecipe
+        title={
+          <Typography variant="h1" align="center" color="primary.main" as="h1">
             Blog
           </Typography>
-          <Typography align="center" color="text.subtle">
-            Prozess statt Pose. Natürlichkeit vor Methode.
+        }
+        intro={
+          <Typography
+            variant="subhead"
+            align="center"
+            color="text.subtle"
+            as="p"
+          >
+            Gedanken, Notizen und Systembau – ruhig, präzise, nützlich.
           </Typography>
-        </header>
-      </SectionWrapper>
+        }
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="blog-title"
+      >
+        <></>
+      </SectionRecipe>
 
-      <SectionWrapper $spacious>
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
         {items.length ? (
-          <AutoGrid $min="260px" $gap={2}>
-            {items.map((m) => {
+          <GridRecipe
+            items={items}
+            min={skin.grid?.min || '18rem'}
+            columns={skin.grid?.columns ?? 'auto'}
+            gap={skin.grid?.gap ?? 2}
+            renderItem={(m) => {
               const href = `/blog/${m.category}/${m.slug}`
               const cover = m.cover
                 ? toPublicAssetUrl(m.category, m.dirName, m.cover)
@@ -61,44 +87,28 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                   tag={m.category}
                 />
               )
-            })}
-          </AutoGrid>
+            }}
+          />
         ) : (
           <Typography align="center" color="text.subtle">
             Keine Beiträge gefunden.
           </Typography>
         )}
-      </SectionWrapper>
+      </SectionRecipe>
 
-      <SectionWrapper>
-        <nav
-          style={{
-            display: 'flex',
-            gap: 16,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          aria-label="Seitennavigation"
-        >
-          {hasPrev ? (
-            <Link href={`/blog?page=${current - 1}`}>← Zurück</Link>
-          ) : (
-            <span aria-disabled="true" style={{ opacity: 0.5 }}>
-              ← Zurück
-            </span>
-          )}
-          <span>
-            Seite {current} / {pageCount}
-          </span>
-          {hasNext ? (
-            <Link href={`/blog?page=${current + 1}`}>Weiter →</Link>
-          ) : (
-            <span aria-disabled="true" style={{ opacity: 0.5 }}>
-              Weiter →
-            </span>
-          )}
-        </nav>
-      </SectionWrapper>
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
+        <Pager
+          current={current}
+          pageCount={pageCount}
+          prevHref={prevHref}
+          nextHref={nextHref}
+          ariaLabel="Seitennavigation"
+        />
+      </SectionRecipe>
     </main>
   )
 }

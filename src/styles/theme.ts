@@ -1,4 +1,4 @@
-// --- src/styles/theme.ts ---
+// src/styles/theme.ts
 const clampRem = (min: number, max: number) =>
   `clamp(${min}rem, calc(${min}rem + (${max - min}) * ((100vw - 350px) / 1000)), ${max}rem)`
 
@@ -294,6 +294,36 @@ const buildSemantic = (c: any) => ({
 
 const createTheme = (mode: 'light' | 'dark') => {
   const colors = (PALETTES as any)[mode]
+  const rhythm = {
+    compact: { sectionGap: spacing(1.5), sectionPad: spacing(1.5) },
+    default: { sectionGap: spacing(2), sectionPad: spacing(2) },
+    spacious: { sectionGap: spacing(3), sectionPad: spacing(3.5) },
+  }
+  const grid = {
+    defaults: { min: '18rem', gap: 2, columns: 'auto' as const },
+  }
+  const motifs = {
+    spotlight: { insetScale: 0.94, washAlpha: 0.08 },
+    zebra: { altSurface: colors.surface[2] },
+    edgeToEdge: { container: 'wide' as const },
+  }
+  const accentFor = (k: AccentKey | 'neutral') => {
+    if (k === 'neutral') {
+      return {
+        color: colors.text.main,
+        border: colors.neutral.border,
+        surfaceVariant: 'subtle' as const,
+        focusRing: colors.accent[2] || colors.secondary[2],
+      }
+    }
+    const group = (colors as any)[k]
+    return {
+      color: group.main,
+      border: group.border ?? colors.neutral.border,
+      surfaceVariant: 'subtle' as const,
+      focusRing: colors.accent[2] || colors.secondary[2],
+    }
+  }
   return {
     mode,
     colors,
@@ -306,12 +336,20 @@ const createTheme = (mode: 'light' | 'dark') => {
     borderRadius,
     breakpoints,
     motionSafe: true,
+    rhythm,
+    grid,
+    motifs,
+    accentFor,
   }
 }
 
 export const lightTheme = createTheme('light')
 export const darkTheme = createTheme('dark')
 export default lightTheme
+
+export type AccentKey = 'primary' | 'secondary' | 'accent' | 'highlight'
+export type RhythmKey = 'compact' | 'default' | 'spacious'
+export type MotifKey = 'spotlight' | 'zebra' | 'edgeToEdge'
 
 export type AppTheme = typeof lightTheme
 
