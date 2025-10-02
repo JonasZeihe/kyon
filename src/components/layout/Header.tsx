@@ -13,7 +13,7 @@ import {
 } from 'react-icons/fi'
 import SmoothScroller from '@/components/utilities/SmoothScroller'
 import ThemeToggleButton from '@/components/button/ThemeToggleButton'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 type NavChild = { id: string; label: string }
 type NavSection = { id: string; label: string; children?: NavChild[] }
@@ -32,15 +32,11 @@ const PRIMARY_LINKS = [
     label: 'About',
     match: (p: string) => p.startsWith('/about'),
   },
-  {
-    href: '/search',
-    label: 'Search',
-    match: (p: string) => p.startsWith('/search'),
-  },
 ]
 
 export default function Header({ navSections = [] }: HeaderProps) {
   const pathname = usePathname() || '/'
+  const router = useRouter()
   const headerRef = useRef<HTMLElement | null>(null)
   const [activeSection, setActiveSection] = useState<string | null>(null)
 
@@ -200,8 +196,12 @@ export default function Header({ navSections = [] }: HeaderProps) {
     </MobileMenu>
   )
 
-  const goTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  const onLogoClick = () => {
+    if (pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      router.push('/')
+    }
     dispatch({ type: 'CLOSE_MENU' })
   }
 
@@ -212,8 +212,8 @@ export default function Header({ navSections = [] }: HeaderProps) {
           <Logo
             as="button"
             type="button"
-            onClick={goTop}
-            aria-label="Zur Startseite scrollen"
+            onClick={onLogoClick}
+            aria-label="Zur Startseite"
           >
             Kyon
           </Logo>

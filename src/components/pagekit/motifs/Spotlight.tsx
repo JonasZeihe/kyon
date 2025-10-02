@@ -1,5 +1,5 @@
 // src/components/pagekit/motifs/Spotlight.tsx
-export type MotifKey = 'spotlight' | 'edgeToEdge' | 'none'
+import type { MotifKey } from '@/styles/theme'
 
 const Spotlight = {
   hero: { motif: 'spotlight' as MotifKey },

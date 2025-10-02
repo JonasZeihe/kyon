@@ -8,12 +8,18 @@ export const MarkdownStyles = styled.div`
   --ms-scroll-margin: var(--article-scroll-margin, 88px);
 
   max-width: var(--ms-max-width);
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline: auto;
   width: 100%;
   line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
   font-size: ${({ theme }) => theme.typography.fontSize.body};
   word-break: break-word;
+
+  & > :first-child {
+    margin-top: 0;
+  }
+  & > :last-child {
+    margin-bottom: 0;
+  }
 
   :where(h1, h2, h3, h4, h5, h6) {
     scroll-margin-top: var(--ms-scroll-margin);
@@ -26,7 +32,7 @@ export const MarkdownStyles = styled.div`
   h5,
   h6 {
     line-height: ${({ theme }) => theme.typography.lineHeight.tight};
-    margin: 2rem 0 0.9rem;
+    margin-block: 1.4rem 0.85rem;
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
     letter-spacing: ${({ theme }) => theme.typography.letterSpacing.tight};
   }
@@ -50,7 +56,7 @@ export const MarkdownStyles = styled.div`
   }
 
   p {
-    margin: 0.95rem 0;
+    margin-block: 0.9rem;
   }
 
   a {
@@ -70,7 +76,7 @@ export const MarkdownStyles = styled.div`
 
   ul,
   ol {
-    margin: 0.95rem 0 0.95rem 1.25rem;
+    margin: 0.9rem 0 0.9rem 1.25rem;
     padding: 0;
   }
   ul {
@@ -80,19 +86,19 @@ export const MarkdownStyles = styled.div`
     list-style: decimal;
   }
   li {
-    margin: 0.33rem 0;
+    margin: 0.3rem 0;
   }
   li > ul {
     list-style: circle;
-    margin-top: 0.33rem;
+    margin-top: 0.28rem;
   }
   li > ol {
     list-style: lower-alpha;
-    margin-top: 0.33rem;
+    margin-top: 0.28rem;
   }
 
   blockquote {
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
     padding: 0.9rem 1rem;
     border-left: 0.28rem solid ${({ theme }) => theme.colors.accent.main};
     border-radius: ${({ theme }) => theme.borderRadius.medium};
@@ -117,7 +123,7 @@ export const MarkdownStyles = styled.div`
     border-radius: ${({ theme }) => theme.borderRadius.medium};
     line-height: 1.55;
     font-size: 0.95rem;
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
     max-width: 100%;
     background: ${({ theme }) => theme.colors.surface[2]};
     border: 1px solid ${({ theme }) => theme.colors.surface[4]};
@@ -132,7 +138,7 @@ export const MarkdownStyles = styled.div`
   table {
     width: 100%;
     border-collapse: collapse;
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
     font-size: 0.96rem;
     display: block;
     overflow-x: auto;
@@ -150,19 +156,33 @@ export const MarkdownStyles = styled.div`
     background: ${({ theme }) => theme.colors.surface[1]};
   }
 
+  figure {
+    margin: 1.1rem auto;
+    max-width: 100%;
+    text-align: center;
+  }
+  figcaption {
+    margin-top: 0.5rem;
+    font-size: ${({ theme }) => theme.typography.fontSize.small};
+    color: ${({ theme }) => theme.colors.text.subtle};
+  }
+
   img,
-  video {
+  video,
+  picture {
     display: block;
     max-width: 100%;
     height: auto;
     margin: 1.1rem auto;
     border-radius: ${({ theme }) => theme.borderRadius.medium};
+    box-shadow: ${({ theme }) => theme.boxShadow.xs};
+    background: ${({ theme }) => theme.colors.surface.card};
   }
 
   hr {
     border: none;
     height: 1px;
-    margin: 1.6rem 0;
+    margin: 1.4rem 0;
     background: ${({ theme }) => theme.colors.surface[4]};
   }
 
@@ -172,7 +192,7 @@ export const MarkdownStyles = styled.div`
     padding: 0.95rem 1rem;
     border-left: 4px solid ${({ theme }) => theme.colors.primary[3]};
     border-radius: ${({ theme }) => theme.borderRadius.medium};
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
     background: ${({ theme }) => theme.colors.surface[1]};
   }
   .callout-title {
@@ -201,7 +221,7 @@ export const MarkdownStyles = styled.div`
   .numbered-summary {
     counter-reset: kyon-num;
     list-style: none;
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
     padding-left: 0;
   }
   .numbered-summary > li {
@@ -229,7 +249,10 @@ export const MarkdownStyles = styled.div`
   }
 
   .codeblock {
-    margin: 1.2rem 0;
+    margin: 1.1rem 0;
+  }
+
+  .codeblock {
     border-radius: ${({ theme }) => theme.borderRadius.medium};
     overflow: hidden;
     border: 1px solid ${({ theme }) => theme.colors.surface[4]};

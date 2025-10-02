@@ -12,9 +12,8 @@ import {
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
 import ArticleRecipe from '@/components/pagekit/recipes/ArticleRecipe'
-import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import { resolveSkin } from '@/components/pagekit/skins'
-import PageMeta from '@/components/pagekit/islands/PageMeta'
+import BlogMetaLayer from '@/layouts/BlogMetaLayer'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -62,25 +61,20 @@ export default async function BlogPostPage({ params }: PageProps) {
     value: t.text,
   }))
 
+  const breadcrumbs = [
+    { label: 'Blog', href: '/blog' },
+    { label: meta.category, href: `/blog/${meta.category}` },
+    { label: meta.title },
+  ]
+
   const skin = resolveSkin('blogPost')
 
   return (
     <main>
-      <SectionRecipe
-        title={null}
-        intro={null}
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
-        titleId="post-header"
-      >
-        <></>
-      </SectionRecipe>
-
+      <BlogMetaLayer toc={toc} breadcrumbs={breadcrumbs} showProgress />
       <ArticleRecipe
         header={<PostHeader post={post.meta} />}
         body={<PostBody post={post as any} />}
-        asideMeta={<PageMeta tocItems={toc} showProgress />}
         surface={skin.surface}
         rhythm={skin.rhythm}
         narrow={false}

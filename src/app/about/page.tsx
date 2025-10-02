@@ -3,32 +3,35 @@ import Image from 'next/image'
 import Typography from '@/styles/Typography'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import ListComponent from '@/components/data-display/ListComponent'
-import BentoSection from '@/components/Wrapper/BentoSection'
 import HighlightText from '@/components/utilities/HighlightText'
 import HeroRecipe from '@/components/pagekit/recipes/HeroRecipe'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
-import Spotlight from '@/components/pagekit/motifs/Spotlight'
+import BentoSection from '@/components/Wrapper/BentoSection'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 
 export default function AboutPage() {
+  const skin = resolveSkin('about')
+
   return (
     <main>
       <HeroRecipe
+        variant="split"
         kicker={
           <Typography as="p" variant="caption" color="text.subtle">
-            Über
+            Über mich
           </Typography>
         }
         title={
           <Typography variant="h1" as="h1" id="about-hero">
-            Wer &amp; warum
+            Ich bin, was ich tue
           </Typography>
         }
         lead={
           <Typography as="p" variant="body" color="text.subtle" gutter={false}>
-            Prozess statt Pose. Natürlichkeit vor Methode. Ich baue Interfaces
-            und Systeme, die sich ruhig anfühlen und lange halten.
+            Prozess, Wachstum und Natürlichkeit. Ich baue Interfaces und
+            Systeme, die sich intuitiv und stromlinienförmig anfühlen.
           </Typography>
         }
         media={
@@ -36,32 +39,37 @@ export default function AboutPage() {
             src="/og-default.png"
             alt="Kyon – ruhige, opake Flächen mit klarer Typografie"
             fill
-            priority
             sizes="(max-width: 768px) 100vw, 1200px"
             style={{ objectFit: 'cover' }}
+            priority
           />
         }
+        mediaAspect="4/3"
         container="wide"
-        motif={Spotlight.hero.motif}
-        accent="accent"
+        accent={skin.accent as any}
       />
 
       <SectionRecipe
-        title={
-          <Typography variant="h2" as="h2">
-            Ich in kurz
-          </Typography>
-        }
+        title={<Typography variant="h2">Ich in kurz</Typography>}
         rhythm="default"
-        surface="subtle"
-        motif={Spotlight.section.motif}
+        surface={skin.surface}
+        accent={skin.accent as any}
       >
-        <BentoSection columns="auto" padY>
+        <BentoSection
+          columns={3}
+          min="16rem"
+          gap={2}
+          layout={[{ col: 2 }, { col: 1 }]}
+          surface="subtle"
+        >
           <div>
             <Typography as="p" variant="body">
-              Ich bin <HighlightText>Jonas Zeihe</HighlightText> (1989),
-              Designer &amp; Entwickler in Niederbayern. Mich interessiert, wie
-              Produkte Menschen wirklich helfen: mit klarer
+              Ich bin Jonas{' '}
+              <HighlightText>
+                (Dein Begleiter zwischen den Welten)
+              </HighlightText>
+              , Jahrgang 1989, Designer &amp; Entwickler in Niederbayern. Mich
+              interessiert, wie Produkte Menschen wirklich helfen: mit klarer
               Informationsarchitektur, guter Sprache und pragmatischem Code. Ich
               arbeite gern iterativ – kleine Schritte, sichtbarer Fortschritt.
             </Typography>
@@ -69,13 +77,11 @@ export default function AboutPage() {
           <div>
             <BadgeGrid
               badges={[
-                { label: 'UX' },
-                { label: 'UI' },
-                { label: 'React' },
-                { label: 'TypeScript' },
-                { label: 'Java' },
+                { label: 'Design thinking- und Prozess' },
+                { label: 'UX/UI' },
+                { label: 'React/Next.js' },
+                { label: 'Java & Kotlin' },
                 { label: 'Python' },
-                { label: 'MD/MDX' },
                 { label: 'Accessibility' },
               ]}
               align="flex-start"
@@ -85,42 +91,89 @@ export default function AboutPage() {
       </SectionRecipe>
 
       <SectionRecipe
-        title={
-          <Typography variant="h2" as="h2">
-            Arbeit &amp; Haltung
-          </Typography>
-        }
+        title={<Typography variant="h2">Arbeit &amp; Haltung</Typography>}
         rhythm="default"
-        surface="subtle"
+        surface={skin.surface}
+        accent={skin.accent as any}
       >
-        <BentoSection columns="auto" padY>
+        <ListComponent
+          items={[
+            {
+              id: 'ia',
+              icon: '🧭',
+              text: 'Klare Informationsarchitektur vor Effekten. Erst Struktur, dann Politur.',
+            },
+            {
+              id: 'copy',
+              icon: '✍️',
+              text: 'Sprache als Interface: Labels, Microcopy und Lesefluss entscheiden über Tempo.',
+            },
+            {
+              id: 'tokens',
+              icon: '🎛️',
+              text: 'Token-getriebenes UI (Farbe, Radius, Shadow, Motion) reduziert Drift und Wartung.',
+            },
+            {
+              id: 'code',
+              icon: '⚙️',
+              text: 'User centered Design, was sich gut anfühlt, barrierefrei ist und einem natürlichen Pfad folgt.',
+            },
+            {
+              id: 'process',
+              icon: '🪴',
+              text: 'Organisch, intuitiv, authentisch.',
+            },
+          ]}
+        />
+      </SectionRecipe>
+
+      <SectionRecipe
+        title={<Typography variant="h2">Womit ich arbeite</Typography>}
+        rhythm="default"
+        surface={skin.surface}
+        accent={skin.accent as any}
+      >
+        <BentoSection columns={2} min="22rem" gap={2} surface="subtle">
           <div>
             <ListComponent
+              title={<Typography variant="h3">Design</Typography>}
+              mode="cards"
+              align="center"
               items={[
                 {
-                  id: 'ia',
-                  icon: '🧭',
-                  text: 'Klare Informationsarchitektur vor Effekten. Erst Struktur, dann Politur.',
+                  id: 'uxui',
+                  icon: '📐 Design thinking, User centered Design, User Journey, Storytelling',
+                  text: '',
                 },
                 {
-                  id: 'copy',
-                  icon: '✍️',
-                  text: 'Sprache als Interface: Labels, Microcopy und Lesefluss entscheiden über Tempo.',
+                  id: 'color',
+                  icon: '🌈',
+                  text: 'Farb- & Typo-Systeme, Kontrast & Lesbarkeit',
                 },
                 {
-                  id: 'tokens',
-                  icon: '🎛️',
-                  text: 'Token-getriebenes UI (Farbe, Radius, Shadow, Motion) reduziert Drift und Wartung.',
+                  id: 'design',
+                  icon: '🖼️',
+                  text: 'IA, Wireframes, UI-Kits, Design-Tokens',
                 },
+              ]}
+            />
+          </div>
+          <div>
+            <ListComponent
+              title={<Typography variant="h3">Entwicklung</Typography>}
+              mode="cards"
+              align="center"
+              items={[
                 {
-                  id: 'code',
-                  icon: '⚙️',
-                  text: 'Bevorzugt React/TypeScript. Lesbarer Code, kleine Komponenten, wenig Magie.',
+                  id: 'react',
+                  icon: '⚛️',
+                  text: 'React, Next.js, Typescript, Java, Kotlin, Python',
                 },
+                { id: 'node', icon: '🔧', text: 'Node.js, CI/CD' },
                 {
-                  id: 'process',
-                  icon: '🪴',
-                  text: 'Natürlicher Prozess: beobachten, reduzieren, testen – wiederholen.',
+                  id: 'tests',
+                  icon: '✅',
+                  text: '(TDD) Test Driven Development und (DDD) Domain Driven Design',
                 },
               ]}
             />
@@ -129,57 +182,17 @@ export default function AboutPage() {
       </SectionRecipe>
 
       <SectionRecipe
-        title={
-          <Typography variant="h2" as="h2">
-            Womit ich arbeite
-          </Typography>
-        }
+        title={<Typography variant="h2">Abseits vom Bildschirm</Typography>}
         rhythm="default"
-        surface="subtle"
+        surface={skin.surface}
+        accent={skin.accent as any}
       >
-        <BentoSection columns={2} min="20rem" padY>
-          <div>
-            <Typography variant="h3" as="h3">
-              Design
-            </Typography>
-            <ul>
-              <li>IA, Wireframes, UI-Kits, Design-Tokens</li>
-              <li>Farb- &amp; Typo-Systeme, Kontrast &amp; Lesbarkeit</li>
-              <li>Content mit MD/MDX, Bildbearbeitung</li>
-            </ul>
-          </div>
-          <div>
-            <Typography variant="h3" as="h3">
-              Entwicklung
-            </Typography>
-            <ul>
-              <li>React, Next.js, TypeScript</li>
-              <li>Node-Basics, einfache Pipelines</li>
-              <li>Tests &amp; Zugänglichkeit im Alltag</li>
-            </ul>
-          </div>
-        </BentoSection>
-      </SectionRecipe>
-
-      <SectionRecipe
-        title={
-          <Typography variant="h2" as="h2">
-            Abseits vom Bildschirm
-          </Typography>
-        }
-        rhythm="default"
-        surface="subtle"
-      >
-        <BentoSection columns="auto" padY>
-          <div>
-            <Typography as="p" variant="body">
-              Natur, Wandern und <em>ruhige Praxis</em>: Yoga, Qigong,
-              Meditation. Außerdem Kochen &amp; Backen (gelernter Bäcker) und
-              Fotografie – vor allem draußen. Wichtigster Titel:{' '}
-              <HighlightText>Vater</HighlightText>.
-            </Typography>
-          </div>
-        </BentoSection>
+        <Typography as="p" variant="body">
+          Natur, Wandern und <em>ruhige Praxis</em>: Yoga, Qigong, Meditation.
+          Außerdem Kochen &amp; Backen (gelernter Bäcker) und Fotografie – vor
+          allem draußen. Wichtigster Titel: <HighlightText>Vater</HighlightText>
+          .
+        </Typography>
       </SectionRecipe>
     </main>
   )

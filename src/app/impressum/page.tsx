@@ -2,30 +2,54 @@
 import Link from 'next/link'
 import Typography from '@/styles/Typography'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import HeroRecipe from '@/components/pagekit/recipes/HeroRecipe'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 
 export default function ImpressumPage() {
+  const skin = resolveSkin('impressum')
+
   return (
     <main>
-      <SectionRecipe
-        surface="subtle"
-        rhythm="default"
-        narrow
+      <HeroRecipe
+        isPageHeader
         title={
-          <Typography variant="h1" as="h1" color="primary.main">
+          <Typography variant="h1" as="h1">
             Impressum
           </Typography>
         }
+        lead={
+          <Typography
+            as="p"
+            variant="subhead"
+            color="text.subtle"
+            gutter={false}
+          >
+            Rechtliche Angaben, Kontakt und Hinweise.
+          </Typography>
+        }
+        container="narrow"
+        accent={skin.accent as any}
+      />
+
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        narrow
+        ariaLabel="Impressum – Rechtliche Angaben"
       >
         <section aria-labelledby="angaben">
           <Typography variant="h3" as="h2" id="angaben">
             Angaben gemäß § 5 TMG
           </Typography>
-          <Typography as="p">Jonas Zeihe</Typography>
-          <Typography as="p">[Straße Hausnummer]</Typography>
-          <Typography as="p">[PLZ] [Ort]</Typography>
-          <Typography as="p">Deutschland</Typography>
+          <address style={{ fontStyle: 'normal' }}>
+            <Typography as="p">Jonas Zeihe</Typography>
+            <Typography as="p">[Straße Hausnummer]</Typography>
+            <Typography as="p">[PLZ] [Ort]</Typography>
+            <Typography as="p">Deutschland</Typography>
+          </address>
         </section>
 
         <section aria-labelledby="kontakt">

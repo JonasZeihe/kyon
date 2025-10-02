@@ -1,14 +1,14 @@
 // src/app/blog/page.tsx
 import Typography from '@/styles/Typography'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import BentoSection from '@/components/Wrapper/BentoSection'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import Pager from '@/components/pagination/Pager'
+import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 
@@ -17,6 +17,7 @@ type PageProps = {
 }
 
 export default async function BlogIndexPage({ searchParams }: PageProps) {
+  const skin = resolveSkin('blogIndex')
   const sp = (await searchParams) || {}
   const page = getPageParamFromSearchParams(sp)
 
@@ -34,11 +35,13 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
 
   return (
     <main>
-      <SectionWrapper $spacious>
-        <ContainerWrapper>
+      <SectionRecipe
+        title={
           <Typography variant="h1" align="center" color="primary.main" as="h1">
             Blog
           </Typography>
+        }
+        intro={
           <Typography
             variant="subhead"
             align="center"
@@ -47,13 +50,27 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
           >
             Gedanken, Notizen und Systembau – ruhig, präzise, nützlich.
           </Typography>
-        </ContainerWrapper>
-      </SectionWrapper>
+        }
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+        titleId="blog-title"
+      >
+        <></>
+      </SectionRecipe>
 
-      <ContainerWrapper $padY>
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
         {items.length ? (
-          <BentoSection columns="auto" gap={2} padY={false}>
-            {items.map((m) => {
+          <GridRecipe
+            items={items}
+            min={skin.grid?.min || '18rem'}
+            columns={skin.grid?.columns ?? 'auto'}
+            gap={skin.grid?.gap ?? 2}
+            renderItem={(m) => {
               const href = `/blog/${m.category}/${m.slug}`
               const cover = m.cover
                 ? toPublicAssetUrl(m.category, m.dirName, m.cover)
@@ -70,30 +87,28 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                   tag={m.category}
                 />
               )
-            })}
-          </BentoSection>
-        ) : (
-          <SectionWrapper>
-            <ContainerWrapper>
-              <Typography align="center" color="text.subtle">
-                Keine Beiträge gefunden.
-              </Typography>
-            </ContainerWrapper>
-          </SectionWrapper>
-        )}
-      </ContainerWrapper>
-
-      <SectionWrapper>
-        <ContainerWrapper>
-          <Pager
-            current={current}
-            pageCount={pageCount}
-            prevHref={prevHref}
-            nextHref={nextHref}
-            ariaLabel="Seitennavigation"
+            }}
           />
-        </ContainerWrapper>
-      </SectionWrapper>
+        ) : (
+          <Typography align="center" color="text.subtle">
+            Keine Beiträge gefunden.
+          </Typography>
+        )}
+      </SectionRecipe>
+
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
+        <Pager
+          current={current}
+          pageCount={pageCount}
+          prevHref={prevHref}
+          nextHref={nextHref}
+          ariaLabel="Seitennavigation"
+        />
+      </SectionRecipe>
     </main>
   )
 }

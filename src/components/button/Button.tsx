@@ -10,6 +10,7 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant
   as?: any
   href?: string
+  customBackground?: string
 }
 
 const base = css`
@@ -119,7 +120,7 @@ const Linkish = css`
   }
 `
 
-const StyledButton = styled.button<{ $variant: Variant }>`
+const StyledButton = styled.button<{ $variant: Variant; $bg?: string }>`
   ${base}
   ${({ $variant }) =>
     $variant === 'primary'
@@ -129,6 +130,28 @@ const StyledButton = styled.button<{ $variant: Variant }>`
         : $variant === 'ghost'
           ? Ghost
           : Linkish}
+
+  ${({ $bg, theme }) =>
+    $bg
+      ? css`
+          background: ${$bg};
+          color: ${theme.colors.text.inverse};
+          border: none;
+          box-shadow: ${theme.boxShadow.sm};
+          &:hover {
+            box-shadow: ${theme.boxShadow.md};
+            transform: translateY(-1px);
+          }
+          &:active {
+            transform: translateY(0);
+            filter: brightness(0.97);
+          }
+          &:focus-visible {
+            outline: 2px solid transparent;
+            box-shadow: 0 0 0 4px ${theme.semantic.focusRing};
+          }
+        `
+      : null}
 
   &:disabled,
   &[aria-disabled='true'] {
@@ -146,11 +169,11 @@ const StyledButton = styled.button<{ $variant: Variant }>`
 `
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', children, ...rest },
+  { variant = 'primary', customBackground, children, ...rest },
   ref
 ) {
   return (
-    <StyledButton ref={ref} $variant={variant} {...rest}>
+    <StyledButton ref={ref} $variant={variant} $bg={customBackground} {...rest}>
       {children}
     </StyledButton>
   )

@@ -1,5 +1,5 @@
 // src/components/pagekit/motifs/EdgeToEdge.tsx
-export type MotifKey = 'spotlight' | 'edgeToEdge' | 'none'
+import type { MotifKey } from '@/styles/theme'
 
 const EdgeToEdge = {
   hero: { motif: 'edgeToEdge' as MotifKey, container: 'wide' as const },

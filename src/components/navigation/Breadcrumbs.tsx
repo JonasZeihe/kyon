@@ -16,7 +16,7 @@ type Props = {
 export default function Breadcrumbs({
   items,
   ariaLabel = 'Brotkrumen',
-  separator = '/',
+  separator = '›',
 }: Props) {
   return (
     <Nav role="navigation" aria-label={ariaLabel}>
@@ -51,6 +51,7 @@ export default function Breadcrumbs({
 const Nav = styled.nav`
   width: 100%;
   background: transparent;
+  margin-bottom: ${({ theme }) => theme.spacing(1)};
 `
 
 const List = styled.ol`
@@ -59,7 +60,7 @@ const List = styled.ol`
   align-items: center;
   gap: ${({ theme }) => theme.spacingHalf(2)};
   margin: 0;
-  padding: ${({ theme }) => `${theme.spacing(1)} 0`};
+  padding: ${({ theme }) => `${theme.spacing(0.5)} 0`};
   list-style: none;
 `
 
@@ -67,11 +68,11 @@ const Item = styled.li`
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacingHalf(2)};
-  min-height: 32px;
+  min-height: 28px;
 `
 
 const Separator = styled.span`
-  opacity: 0.55;
+  opacity: 0.7;
   user-select: none;
   padding-inline: ${({ theme }) => theme.spacingHalf(1)};
   line-height: 1;
@@ -90,14 +91,10 @@ const CrumbLink = styled(Link)`
   overflow: hidden;
   transition:
     background 0.16s ease,
-    color 0.16s ease,
-    text-decoration-color 0.16s ease;
+    color 0.16s ease;
   &:hover {
     color: ${({ theme }) => theme.colors.accent.main};
     background: ${({ theme }) => theme.colors.surface[1]};
-    text-decoration: underline;
-    text-underline-offset: 0.16em;
-    text-decoration-thickness: 0.06em;
   }
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.accent.main};

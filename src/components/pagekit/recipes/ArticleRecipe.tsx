@@ -1,5 +1,8 @@
 // src/components/pagekit/recipes/ArticleRecipe.tsx
+'use client'
+
 import { ReactNode } from 'react'
+import styled from 'styled-components'
 import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import LumenWrapper from '@/components/Wrapper/LumenWrapper'
@@ -23,7 +26,7 @@ export default function ArticleRecipe({
   body,
   asideMeta,
   surface = 'subtle',
-  rhythm = 'spacious',
+  rhythm = 'default',
   narrow = false,
 }: ArticleRecipeProps) {
   const containerSize = narrow ? 'narrow' : 'default'
@@ -31,16 +34,31 @@ export default function ArticleRecipe({
     <>
       <SectionWrapper $spacious={rhythm === 'spacious'}>
         <ContainerWrapper $size={containerSize as any}>
-          <LumenWrapper
-            as="header"
-            variant={surface}
-            radius="large"
-            data-toc-anchor
-          >
-            {header}
-          </LumenWrapper>
+          <Stack role="group" aria-label="Artikel">
+            <LumenWrapper
+              as="header"
+              variant={surface}
+              radius="large"
+              padding="clamp(0.8rem,1.8vw,1.2rem) clamp(0.9rem,2vw,1.2rem)"
+              data-toc-anchor
+            >
+              {header}
+            </LumenWrapper>
+            <LumenWrapper
+              as="article"
+              variant={surface}
+              radius="large"
+              data-reading-root
+            >
+              <MarkdownStyles>
+                <HeadingEnhancer />
+                {body}
+              </MarkdownStyles>
+            </LumenWrapper>
+          </Stack>
         </ContainerWrapper>
       </SectionWrapper>
+
       {asideMeta ? (
         <SectionWrapper $spacious={rhythm === 'spacious'}>
           <ContainerWrapper $size={containerSize as any}>
@@ -48,21 +66,12 @@ export default function ArticleRecipe({
           </ContainerWrapper>
         </SectionWrapper>
       ) : null}
-      <SectionWrapper $spacious={rhythm === 'spacious'}>
-        <ContainerWrapper $size={containerSize as any}>
-          <LumenWrapper
-            as="article"
-            variant={surface}
-            radius="large"
-            data-reading-root
-          >
-            <MarkdownStyles>
-              <HeadingEnhancer />
-              {body}
-            </MarkdownStyles>
-          </LumenWrapper>
-        </ContainerWrapper>
-      </SectionWrapper>
     </>
   )
 }
+
+const Stack = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1.25)};
+  align-items: start;
+`

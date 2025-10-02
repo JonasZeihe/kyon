@@ -39,17 +39,13 @@ export default function GridRecipe<T>({
         padY={padY}
         wide={wide}
       >
-        {items.map((it, i) => (
-          <div key={i}>{renderItem(it, i)}</div>
-        ))}
+        {items.map((it, i) => renderItem(it, i))}
       </BentoSection>
     )
   }
   return (
     <AutoGrid $min={min} $columns={columns} $gap={gap}>
-      {items.map((it, i) => (
-        <div key={i}>{renderItem(it, i)}</div>
-      ))}
+      {items.map((it, i) => renderItem(it, i))}
     </AutoGrid>
   )
 }

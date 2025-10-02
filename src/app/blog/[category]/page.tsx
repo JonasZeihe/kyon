@@ -8,8 +8,6 @@ import Card from '@/components/blog/Card'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import Pager from '@/components/pagination/Pager'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
@@ -75,7 +73,11 @@ export default async function CategoryPage({
         <></>
       </SectionRecipe>
 
-      <ContainerWrapper $padY>
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
         {items.length ? (
           <GridRecipe
             items={items}
@@ -102,27 +104,25 @@ export default async function CategoryPage({
             }}
           />
         ) : (
-          <SectionWrapper>
-            <ContainerWrapper>
-              <Typography align="center" color="text.subtle">
-                Keine Beiträge in dieser Kategorie.
-              </Typography>
-            </ContainerWrapper>
-          </SectionWrapper>
+          <Typography align="center" color="text.subtle">
+            Keine Beiträge in dieser Kategorie.
+          </Typography>
         )}
-      </ContainerWrapper>
+      </SectionRecipe>
 
-      <SectionWrapper>
-        <ContainerWrapper>
-          <Pager
-            current={current}
-            pageCount={pageCount}
-            prevHref={prevHref}
-            nextHref={nextHref}
-            ariaLabel="Seitennavigation"
-          />
-        </ContainerWrapper>
-      </SectionWrapper>
+      <SectionRecipe
+        surface={skin.surface}
+        rhythm={skin.rhythm}
+        accent={skin.accent as any}
+      >
+        <Pager
+          current={current}
+          pageCount={pageCount}
+          prevHref={prevHref}
+          nextHref={nextHref}
+          ariaLabel="Seitennavigation"
+        />
+      </SectionRecipe>
     </main>
   )
 }

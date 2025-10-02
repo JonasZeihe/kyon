@@ -4,7 +4,7 @@ import SectionWrapper from '@/components/Wrapper/SectionWrapper'
 import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
 import LumenWrapper from '@/components/Wrapper/LumenWrapper'
 import Typography from '@/styles/Typography'
-import type { AccentKey, MotifKey, RhythmKey } from '@/styles/theme'
+import type { AccentKey, RhythmKey } from '@/styles/theme'
 
 type SurfaceVariant = 'subtle' | 'intense' | 'none'
 
@@ -16,10 +16,13 @@ type SectionRecipeProps = {
   rhythm?: RhythmKey
   accent?: AccentKey | 'neutral'
   narrow?: boolean
-  motif?: MotifKey | 'none'
   titleId?: string
   ariaLabel?: string
+  footer?: ReactNode
 }
+
+const isPrimitive = (n: ReactNode): n is string | number =>
+  typeof n === 'string' || typeof n === 'number'
 
 export default function SectionRecipe({
   title,
@@ -29,15 +32,11 @@ export default function SectionRecipe({
   rhythm = 'default',
   accent = 'neutral',
   narrow = false,
-  motif = 'none',
   titleId,
   ariaLabel,
+  footer,
 }: SectionRecipeProps) {
-  const containerSize = narrow
-    ? 'narrow'
-    : motif === 'edgeToEdge'
-      ? 'wide'
-      : 'default'
+  const containerSize = narrow ? 'narrow' : 'default'
   const titleColor = accent === 'neutral' ? undefined : `${accent}.main`
 
   return (
@@ -52,16 +51,25 @@ export default function SectionRecipe({
           radius="large"
         >
           {title ? (
-            <Typography as="h2" variant="h2" color={titleColor} id={titleId}>
-              {title}
-            </Typography>
+            isPrimitive(title) ? (
+              <Typography as="h2" variant="h2" color={titleColor} id={titleId}>
+                {title}
+              </Typography>
+            ) : (
+              title
+            )
           ) : null}
           {intro ? (
-            <Typography as="p" variant="body" color="text.subtle">
-              {intro}
-            </Typography>
+            isPrimitive(intro) ? (
+              <Typography as="p" variant="body" color="text.subtle">
+                {intro}
+              </Typography>
+            ) : (
+              intro
+            )
           ) : null}
           {children}
+          {footer ?? null}
         </LumenWrapper>
       </ContainerWrapper>
     </SectionWrapper>

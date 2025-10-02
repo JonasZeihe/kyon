@@ -27,16 +27,24 @@ const SearchRow = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
   gap: ${({ theme }) => theme.spacing(1)};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `
 
 const SearchBox = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing(1.1)} ${theme.spacing(1.5)}`};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface.card};
   color: ${({ theme }) => theme.colors.text.main};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
+  }
 `
 
 const ClearBtn = styled.button`
@@ -44,7 +52,7 @@ const ClearBtn = styled.button`
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   background: ${({ theme }) => theme.colors.surface[1]};
   color: ${({ theme }) => theme.colors.text.main};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:hover,
   &:focus-visible {
@@ -55,8 +63,11 @@ const ClearBtn = styled.button`
 
 const Grid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
   gap: ${({ theme }) => theme.spacing(2)};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+  }
 `
 
 const Card = styled.article`
@@ -64,9 +75,21 @@ const Card = styled.article`
   gap: ${({ theme }) => theme.spacing(1)};
   padding: ${({ theme }) => theme.spacing(1.5)};
   background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   border-radius: ${({ theme }) => theme.borderRadius.large};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.2s ease;
+  &:hover,
+  &:focus-within {
+    transform: translateY(-2px);
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+  }
+  h2 a {
+    text-decoration: none;
+  }
 `
 
 const Meta = styled.div`
@@ -75,6 +98,7 @@ const Meta = styled.div`
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
+  flex-wrap: wrap;
 `
 
 const Tags = styled.div`
@@ -90,7 +114,7 @@ const Tag = styled.button`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.colors.text.subtle};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   &:hover,
   &:focus-visible {
     outline: none;
@@ -110,7 +134,7 @@ const PageBtn = styled.button<{ $active: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.pill};
   border: 1px solid
     ${({ theme, $active }) =>
-      $active ? theme.colors.primary[3] : theme.colors.surface[4]};
+      $active ? theme.colors.primary[3] : theme.colors.neutral.border};
   background: ${({ theme, $active }) =>
     $active ? theme.colors.primary[1] : theme.colors.surface.card};
   color: ${({ theme }) => theme.colors.text.main};
@@ -128,7 +152,7 @@ const EmptyState = styled.section`
   gap: ${({ theme }) => theme.spacing(1.4)};
   padding: ${({ theme }) => theme.spacing(2)};
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface.card};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
 `
@@ -148,7 +172,7 @@ const ChipRow = styled.div`
 const Chip = styled.button`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.1)}`};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  border: 1px solid ${({ theme }) => theme.colors.surface[4]};
+  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
   background: ${({ theme }) => theme.colors.surface[1]};
   color: ${({ theme }) => theme.colors.text.main};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
@@ -251,9 +275,10 @@ export default function SearchClient({ metas }: Props) {
 
   return (
     <Wrap>
-      <Header role="search">
+      <Header role="search" aria-labelledby="searchbox-label">
         <SearchRow>
           <SearchBox
+            id="searchbox"
             type="search"
             placeholder="Suche nach Titel, Tags, Kategorie…"
             value={input}
@@ -270,7 +295,12 @@ export default function SearchClient({ metas }: Props) {
             </ClearBtn>
           ) : null}
         </SearchRow>
-        <Typography as="p" variant="caption" color="text.subtle">
+        <Typography
+          as="p"
+          variant="caption"
+          color="text.subtle"
+          id="searchbox-label"
+        >
           {input.trim()
             ? `${filtered.length} Ergebnis(se) für „${input.trim()}“`
             : `${filtered.length} Beiträge`}
@@ -328,9 +358,9 @@ export default function SearchClient({ metas }: Props) {
         </EmptyState>
       ) : (
         <>
-          <Grid>
+          <Grid role="list">
             {items.map((m) => (
-              <Card key={m.id}>
+              <Card key={m.id} role="listitem">
                 <Typography as="h2" variant="h3" gutter={false}>
                   <Link href={`/blog/${m.category}/${m.slug}`}>{m.title}</Link>
                 </Typography>
