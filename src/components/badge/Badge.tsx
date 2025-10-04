@@ -2,7 +2,7 @@
 'use client'
 
 import React from 'react'
-import styled, { useTheme } from 'styled-components'
+import styled from 'styled-components'
 
 export type BadgeProps = React.HTMLAttributes<HTMLSpanElement> & {
   label: string
@@ -23,8 +23,9 @@ const BadgeContainer = styled.span<{
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing(0.7)};
-  background: ${({ theme }) => theme.colors.accent.main};
-  color: ${({ theme }) => theme.colors.text.main};
+  background: ${({ theme }) => theme.semantic.hover};
+  color: ${({ theme }) => theme.semantic.fg};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   border-radius: ${({ theme, $pill }) =>
     $pill ? theme.borderRadius.pill : theme.borderRadius.medium};
   padding: ${({ theme }) => `${theme.spacing(0.7)} ${theme.spacing(2)}`};
@@ -37,7 +38,7 @@ const BadgeContainer = styled.span<{
   cursor: default;
 
   &:hover {
-    opacity: 0.85;
+    opacity: 0.92;
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -64,7 +65,6 @@ export default function Badge({
   pill = true,
   ...rest
 }: BadgeProps) {
-  useTheme()
   return (
     <BadgeContainer
       $pill={pill}

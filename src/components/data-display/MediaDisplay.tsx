@@ -73,9 +73,9 @@ const MediaItemBox = styled.div<{ $isClickable: boolean }>`
   height: auto !important;
   padding-bottom: ${({ theme }) => theme.spacing(2)};
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2px solid ${({ theme }) => theme.semantic.focusRing};
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
   @media (hover: hover) {
     &:hover {
@@ -98,7 +98,9 @@ const InlineWrapper = styled.span`
   display: inline-block;
   max-width: 100%;
   line-height: 0;
-  vertical-align: middle;
+  margin: 1.1rem auto;
+  text-align: center;
+  width: 100%;
 `
 
 const InlineImgButton = styled.button`
@@ -110,9 +112,9 @@ const InlineImgButton = styled.button`
   overflow: hidden;
   line-height: 0;
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2px solid ${({ theme }) => theme.semantic.focusRing};
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 `
 
@@ -122,6 +124,7 @@ const InlineImg = styled.img`
   height: auto;
   object-fit: contain;
   border-radius: ${({ theme }) => theme.borderRadius.medium};
+  margin-inline: auto;
 `
 
 const InlineCaption = styled.small`
@@ -129,7 +132,7 @@ const InlineCaption = styled.small`
   margin-top: ${({ theme }) => theme.spacing(1)};
   text-align: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
 `
 
@@ -137,7 +140,7 @@ const MediaCaption = styled.figcaption`
   margin-top: ${({ theme }) => theme.spacing(1.25)};
   text-align: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
 `
 

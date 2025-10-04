@@ -26,7 +26,7 @@ const Outer = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: ${({ theme }) => theme.colors.neutral.background};
+  background: ${({ theme }) => theme.semantic.bg};
 `
 
 const Main = styled.main`
@@ -42,9 +42,9 @@ const SkipLink = styled.a`
   left: -9999px;
   top: -9999px;
   padding: ${({ theme }) => `${theme.spacingHalf(3)} ${theme.spacing(1)}`};
-  background: ${({ theme }) => theme.colors.surface.card};
-  color: ${({ theme }) => theme.colors.text.main};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.semantic.card};
+  color: ${({ theme }) => theme.semantic.fg};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   z-index: 10000;
   &:focus {

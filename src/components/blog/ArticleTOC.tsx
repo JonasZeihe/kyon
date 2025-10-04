@@ -95,7 +95,7 @@ const Header = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.h4};
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-bottom: ${({ theme }) => theme.spacing(1)};
-  color: ${({ theme }) => theme.colors.text.main};
+  color: ${({ theme }) => theme.semantic.fg};
 `
 
 const List = styled.ol`
@@ -114,13 +114,13 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
     border-radius: ${({ theme }) => theme.borderRadius.small};
     font-size: ${({ theme }) => theme.typography.fontSize.small};
-    color: ${({ theme }) => theme.colors.text.main};
+    color: ${({ theme }) => theme.semantic.fg};
     opacity: ${({ $active }) => ($active ? 1 : 0.9)};
     border-left: 3px solid
       ${({ theme, $active }) =>
-        $active ? theme.colors.accent.main : theme.colors.neutral.border};
+        $active ? theme.semantic.link : theme.semantic.border};
     background: ${({ theme, $active }) =>
-      $active ? theme.colors.surface.hover : 'transparent'};
+      $active ? theme.semantic.hover : 'transparent'};
     font-weight: ${({ theme, $active }) =>
       $active
         ? theme.typography.fontWeight.medium
@@ -132,7 +132,7 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
   }
   a:hover,
   a:focus-visible {
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.semantic.hover};
     outline: none;
   }
 `

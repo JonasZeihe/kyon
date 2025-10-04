@@ -2,7 +2,7 @@
 'use client'
 
 import styled from 'styled-components'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import type { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
@@ -14,7 +14,7 @@ export default function RelatedPosts({ posts }: Props) {
 
   return (
     <Wrap>
-      <Typography variant="h2" align="center" color="primary.main">
+      <Typography variant="h2" align="center" accent="primary">
         Ähnliche Beiträge
       </Typography>
 

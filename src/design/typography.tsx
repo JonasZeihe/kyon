@@ -1,17 +1,27 @@
-// --- src/styles/Typography.tsx ---
+// src/design/typography.tsx
 'use client'
-import React, { ComponentPropsWithoutRef, ReactNode, ElementType } from 'react'
-import styled, { css, DefaultTheme } from 'styled-components'
 
-type Variant = 'h1' | 'h2' | 'h3' | 'subhead' | 'body' | 'caption'
+import { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
+import styled, { css, DefaultTheme } from 'styled-components'
+import { AccentKey } from '@/design/theme'
+
+type Variant = 'h1' | 'h2' | 'h3' | 'subtitle' | 'body' | 'caption'
 type Align = 'left' | 'right' | 'center' | 'justify'
+type SemanticColor =
+  | 'fg'
+  | 'mutedFg'
+  | 'link'
+  | 'linkHover'
+  | 'success'
+  | 'warning'
+  | 'danger'
 
 type TypographyProps = {
   variant?: Variant
   align?: Align
-  color?: string
+  color?: SemanticColor
+  accent?: AccentKey | 'neutral'
   gutter?: boolean
-  fontSize?: string
   as?: ElementType
   children: ReactNode
 } & Omit<ComponentPropsWithoutRef<'span'>, 'as' | 'color'>
@@ -20,7 +30,7 @@ const TAG_MAP: Record<Variant, ElementType> = {
   h1: 'h1',
   h2: 'h2',
   h3: 'h3',
-  subhead: 'h4',
+  subtitle: 'h4',
   body: 'p',
   caption: 'span',
 }
@@ -29,11 +39,8 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
   const {
     typography: { fontSize, fontWeight, lineHeight, letterSpacing },
     spacing,
-    colors: {
-      text: { main, subtle },
-    },
+    semantic,
   } = t
-
   switch (v) {
     case 'h1':
       return css`
@@ -41,7 +48,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.bold};
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
-        color: ${main};
+        color: ${semantic.fg};
         margin-bottom: ${gutter ? spacing(5) : 0};
       `
     case 'h2':
@@ -50,7 +57,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.bold};
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
-        color: ${main};
+        color: ${semantic.fg};
         margin-bottom: ${gutter ? spacing(4) : 0};
       `
     case 'h3':
@@ -59,15 +66,15 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.medium};
         line-height: ${lineHeight.normal};
         letter-spacing: ${letterSpacing.normal};
-        color: ${main};
+        color: ${semantic.fg};
         margin-bottom: ${gutter ? spacing(3) : 0};
       `
-    case 'subhead':
+    case 'subtitle':
       return css`
         font-size: ${fontSize.body};
         font-weight: ${fontWeight.medium};
         line-height: ${lineHeight.normal};
-        color: ${main};
+        color: ${semantic.fg};
         margin-bottom: ${gutter ? spacing(2) : 0};
       `
     case 'caption':
@@ -75,7 +82,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-size: ${fontSize.small};
         font-weight: ${fontWeight.light};
         line-height: ${lineHeight.tight};
-        color: ${subtle};
+        color: ${semantic.mutedFg};
         margin-bottom: ${gutter ? spacing(1) : 0};
       `
     default:
@@ -83,27 +90,18 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-size: ${fontSize.body};
         font-weight: ${fontWeight.regular};
         line-height: ${lineHeight.normal};
-        color: ${main};
+        color: ${semantic.fg};
         margin-bottom: ${gutter ? spacing(2) : 0};
       `
   }
-}
-
-const getThemeColor = (token: string | undefined, theme: DefaultTheme) => {
-  if (!token) return null
-  const [group, tone = 'main'] = token.split('.')
-  const groupAny = (theme.colors as Record<string, any>)[group]
-  if (groupAny && tone in groupAny) return groupAny[tone]
-  const textAny = (theme.colors.text as Record<string, any>)[tone]
-  return textAny ?? null
 }
 
 type StyledProps = {
   $variant: Variant
   $align: Align
   $gutter: boolean
-  $colorToken?: string
-  $fontSize?: string
+  $semanticColor?: SemanticColor
+  $accent?: AccentKey | 'neutral'
 }
 
 const StyledTypography = styled.span<StyledProps>`
@@ -111,28 +109,28 @@ const StyledTypography = styled.span<StyledProps>`
   padding: 0;
   text-align: ${({ $align }) => $align};
   ${({ $variant, theme, $gutter }) => variantCSS($variant, theme, $gutter)}
-  ${({ $colorToken, theme }) => {
-    const themeColor = getThemeColor($colorToken, theme)
-    return themeColor
-      ? css`
-          color: ${themeColor};
-        `
-      : ''
+  ${({ $semanticColor, $accent, theme }) => {
+    if ($semanticColor) {
+      return css`
+        color: ${theme.semantic[$semanticColor]};
+      `
+    }
+    if ($accent) {
+      const a = theme.accentFor($accent)
+      return css`
+        color: ${a.color};
+      `
+    }
+    return ''
   }}
-  ${({ $fontSize }) =>
-    $fontSize
-      ? css`
-          font-size: ${$fontSize};
-        `
-      : ''}
 `
 
 export default function Typography({
   variant = 'body',
   align = 'left',
   color,
+  accent,
   gutter = true,
-  fontSize,
   as,
   children,
   ...rest
@@ -144,8 +142,8 @@ export default function Typography({
       $variant={variant}
       $align={align}
       $gutter={gutter}
-      $colorToken={color}
-      $fontSize={fontSize}
+      $semanticColor={color}
+      $accent={accent}
       {...rest}
     >
       {children}

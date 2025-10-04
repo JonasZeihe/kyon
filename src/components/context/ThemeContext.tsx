@@ -1,4 +1,4 @@
-// --- src/components/context/ThemeContext.tsx ---
+// src/components/context/ThemeContext.tsx
 'use client'
 
 import React, {
@@ -13,8 +13,8 @@ import {
   ThemeProvider as StyledThemeProvider,
   DefaultTheme,
 } from 'styled-components'
-import { lightTheme, darkTheme } from '@/styles/theme'
-import GlobalStyles from '@/styles/GlobalStyles'
+import { lightTheme, darkTheme } from '@/design/theme'
+import GlobalStyles from '@/design/global'
 
 type Mode = 'light' | 'dark'
 

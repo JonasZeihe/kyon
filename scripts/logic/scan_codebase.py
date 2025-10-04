@@ -3,6 +3,7 @@ import sys
 import fnmatch
 import hashlib
 import datetime
+import re
 
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -616,6 +617,172 @@ def write_found_by_basename(basename):
     print(f"\n✅ Found {len(paths)} file(s) for '{basename}'\n")
 
 
+EXT_CANDIDATES = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"]
+
+
+def read_file_text(abs_path):
+    try:
+        with open(abs_path, "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception:
+        return ""
+
+
+def parse_import_specs(text):
+    specs = []
+    for m in re.finditer(
+        r"(?m)^\s*import\s+[^'\"\n;]*\sfrom\s+['\"]([^'\"\n]+)['\"]", text
+    ):
+        specs.append(m.group(1))
+    for m in re.finditer(r"(?m)^\s*import\s+['\"]([^'\"\n]+)['\"]", text):
+        specs.append(m.group(1))
+    for m in re.finditer(
+        r"(?m)^\s*export\s+[^'\"\n;]*\sfrom\s+['\"]([^'\"\n]+)['\"]", text
+    ):
+        specs.append(m.group(1))
+    for m in re.finditer(r"require\(\s*['\"]([^'\"\n]+)['\"]\s*\)", text):
+        specs.append(m.group(1))
+    return specs
+
+
+def resolve_import_to_rel(from_rel, spec, all_paths_set):
+    if spec.startswith("."):
+        base_abs = os.path.join(SRC_DIR, os.path.dirname(from_rel))
+        target = os.path.normpath(os.path.join(base_abs, spec)).replace("\\", "/")
+        rel_try = normalize_rel(os.path.relpath(target, SRC_DIR))
+        resolved = try_resolve_with_exts(rel_try, all_paths_set)
+        if resolved:
+            return resolved
+        return None
+    if spec.startswith("@/"):
+        rel_try = spec[2:].lstrip("/")
+        resolved = try_resolve_with_exts(rel_try, all_paths_set)
+        if resolved:
+            return resolved
+        return None
+    if spec.startswith("~/"):
+        rel_try = spec[2:].lstrip("/")
+        resolved = try_resolve_with_exts(rel_try, all_paths_set)
+        if resolved:
+            return resolved
+        return None
+    return None
+
+
+def try_resolve_with_exts(rel_path_candidate, all_paths_set):
+    if rel_path_candidate in all_paths_set:
+        return rel_path_candidate
+    for ext in EXT_CANDIDATES:
+        p = rel_path_candidate + ext
+        if p in all_paths_set:
+            return p
+    for ext in EXT_CANDIDATES:
+        p = rel_path_candidate.rstrip("/") + "/index" + ext
+        if p in all_paths_set:
+            return p
+    return None
+
+
+def build_import_indexes():
+    all_paths = list_all_src_paths()
+    all_set = set(all_paths)
+    imports = {p: set() for p in all_paths}
+    for rel in all_paths:
+        if is_binary_path(rel):
+            continue
+        abs_path = os.path.join(SRC_DIR, rel)
+        txt = read_file_text(abs_path)
+        specs = parse_import_specs(txt)
+        for spec in specs:
+            resolved = resolve_import_to_rel(rel, spec, all_set)
+            if resolved:
+                imports[rel].add(resolved)
+    importers = {p: set() for p in all_paths}
+    for a, outs in imports.items():
+        for b in outs:
+            importers[b].add(a)
+    return imports, importers, all_paths
+
+
+def trace_closure(start_rel, imports, importers):
+    seen = set()
+    queue = [start_rel]
+    ordered = []
+    while queue:
+        cur = queue.pop(0)
+        if cur in seen:
+            continue
+        seen.add(cur)
+        ordered.append(cur)
+        for prv in sorted(importers.get(cur, ()), key=str.lower):
+            if prv not in seen:
+                queue.append(prv)
+    return ordered
+
+
+def write_trace(paths, label):
+    blocks = collect_blocks_for_paths(paths)
+    if not blocks:
+        print("⚠️ No files in trace.")
+        return
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+    part_idx = 1
+    current_payloads = []
+    current_bytes = 0
+    written = 0
+
+    def flush_part():
+        nonlocal current_payloads, current_bytes, part_idx, written
+        if not current_payloads:
+            return
+        payload = BLOCK_SEP.join(current_payloads)
+        name = (
+            f"{timestamp}-trace-{label}.txt"
+            if part_idx == 1 and written == 0
+            else f"{timestamp}-trace-{label}-part-{part_idx:03d}.txt"
+        )
+        out_path = os.path.join(OUTPUT_DIR, name)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(payload)
+        print(f"✅ Wrote {out_path}")
+        part_idx += 1
+        written += 1
+        current_payloads.clear()
+        current_bytes = 0
+
+    print("\n📄 Building import trace...\n")
+    for b in blocks:
+        if current_bytes and current_bytes + b["bytes"] > SOFT_LIMIT:
+            flush_part()
+        if current_bytes + b["bytes"] > HARD_LIMIT:
+            flush_part()
+        current_payloads.append(b["text"])
+        current_bytes += b["bytes"]
+        print(f" - {b['header'].splitlines()[0]}")
+    flush_part()
+    print(f"\n✅ Trace written in {written} part(s)\n")
+
+
+def run_trace_command(arg):
+    arg = arg.strip()
+    if not arg:
+        print("⚠️ Usage: trace <filename or src path>")
+        return
+    imports, importers, all_paths = build_import_indexes()
+    rel, err = resolve_single_file(arg, all_paths)
+    if not rel:
+        print(f"❌ Start file not found: {arg}")
+        return
+    if err and err.startswith("ambiguous"):
+        print(f"⚠️ {arg} -> {rel} ({err})")
+    chain = trace_closure(rel, imports, importers)
+    if not chain:
+        print("⚠️ Nothing to trace.")
+        return
+    label = os.path.basename(rel)
+    write_trace(chain, label)
+
+
 def main():
     if not os.path.exists(SRC_DIR):
         print(f"❌ Source directory not found: {SRC_DIR}")
@@ -627,11 +794,14 @@ def main():
         print(line)
     while True:
         q = input(
-            "\n🔍 Enter folder name, file types (.js,.ts,...) or 'config', 'codebase' (or 'exit')\n"
+            "\n🔍 Enter folder name, file types (.js,.ts,...) or 'config', 'codebase', 'trace <file>' (or 'exit')\n"
             "    ➤ Path queries are supported, e.g. 'src/components', 'components/forms'\n> "
         ).strip()
         if q.lower() == "exit":
             break
+        if q.lower().startswith("trace "):
+            run_trace_command(q[6:])
+            continue
         if q.lower() == "config":
             print("\n📄 Scanning repository configs...\n")
             entries = collect_config_files(PROJECT_ROOT)

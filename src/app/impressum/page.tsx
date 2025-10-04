@@ -1,6 +1,6 @@
 // src/app/impressum/page.tsx
 import Link from 'next/link'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import HeroRecipe from '@/components/pagekit/recipes/HeroRecipe'
 import { resolveSkin } from '@/components/pagekit/skins'
@@ -20,23 +20,17 @@ export default function ImpressumPage() {
           </Typography>
         }
         lead={
-          <Typography
-            as="p"
-            variant="subhead"
-            color="text.subtle"
-            gutter={false}
-          >
+          <Typography as="p" variant="subtitle" color="mutedFg" gutter={false}>
             Rechtliche Angaben, Kontakt und Hinweise.
           </Typography>
         }
         container="narrow"
-        accent={skin.accent as any}
+        accent={skin.accentKey}
       />
 
       <SectionRecipe
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
         narrow
         ariaLabel="Impressum – Rechtliche Angaben"
       >

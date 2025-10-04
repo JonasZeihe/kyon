@@ -1,8 +1,8 @@
-// src/styles/theme.ts
-const clampRem = (min: number, max: number) =>
+// src/design/tokens.ts
+export const clampRem = (min: number, max: number) =>
   `clamp(${min}rem, calc(${min}rem + (${max - min}) * ((100vw - 350px) / 1000)), ${max}rem)`
 
-export const typography = {
+export const TYPOGRAPHY = {
   fontFamily: {
     primary: "'Geist','Inter','Segoe UI',Arial,sans-serif",
     secondary: "'Geist','Inter','Segoe UI',Arial,sans-serif",
@@ -21,10 +21,10 @@ export const typography = {
   letterSpacing: { tight: '-0.012em', normal: '0', wide: '0.035em' },
 }
 
-export const spacing = (f = 1) => `${8 * f}px`
-export const spacingHalf = (f = 1) => `${4 * f}px`
+export const SPACING = (f = 1) => `${8 * f}px`
+export const SPACING_HALF = (f = 1) => `${4 * f}px`
 
-export const borderRadius = {
+export const RADIUS = {
   none: '0',
   small: '0.25rem',
   medium: '0.55rem',
@@ -32,7 +32,7 @@ export const borderRadius = {
   pill: '9999px',
 }
 
-export const boxShadows = {
+export const SHADOWS = {
   light: {
     xs: '0 1px 2px rgba(40,50,80,0.05)',
     sm: '0 2px 6px rgba(60,80,120,0.07)',
@@ -49,7 +49,7 @@ export const boxShadows = {
   },
 }
 
-export const breakpoints = {
+export const BREAKPOINTS = {
   xs: '350px',
   sm: '600px',
   md: '900px',
@@ -58,7 +58,7 @@ export const breakpoints = {
   xxl: '1720px',
 }
 
-const PALETTES = {
+export const PALETTE = {
   light: {
     primary: {
       base: '#c41f2a',
@@ -266,93 +266,5 @@ const PALETTES = {
   },
 }
 
-const GRADIENTS = {
-  rainbow: `linear-gradient(90deg, #c41f2a, #0ea5ff, #ca21b6, #ffd200)`,
-  primary: `linear-gradient(135deg, #ea6a78, #c41f2a)`,
-  secondary: `linear-gradient(135deg, #59bfff, #0ea5ff)`,
-  accent: `linear-gradient(135deg, #db7ad1, #ca21b6)`,
-  highlight: `linear-gradient(135deg, #ffe37a, #ffd200)`,
-}
-
-const buildSemantic = (c: any) => ({
-  bg: c.neutral.background,
-  fg: c.text.main,
-  mutedFg: c.text.subtle,
-  card: c.surface.card,
-  surface: c.surface[1],
-  surfaceAlt: c.surface[2],
-  border: c.neutral.border,
-  hover: c.surface.hover,
-  focusRing: c.accent[2] || c.secondary[2],
-  link: c.primary.main,
-  linkHover: c.accent.main,
-  success: c.secondary.main,
-  warning: c.highlight.main,
-  danger: c.primary.main,
-  overlay: 'rgba(0,0,0,0.5)',
-})
-
-const createTheme = (mode: 'light' | 'dark') => {
-  const colors = (PALETTES as any)[mode]
-  const rhythm = {
-    compact: { sectionGap: spacing(1.5), sectionPad: spacing(1.5) },
-    default: { sectionGap: spacing(2), sectionPad: spacing(2) },
-    spacious: { sectionGap: spacing(3), sectionPad: spacing(3.5) },
-  }
-  const grid = {
-    defaults: { min: '18rem', gap: 2, columns: 'auto' as const },
-  }
-  const motifs = {
-    spotlight: { insetScale: 0.94, washAlpha: 0.08 },
-    zebra: { altSurface: colors.surface[2] },
-    edgeToEdge: { container: 'wide' as const },
-  }
-  const accentFor = (k: AccentKey | 'neutral') => {
-    if (k === 'neutral') {
-      return {
-        color: colors.text.main,
-        border: colors.neutral.border,
-        surfaceVariant: 'subtle' as const,
-        focusRing: colors.accent[2] || colors.secondary[2],
-      }
-    }
-    const group = (colors as any)[k]
-    return {
-      color: group.main,
-      border: group.border ?? colors.neutral.border,
-      surfaceVariant: 'subtle' as const,
-      focusRing: colors.accent[2] || colors.secondary[2],
-    }
-  }
-  return {
-    mode,
-    colors,
-    semantic: buildSemantic(colors),
-    gradients: GRADIENTS,
-    boxShadow: (boxShadows as any)[mode],
-    typography,
-    spacing,
-    spacingHalf,
-    borderRadius,
-    breakpoints,
-    motionSafe: true,
-    rhythm,
-    grid,
-    motifs,
-    accentFor,
-  }
-}
-
-export const lightTheme = createTheme('light')
-export const darkTheme = createTheme('dark')
-export default lightTheme
-
+export type Mode = 'light' | 'dark'
 export type AccentKey = 'primary' | 'secondary' | 'accent' | 'highlight'
-export type RhythmKey = 'compact' | 'default' | 'spacious'
-export type MotifKey = 'spotlight' | 'zebra' | 'edgeToEdge'
-
-export type AppTheme = typeof lightTheme
-
-declare module 'styled-components' {
-  export interface DefaultTheme extends AppTheme {}
-}

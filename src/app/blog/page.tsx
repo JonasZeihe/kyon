@@ -1,5 +1,5 @@
 // src/app/blog/page.tsx
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
@@ -37,39 +37,30 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
     <main>
       <SectionRecipe
         title={
-          <Typography variant="h1" align="center" color="primary.main" as="h1">
+          <Typography
+            variant="h1"
+            align="center"
+            accent={skin.accentKey}
+            as="h1"
+          >
             Blog
           </Typography>
         }
         intro={
-          <Typography
-            variant="subhead"
-            align="center"
-            color="text.subtle"
-            as="p"
-          >
+          <Typography variant="subtitle" align="center" color="mutedFg" as="p">
             Gedanken, Notizen und Systembau – ruhig, präzise, nützlich.
           </Typography>
         }
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
         titleId="blog-title"
-      >
-        <></>
-      </SectionRecipe>
-
-      <SectionRecipe
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
       >
         {items.length ? (
           <GridRecipe
             items={items}
-            min={skin.grid?.min || '18rem'}
-            columns={skin.grid?.columns ?? 'auto'}
-            gap={skin.grid?.gap ?? 2}
+            min={skin.gridProps?.min || '18rem'}
+            columns={skin.gridProps?.columns ?? 'auto'}
+            gap={skin.gridProps?.gap ?? 2}
             renderItem={(m) => {
               const href = `/blog/${m.category}/${m.slug}`
               const cover = m.cover
@@ -90,17 +81,11 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
             }}
           />
         ) : (
-          <Typography align="center" color="text.subtle">
+          <Typography align="center" color="mutedFg">
             Keine Beiträge gefunden.
           </Typography>
         )}
-      </SectionRecipe>
 
-      <SectionRecipe
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
-      >
         <Pager
           current={current}
           pageCount={pageCount}

@@ -1,6 +1,6 @@
 // src/app/about/page.tsx
 import Image from 'next/image'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import BadgeGrid from '@/components/badge/BadgeGrid'
 import ListComponent from '@/components/data-display/ListComponent'
 import HighlightText from '@/components/utilities/HighlightText'
@@ -18,18 +18,13 @@ export default function AboutPage() {
     <main>
       <HeroRecipe
         variant="split"
-        kicker={
-          <Typography as="p" variant="caption" color="text.subtle">
-            Über mich
-          </Typography>
-        }
         title={
           <Typography variant="h1" as="h1" id="about-hero">
             Ich bin, was ich tue
           </Typography>
         }
         lead={
-          <Typography as="p" variant="body" color="text.subtle" gutter={false}>
+          <Typography as="p" variant="body" color="mutedFg" gutter={false}>
             Prozess, Wachstum und Natürlichkeit. Ich baue Interfaces und
             Systeme, die sich intuitiv und stromlinienförmig anfühlen.
           </Typography>
@@ -46,21 +41,19 @@ export default function AboutPage() {
         }
         mediaAspect="4/3"
         container="wide"
-        accent={skin.accent as any}
+        accent={skin.accentKey}
       />
 
       <SectionRecipe
         title={<Typography variant="h2">Ich in kurz</Typography>}
-        rhythm="default"
-        surface={skin.surface}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
       >
         <BentoSection
           columns={3}
           min="16rem"
           gap={2}
           layout={[{ col: 2 }, { col: 1 }]}
-          surface="subtle"
         >
           <div>
             <Typography as="p" variant="body">
@@ -92,9 +85,8 @@ export default function AboutPage() {
 
       <SectionRecipe
         title={<Typography variant="h2">Arbeit &amp; Haltung</Typography>}
-        rhythm="default"
-        surface={skin.surface}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
       >
         <ListComponent
           items={[
@@ -129,11 +121,10 @@ export default function AboutPage() {
 
       <SectionRecipe
         title={<Typography variant="h2">Womit ich arbeite</Typography>}
-        rhythm="default"
-        surface={skin.surface}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
       >
-        <BentoSection columns={2} min="22rem" gap={2} surface="subtle">
+        <BentoSection columns={2} min="22rem" gap={2}>
           <div>
             <ListComponent
               title={<Typography variant="h3">Design</Typography>}
@@ -183,9 +174,8 @@ export default function AboutPage() {
 
       <SectionRecipe
         title={<Typography variant="h2">Abseits vom Bildschirm</Typography>}
-        rhythm="default"
-        surface={skin.surface}
-        accent={skin.accent as any}
+        surface={skin.surfaceTone}
+        accent={skin.accentKey}
       >
         <Typography as="p" variant="body">
           Natur, Wandern und <em>ruhige Praxis</em>: Yoga, Qigong, Meditation.

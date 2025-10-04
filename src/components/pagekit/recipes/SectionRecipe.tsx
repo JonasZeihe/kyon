@@ -1,19 +1,18 @@
 // src/components/pagekit/recipes/SectionRecipe.tsx
-import { ReactNode } from 'react'
-import SectionWrapper from '@/components/Wrapper/SectionWrapper'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
-import Typography from '@/styles/Typography'
-import type { AccentKey, RhythmKey } from '@/styles/theme'
+import type { ReactNode } from 'react'
+import Section from '@/components/primitives/Section'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
+import Typography from '@/design/typography'
+import { AccentKey } from '@/design/theme'
 
 type SurfaceVariant = 'subtle' | 'intense' | 'none'
 
-type SectionRecipeProps = {
+type Props = {
   title?: ReactNode
   intro?: ReactNode
   children: ReactNode
   surface?: SurfaceVariant
-  rhythm?: RhythmKey
   accent?: AccentKey | 'neutral'
   narrow?: boolean
   titleId?: string
@@ -24,54 +23,73 @@ type SectionRecipeProps = {
 const isPrimitive = (n: ReactNode): n is string | number =>
   typeof n === 'string' || typeof n === 'number'
 
+const mapTone = (v: SurfaceVariant): 'neutral' | 'elevated' | 'accent' => {
+  if (v === 'intense') return 'accent'
+  if (v === 'none') return 'neutral'
+  return 'neutral'
+}
+
 export default function SectionRecipe({
   title,
   intro,
   children,
   surface = 'subtle',
-  rhythm = 'default',
   accent = 'neutral',
   narrow = false,
   titleId,
   ariaLabel,
   footer,
-}: SectionRecipeProps) {
-  const containerSize = narrow ? 'narrow' : 'default'
-  const titleColor = accent === 'neutral' ? undefined : `${accent}.main`
+}: Props) {
+  const header =
+    title || intro ? (
+      <Stack gap={0.75}>
+        {title ? (
+          isPrimitive(title) ? (
+            <Typography as="h2" variant="h2" accent={accent} id={titleId}>
+              {title}
+            </Typography>
+          ) : (
+            title
+          )
+        ) : null}
+        {intro ? (
+          isPrimitive(intro) ? (
+            <Typography as="p" variant="body" color="mutedFg">
+              {intro}
+            </Typography>
+          ) : (
+            intro
+          )
+        ) : null}
+      </Stack>
+    ) : null
+
+  const tone = mapTone(surface)
 
   return (
-    <SectionWrapper $spacious={rhythm === 'spacious'}>
-      <ContainerWrapper $size={containerSize as any}>
-        <LumenWrapper
-          as="section"
-          role="region"
-          aria-label={ariaLabel}
-          aria-labelledby={title ? titleId : undefined}
-          variant={surface}
-          radius="large"
-        >
-          {title ? (
-            isPrimitive(title) ? (
-              <Typography as="h2" variant="h2" color={titleColor} id={titleId}>
-                {title}
-              </Typography>
-            ) : (
-              title
-            )
-          ) : null}
-          {intro ? (
-            isPrimitive(intro) ? (
-              <Typography as="p" variant="body" color="text.subtle">
-                {intro}
-              </Typography>
-            ) : (
-              intro
-            )
-          ) : null}
-          {children}
-          {footer ?? null}
-        </LumenWrapper>
-      </ContainerWrapper>
-    </SectionWrapper>
+    <Section
+      container={narrow ? 'narrow' : 'default'}
+      padY
+      ariaLabel={ariaLabel}
+      titleId={title ? titleId : undefined}
+    >
+      <Stack gap={1.25}>
+        {header}
+        {surface === 'none' ? (
+          <>{children}</>
+        ) : (
+          <Surface
+            tone={tone}
+            accent={accent}
+            radius="large"
+            bordered
+            padding="clamp(0.8rem,1.8vw,1.2rem)"
+          >
+            {children}
+          </Surface>
+        )}
+        {footer ?? null}
+      </Stack>
+    </Section>
   )
 }

@@ -3,8 +3,12 @@ import fs from 'node:fs'
 import path from 'node:path'
 import matter from 'gray-matter'
 import type { Frontmatter, PostMeta } from './types'
+import { parseDateFromDir } from '@/lib/content/helpers/paths'
+import { slugify } from '@/lib/content/slug'
 
 const CONTENT_ROOT = path.join(process.cwd(), 'public', 'content')
+
+type SourcePath = { file: string; isMDX: boolean }
 
 const exists = (p: string) => {
   try {
@@ -28,21 +32,7 @@ const listDirs = (dir: string) => {
   }
 }
 
-const removeDiacritics = (s: string) =>
-  s.normalize('NFKD').replace(/\p{Diacritic}+/gu, '')
-
-const toSlug = (dirName: string) =>
-  removeDiacritics(
-    dirName
-      .trim()
-      .toLowerCase()
-      .replace(/^\d+[_-]?/, '')
-      .replace(/[^a-z0-9/_-]+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/\/+/g, '/')
-  ).replace(/(^-|-$)/g, '')
-
-const buildSourcePath = (base: string) => {
+const buildSourcePath = (base: string): SourcePath | null => {
   const mdx = path.join(base, 'index.mdx')
   const md = path.join(base, 'index.md')
   if (exists(mdx)) return { file: mdx, isMDX: true }
@@ -50,20 +40,17 @@ const buildSourcePath = (base: string) => {
   return null
 }
 
-const parseDatePrefix = (dirName: string) => {
-  const m = dirName.match(/^(\d{4})(\d{2})(\d{2})/)
-  if (!m) return null
-  const y = Number(m[1])
-  const mo = Number(m[2]) - 1
-  const d = Number(m[3])
-  const dt = new Date(Date.UTC(y, mo, d))
-  return isNaN(dt.getTime()) ? null : dt.toISOString().slice(0, 10)
-}
+const stripDatePrefix = (dirName: string) =>
+  dirName.replace(/^(\d{8})[_-]?/, '')
 
-let CACHE: PostMeta[] | null = null
+const toSlugFromDir = (dirName: string) =>
+  slugify(stripDatePrefix(dirName).replace(/[_]+/g, ' '))
+
+type CacheState = { metas: PostMeta[] | null }
+const CACHE: CacheState = { metas: null }
 
 const scanAll = (): PostMeta[] => {
-  if (CACHE) return CACHE
+  if (CACHE.metas) return CACHE.metas
 
   const categories = listDirs(CONTENT_ROOT)
   const items: PostMeta[] = []
@@ -82,15 +69,20 @@ const scanAll = (): PostMeta[] => {
 
       const title =
         fm?.title ||
-        dirName.replace(/[_-]/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase())
+        stripDatePrefix(dirName)
+          .replace(/[_-]+/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .replace(/\b\w/g, (m) => m.toUpperCase())
 
-      const datedFromDir = parseDatePrefix(dirName)
+      const datedFromDir = parseDateFromDir(dirName)
       const date =
         fm?.updated ||
         fm?.date ||
         datedFromDir ||
         new Date().toISOString().slice(0, 10)
-      const slug = toSlug(dirName)
+
+      const slug = toSlugFromDir(dirName)
 
       const meta: PostMeta = {
         id: `${category}/${dirName}`,
@@ -120,8 +112,12 @@ const scanAll = (): PostMeta[] => {
     return db - da
   })
 
-  CACHE = items
+  CACHE.metas = items
   return items
+}
+
+export const invalidateMetaCache = () => {
+  CACHE.metas = null
 }
 
 export const getAllMeta = () => scanAll()
@@ -148,8 +144,4 @@ export const categoriesFromMetas = () => {
 export const postPath = (m: PostMeta) => {
   const base = `/blog/${m.category}/${m.slug}`
   return base.endsWith('/') ? base : `${base}/`
-}
-
-export const __resetIndexerCache = () => {
-  CACHE = null
 }

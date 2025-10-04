@@ -6,7 +6,8 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import styled from 'styled-components'
 import Link from 'next/link'
 import type { PostMeta } from '@/lib/blog/types'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
+import Pager from '@/components/pagination/Pager'
 
 type Props = { metas: PostMeta[] }
 
@@ -36,13 +37,12 @@ const SearchBox = styled.input`
   width: 100%;
   padding: ${({ theme }) => `${theme.spacing(1.1)} ${theme.spacing(1.5)}`};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
-  color: ${({ theme }) => theme.colors.text.main};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.card};
+  color: ${({ theme }) => theme.semantic.fg};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
-    outline-offset: 2px;
+    outline: none;
     box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 `
@@ -50,13 +50,13 @@ const SearchBox = styled.input`
 const ClearBtn = styled.button`
   padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(1.2)}`};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  color: ${({ theme }) => theme.colors.text.main};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.fg};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:hover,
   &:focus-visible {
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.semantic.hover};
     outline: none;
   }
 `
@@ -74,8 +74,8 @@ const Card = styled.article`
   display: grid;
   gap: ${({ theme }) => theme.spacing(1)};
   padding: ${({ theme }) => theme.spacing(1.5)};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.semantic.card};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   border-radius: ${({ theme }) => theme.borderRadius.large};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   transition:
@@ -97,7 +97,7 @@ const Meta = styled.div`
   gap: 0.5rem;
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   flex-wrap: wrap;
 `
 
@@ -110,40 +110,15 @@ const Tags = styled.div`
 const Tag = styled.button`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  background: ${({ theme }) => theme.colors.surface[1]};
+  background: ${({ theme }) => theme.semantic.surface};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   &:hover,
   &:focus-visible {
     outline: none;
-    background: ${({ theme }) => theme.colors.surface.hover};
-  }
-`
-
-const Pager = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacingHalf(2)};
-  justify-content: center;
-`
-
-const PageBtn = styled.button<{ $active: boolean }>`
-  padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.1)}`};
-  border-radius: ${({ theme }) => theme.borderRadius.pill};
-  border: 1px solid
-    ${({ theme, $active }) =>
-      $active ? theme.colors.primary[3] : theme.colors.neutral.border};
-  background: ${({ theme, $active }) =>
-    $active ? theme.colors.primary[1] : theme.colors.surface.card};
-  color: ${({ theme }) => theme.colors.text.main};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
-  &:hover,
-  &:focus-visible {
-    outline: none;
-    background: ${({ theme, $active }) =>
-      $active ? theme.colors.primary[1] : theme.colors.surface.hover};
+    background: ${({ theme }) => theme.semantic.hover};
   }
 `
 
@@ -152,15 +127,15 @@ const EmptyState = styled.section`
   gap: ${({ theme }) => theme.spacing(1.4)};
   padding: ${({ theme }) => theme.spacing(2)};
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.card};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
 `
 
 const EmptySectionTitle = styled.h3`
   margin: 0.3rem 0 0;
   font-size: ${({ theme }) => theme.typography.fontSize.body};
-  color: ${({ theme }) => theme.colors.text.main};
+  color: ${({ theme }) => theme.semantic.fg};
 `
 
 const ChipRow = styled.div`
@@ -172,15 +147,15 @@ const ChipRow = styled.div`
 const Chip = styled.button`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.1)}`};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  color: ${({ theme }) => theme.colors.text.main};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.fg};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:hover,
   &:focus-visible {
     outline: none;
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.semantic.hover};
   }
 `
 
@@ -191,6 +166,155 @@ const EmptyLinks = styled.div`
     text-decoration: underline;
   }
 `
+
+function SearchInput({
+  value,
+  setValue,
+  total,
+}: {
+  value: string
+  setValue: (v: string) => void
+  total: number
+}) {
+  return (
+    <Header role="search" aria-labelledby="searchbox-label">
+      <SearchRow>
+        <SearchBox
+          id="searchbox"
+          type="search"
+          placeholder="Suche nach Titel, Tags, Kategorie…"
+          value={value}
+          onChange={(e) => setValue(e.currentTarget.value)}
+          aria-label="Suchbegriff"
+        />
+        {value ? (
+          <ClearBtn
+            type="button"
+            onClick={() => setValue('')}
+            aria-label="Suche zurücksetzen"
+          >
+            Zurücksetzen
+          </ClearBtn>
+        ) : null}
+      </SearchRow>
+      <Typography as="p" variant="caption" color="mutedFg" id="searchbox-label">
+        {value.trim()
+          ? `${total} Ergebnis(se) für „${value.trim()}“`
+          : `${total} Beiträge`}
+      </Typography>
+    </Header>
+  )
+}
+
+function SearchResults({
+  items,
+  onChip,
+}: {
+  items: PostMeta[]
+  onChip: (value: string) => void
+}) {
+  return (
+    <Grid role="list">
+      {items.map((m) => (
+        <Card key={m.id} role="listitem">
+          <Typography as="h2" variant="h3" gutter={false}>
+            <Link href={`/blog/${m.category}/${m.slug}`}>{m.title}</Link>
+          </Typography>
+          <Meta>
+            <span>
+              {new Date(m.updated || m.date).toLocaleDateString('de-DE')}
+            </span>
+            {m.readingTime ? <span>· ⏱️ {m.readingTime} min</span> : null}
+            <span>· {m.category}</span>
+          </Meta>
+          {m.excerpt ? (
+            <Typography as="p" variant="body">
+              {m.excerpt}
+            </Typography>
+          ) : null}
+          {m.tags?.length ? (
+            <Tags aria-label="Tags">
+              {m.tags.slice(0, 6).map((t) => (
+                <Tag
+                  key={t}
+                  onClick={() => onChip(t)}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLButtonElement>) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      onChip(t)
+                    }
+                  }}
+                  aria-label={`Nach Tag ${t} filtern`}
+                >
+                  #{t}
+                </Tag>
+              ))}
+            </Tags>
+          ) : null}
+        </Card>
+      ))}
+    </Grid>
+  )
+}
+
+function EmptyResults({
+  topTags,
+  categories,
+  onChip,
+}: {
+  topTags: string[]
+  categories: string[]
+  onChip: (value: string) => void
+}) {
+  return (
+    <EmptyState role="status" aria-live="polite">
+      <Typography as="h2" variant="h3">
+        Keine Ergebnisse
+      </Typography>
+      <Typography as="p" color="mutedFg">
+        Versuch’s mit kürzeren Begriffen oder wähle unten eine Abkürzung.
+      </Typography>
+
+      {!!topTags.length && (
+        <>
+          <EmptySectionTitle>Beliebte Tags</EmptySectionTitle>
+          <ChipRow>
+            {topTags.map((t) => (
+              <Chip
+                key={t}
+                onClick={() => onChip(t)}
+                aria-label={`Nach Tag ${t} suchen`}
+              >
+                #{t}
+              </Chip>
+            ))}
+          </ChipRow>
+        </>
+      )}
+
+      {!!categories.length && (
+        <>
+          <EmptySectionTitle>Kategorien</EmptySectionTitle>
+          <ChipRow>
+            {categories.map((c) => (
+              <Chip
+                key={c}
+                onClick={() => onChip(c)}
+                aria-label={`Nach Kategorie ${c} suchen`}
+              >
+                {c}
+              </Chip>
+            ))}
+          </ChipRow>
+        </>
+      )}
+
+      <EmptyLinks>
+        <Link href="/blog">Alle Beiträge ansehen</Link>
+      </EmptyLinks>
+    </EmptyState>
+  )
+}
 
 export default function SearchClient({ metas }: Props) {
   const sp = useSearchParams()
@@ -261,168 +385,38 @@ export default function SearchClient({ metas }: Props) {
   )
 
   const onChip = useCallback((value: string) => setInput(value), [])
-  const chipKeyHandler = useCallback(
-    (value: string) => (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        onChip(value)
-      }
-    },
-    [onChip]
-  )
 
-  const clear = useCallback(() => setInput(''), [])
+  const onPageChange = useCallback(
+    (nextPage: number) => {
+      const next = new URLSearchParams(sp.toString())
+      next.set('page', String(nextPage))
+      router.replace(`${pathname}?${next.toString()}`)
+    },
+    [router, sp, pathname]
+  )
 
   return (
     <Wrap>
-      <Header role="search" aria-labelledby="searchbox-label">
-        <SearchRow>
-          <SearchBox
-            id="searchbox"
-            type="search"
-            placeholder="Suche nach Titel, Tags, Kategorie…"
-            value={input}
-            onChange={(e) => setInput(e.currentTarget.value)}
-            aria-label="Suchbegriff"
-          />
-          {input ? (
-            <ClearBtn
-              type="button"
-              onClick={clear}
-              aria-label="Suche zurücksetzen"
-            >
-              Zurücksetzen
-            </ClearBtn>
-          ) : null}
-        </SearchRow>
-        <Typography
-          as="p"
-          variant="caption"
-          color="text.subtle"
-          id="searchbox-label"
-        >
-          {input.trim()
-            ? `${filtered.length} Ergebnis(se) für „${input.trim()}“`
-            : `${filtered.length} Beiträge`}
-        </Typography>
-      </Header>
+      <SearchInput value={input} setValue={setInput} total={filtered.length} />
 
       {!filtered.length ? (
-        <EmptyState role="status" aria-live="polite">
-          <Typography as="h2" variant="h3">
-            Keine Ergebnisse
-          </Typography>
-          <Typography as="p" color="text.subtle">
-            Versuch’s mit kürzeren Begriffen oder wähle unten eine Abkürzung.
-          </Typography>
-
-          {!!topTags.length && (
-            <>
-              <EmptySectionTitle>Beliebte Tags</EmptySectionTitle>
-              <ChipRow>
-                {topTags.map((t) => (
-                  <Chip
-                    key={t}
-                    onClick={() => onChip(t)}
-                    onKeyDown={chipKeyHandler(t)}
-                    aria-label={`Nach Tag ${t} suchen`}
-                  >
-                    #{t}
-                  </Chip>
-                ))}
-              </ChipRow>
-            </>
-          )}
-
-          {!!categories.length && (
-            <>
-              <EmptySectionTitle>Kategorien</EmptySectionTitle>
-              <ChipRow>
-                {categories.map((c) => (
-                  <Chip
-                    key={c}
-                    onClick={() => onChip(c)}
-                    onKeyDown={chipKeyHandler(c)}
-                    aria-label={`Nach Kategorie ${c} suchen`}
-                  >
-                    {c}
-                  </Chip>
-                ))}
-              </ChipRow>
-            </>
-          )}
-
-          <EmptyLinks>
-            <Link href="/blog">Alle Beiträge ansehen</Link>
-          </EmptyLinks>
-        </EmptyState>
+        <EmptyResults
+          topTags={topTags}
+          categories={categories}
+          onChip={onChip}
+        />
       ) : (
         <>
-          <Grid role="list">
-            {items.map((m) => (
-              <Card key={m.id} role="listitem">
-                <Typography as="h2" variant="h3" gutter={false}>
-                  <Link href={`/blog/${m.category}/${m.slug}`}>{m.title}</Link>
-                </Typography>
-                <Meta>
-                  <span>
-                    {new Date(m.updated || m.date).toLocaleDateString('de-DE')}
-                  </span>
-                  {m.readingTime ? <span>· ⏱️ {m.readingTime} min</span> : null}
-                  <span>· {m.category}</span>
-                </Meta>
-                {m.excerpt ? (
-                  <Typography as="p" variant="body">
-                    {m.excerpt}
-                  </Typography>
-                ) : null}
-                {m.tags?.length ? (
-                  <Tags aria-label="Tags">
-                    {m.tags.slice(0, 6).map((t) => (
-                      <Tag
-                        key={t}
-                        onClick={() => onChip(t)}
-                        onKeyDown={(
-                          e: React.KeyboardEvent<HTMLButtonElement>
-                        ) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault()
-                            onChip(t)
-                          }
-                        }}
-                        aria-label={`Nach Tag ${t} filtern`}
-                      >
-                        #{t}
-                      </Tag>
-                    ))}
-                  </Tags>
-                ) : null}
-              </Card>
-            ))}
-          </Grid>
-
-          {pageCount > 1 && (
-            <Pager aria-label="Seitennavigation">
-              {Array.from({ length: pageCount }, (_, i) => i + 1).map((p) => {
-                const next = new URLSearchParams(sp.toString())
-                next.set('page', String(p))
-                return (
-                  <PageBtn
-                    key={p}
-                    $active={p === page}
-                    onClick={() =>
-                      router.replace(`${pathname}?${next.toString()}`)
-                    }
-                    aria-current={p === page ? 'page' : undefined}
-                    aria-label={`Seite ${p}`}
-                    title={`Seite ${p}`}
-                  >
-                    {p}
-                  </PageBtn>
-                )
-              })}
-            </Pager>
-          )}
+          <SearchResults items={items} onChip={onChip} />
+          {pageCount > 1 ? (
+            <Pager
+              current={page}
+              pageCount={pageCount}
+              ariaLabel="Seitennavigation"
+              size="md"
+              onPageChange={onPageChange}
+            />
+          ) : null}
         </>
       )}
     </Wrap>

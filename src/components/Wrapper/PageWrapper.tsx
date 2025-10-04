@@ -1,5 +1,6 @@
 // src/components/Wrapper/PageWrapper.tsx
 'use client'
+
 import styled from 'styled-components'
 
 const PageWrapper = styled.div`
@@ -11,7 +12,7 @@ const PageWrapper = styled.div`
   min-width: 0;
   position: relative;
   box-sizing: border-box;
-  background: ${({ theme }) => theme.colors.neutral.background};
+  background: ${({ theme }) => theme.semantic.bg};
 `
 
 export default PageWrapper

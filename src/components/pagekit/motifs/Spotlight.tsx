@@ -1,9 +1,9 @@
 // src/components/pagekit/motifs/Spotlight.tsx
-import type { MotifKey } from '@/styles/theme'
+'use client'
 
-const Spotlight = {
-  hero: { motif: 'spotlight' as MotifKey },
-  section: { motif: 'spotlight' as MotifKey },
+export const Spotlight = {
+  hero: { motif: 'spotlight', container: 'wide' as const },
+  section: { motif: 'spotlight' },
 }
 
 export default Spotlight

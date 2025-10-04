@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
+import styled from 'styled-components'
 import {
   ARTICLE_PATH_REGEX,
   FEATURE_READING_PROGRESS,
@@ -13,6 +14,20 @@ import {
 type Props = {
   targetSelector?: string
 }
+
+const Bar = styled.div<{ $reduceMotion: boolean; $progress: number }>`
+  position: fixed;
+  top: var(--header-height, 74px);
+  left: 0;
+  height: 3px;
+  width: ${({ $progress }) => `${$progress}%`};
+  background: ${({ theme }) => theme.gradients.accent};
+  transition: ${({ $reduceMotion }) =>
+    $reduceMotion ? 'none' : 'width 0.12s ease-out, opacity 0.18s ease'};
+  z-index: 10010;
+  pointer-events: none;
+  opacity: 0.98;
+`
 
 export default function ReadingProgress({ targetSelector }: Props) {
   const pathname = usePathname() || ''
@@ -107,23 +122,6 @@ export default function ReadingProgress({ targetSelector }: Props) {
   if (!enabled || !visible) return null
 
   return (
-    <div
-      aria-hidden="true"
-      style={{
-        position: 'fixed',
-        top: 'var(--header-height, 74px)',
-        left: 0,
-        height: '3px',
-        width: `${progress}%`,
-        background:
-          'linear-gradient(90deg, var(--rp-start, #3068FF), var(--rp-end, #CA21B6))',
-        transition: reduceMotion
-          ? 'none'
-          : 'width 0.12s ease-out, opacity 0.18s ease',
-        zIndex: 10010,
-        pointerEvents: 'none',
-        opacity: 0.98,
-      }}
-    />
+    <Bar aria-hidden="true" $reduceMotion={reduceMotion} $progress={progress} />
   )
 }

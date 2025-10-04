@@ -59,8 +59,8 @@ const Item = styled.li<{ $mode: Exclude<Mode, 'card'> }>`
           justify-items: center;
           padding: ${theme.spacing(1.25)};
           border-radius: ${theme.borderRadius.large};
-          background: ${theme.colors.surface.card};
-          border: 1px solid ${theme.colors.neutral.border};
+          background: ${theme.semantic.card};
+          border: 1px solid ${theme.semantic.border};
           box-shadow: ${theme.boxShadow.xs};
         `
       : css`
@@ -70,14 +70,14 @@ const Item = styled.li<{ $mode: Exclude<Mode, 'card'> }>`
           align-items: flex-start;
           padding: ${theme.spacing(1.25)};
           border-radius: ${theme.borderRadius.medium};
-          background: ${theme.colors.surface.card};
-          border: 1px solid ${theme.colors.neutral.border};
+          background: ${theme.semantic.card};
+          border: 1px solid ${theme.semantic.border};
           box-shadow: ${theme.boxShadow.xs};
           transition:
             background 0.2s ease,
             box-shadow 0.2s ease;
           &:hover {
-            background: ${theme.colors.surface.hover};
+            background: ${theme.semantic.hover};
             box-shadow: ${theme.boxShadow.md};
           }
         `}
@@ -88,7 +88,7 @@ const Icon = styled.span<{ $mode: Exclude<Mode, 'card'> }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: ${({ theme }) => theme.colors.primary.main};
+  color: ${({ theme }) => theme.accentFor('primary').color};
   ${({ $mode }) =>
     $mode === 'cards'
       ? css`
@@ -103,7 +103,7 @@ const Body = styled.div<{ $mode: Exclude<Mode, 'card'> }>`
   font-size: ${({ theme }) => theme.typography.fontSize.body};
   line-height: ${({ theme }) => theme.typography.lineHeight.normal};
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: ${({ theme }) => theme.colors.text.main};
+  color: ${({ theme }) => theme.semantic.fg};
   word-break: break-word;
   ${({ $mode }) =>
     $mode === 'cards' &&
@@ -111,7 +111,7 @@ const Body = styled.div<{ $mode: Exclude<Mode, 'card'> }>`
       max-width: 42ch;
     `}
   & strong {
-    color: ${({ theme }) => theme.colors.primary.main};
+    color: ${({ theme }) => theme.accentFor('primary').color};
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   }
 `

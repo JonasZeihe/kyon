@@ -1,5 +1,8 @@
 // src/components/pagekit/skins/index.ts
-import type { AccentKey, RhythmKey, MotifKey } from '@/styles/theme'
+import type { AccentKey } from '@/design/theme'
+
+export type RhythmKey = 'compact' | 'default' | 'spacious'
+export type MotifKey = 'spotlight' | 'zebra' | 'edgeToEdge'
 
 export type SkinKey =
   | 'home'
@@ -11,61 +14,61 @@ export type SkinKey =
   | 'impressum'
 
 export type PageSkin = {
-  accent: AccentKey | 'neutral'
-  surface: 'subtle' | 'intense' | 'none'
+  accentKey: AccentKey | 'neutral'
+  surfaceTone: 'subtle' | 'intense' | 'none'
   rhythm: RhythmKey
-  grid?: { min?: string; gap?: number; columns?: number | 'auto' }
+  gridProps?: { min?: string; gap?: number; columns?: number | 'auto' }
   motif?: MotifKey | 'none'
 }
 
 export const pageSkins: Record<SkinKey, PageSkin> = {
   home: {
-    accent: 'highlight',
-    surface: 'subtle',
+    accentKey: 'highlight',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'edgeToEdge',
   },
   blogIndex: {
-    accent: 'primary',
-    surface: 'subtle',
+    accentKey: 'primary',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'zebra',
   },
   blogCategory: {
-    accent: 'primary',
-    surface: 'subtle',
+    accentKey: 'primary',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'zebra',
   },
   blogPost: {
-    accent: 'primary',
-    surface: 'subtle',
+    accentKey: 'primary',
+    surfaceTone: 'subtle',
     rhythm: 'spacious',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'none',
   },
   about: {
-    accent: 'accent',
-    surface: 'subtle',
+    accentKey: 'accent',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'spotlight',
   },
   search: {
-    accent: 'secondary',
-    surface: 'subtle',
+    accentKey: 'secondary',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'none',
   },
   impressum: {
-    accent: 'neutral',
-    surface: 'subtle',
+    accentKey: 'neutral',
+    surfaceTone: 'subtle',
     rhythm: 'default',
-    grid: { min: '18rem', gap: 2, columns: 'auto' },
+    gridProps: { min: '18rem', gap: 2, columns: 'auto' },
     motif: 'none',
   },
 }

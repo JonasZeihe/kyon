@@ -34,12 +34,32 @@ const base = css`
     color 0.18s ease,
     box-shadow 0.22s ease,
     transform 0.12s ease,
-    filter 0.16s ease;
+    filter 0.16s ease,
+    border-color 0.18s ease;
   -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid transparent;
+    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    filter: grayscale(0.1);
+    box-shadow: none;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 100%;
+  }
 `
 
 const Primary = css`
-  color: ${({ theme }) => theme.colors.text.inverse};
+  color: #ffffff;
   background: ${({ theme }) => theme.gradients.primary};
   border: none;
   box-shadow: ${({ theme }) => theme.boxShadow.sm};
@@ -51,14 +71,10 @@ const Primary = css`
     transform: translateY(0);
     filter: brightness(0.97);
   }
-  &:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
-  }
 `
 
 const Secondary = css`
-  color: ${({ theme }) => theme.colors.text.inverse};
+  color: #ffffff;
   background: ${({ theme }) => theme.gradients.secondary};
   border: none;
   box-shadow: ${({ theme }) => theme.boxShadow.sm};
@@ -70,19 +86,15 @@ const Secondary = css`
     transform: translateY(0);
     filter: brightness(0.97);
   }
-  &:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
-  }
 `
 
 const Ghost = css`
-  color: ${({ theme }) => theme.colors.text.main};
-  background: ${({ theme }) => theme.colors.surface.card};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  color: ${({ theme }) => theme.semantic.fg};
+  background: ${({ theme }) => theme.semantic.surface};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   &:hover {
-    background: ${({ theme }) => theme.colors.surface.hover};
+    background: ${({ theme }) => theme.semantic.hover};
     box-shadow: ${({ theme }) => theme.boxShadow.md};
     transform: translateY(-1px);
   }
@@ -90,14 +102,10 @@ const Ghost = css`
     transform: translateY(0);
     filter: brightness(0.98);
   }
-  &:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: 0 0 0 4px ${({ theme }) => theme.semantic.focusRing};
-  }
 `
 
 const Linkish = css`
-  color: ${({ theme }) => theme.colors.link};
+  color: ${({ theme }) => theme.semantic.link};
   background: transparent;
   border: 1px solid transparent;
   padding: 0 0.25rem;
@@ -112,11 +120,6 @@ const Linkish = css`
   }
   &:active {
     filter: brightness(0.98);
-  }
-  &:focus-visible {
-    outline: 2px solid transparent;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
-    border-radius: ${({ theme }) => theme.borderRadius.small};
   }
 `
 
@@ -135,7 +138,7 @@ const StyledButton = styled.button<{ $variant: Variant; $bg?: string }>`
     $bg
       ? css`
           background: ${$bg};
-          color: ${theme.colors.text.inverse};
+          color: #ffffff;
           border: none;
           box-shadow: ${theme.boxShadow.sm};
           &:hover {
@@ -146,26 +149,8 @@ const StyledButton = styled.button<{ $variant: Variant; $bg?: string }>`
             transform: translateY(0);
             filter: brightness(0.97);
           }
-          &:focus-visible {
-            outline: 2px solid transparent;
-            box-shadow: 0 0 0 4px ${theme.semantic.focusRing};
-          }
         `
       : null}
-
-  &:disabled,
-  &[aria-disabled='true'] {
-    opacity: 0.55;
-    cursor: not-allowed;
-    pointer-events: none;
-    transform: none;
-    filter: grayscale(0.1);
-    box-shadow: none;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 100%;
-  }
 `
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(

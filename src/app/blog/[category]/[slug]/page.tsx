@@ -7,13 +7,14 @@ import type { TOCItem as BlogTOCItem } from '@/lib/blog/types'
 import PostHeader from '@/app/blog/components/PostHeader'
 import PostBody from '@/app/blog/components/PostBody'
 import fs from 'node:fs'
+import matter from 'gray-matter'
 import {
   compileToMdx,
   type TOCItem as PipelineTOCItem,
 } from '@/lib/content/pipeline'
 import ArticleRecipe from '@/components/pagekit/recipes/ArticleRecipe'
-import { resolveSkin } from '@/components/pagekit/skins'
 import BlogMetaLayer from '@/layouts/BlogMetaLayer'
+import StickyTOC from '@/app/blog/meta/StickyToc'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -41,6 +42,8 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!meta) notFound()
 
   const raw = fs.readFileSync(meta.sourcePath, 'utf8')
+  const { content } = matter(raw)
+
   const mdx = await compileToMdx({
     source: raw,
     assetBase: { category: meta.category, dirName: meta.dirName },
@@ -50,7 +53,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     meta,
     isMDX: true as const,
     raw,
-    bodyMdx: { code: mdx.code },
+    bodySource: content,
     toc: mdx.toc,
     readingTime: mdx.readingTime,
   }
@@ -67,16 +70,14 @@ export default async function BlogPostPage({ params }: PageProps) {
     { label: meta.title },
   ]
 
-  const skin = resolveSkin('blogPost')
-
   return (
     <main>
-      <BlogMetaLayer toc={toc} breadcrumbs={breadcrumbs} showProgress />
+      <BlogMetaLayer breadcrumbs={breadcrumbs} showProgress />
       <ArticleRecipe
         header={<PostHeader post={post.meta} />}
         body={<PostBody post={post as any} />}
-        surface={skin.surface}
-        rhythm={skin.rhythm}
+        asideMeta={<StickyTOC items={toc} />}
+        surface="subtle"
         narrow={false}
       />
     </main>

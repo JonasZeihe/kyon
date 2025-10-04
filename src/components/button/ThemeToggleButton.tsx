@@ -3,17 +3,18 @@
 import { FiSun, FiMoon } from 'react-icons/fi'
 import styled from 'styled-components'
 import { useThemeContext } from '@/components/context/ThemeContext'
+
 type BtnProps = { $isDarkMode: boolean }
+
 const ToggleButton = styled.button<BtnProps>`
-  background: ${({ theme, $isDarkMode }) =>
-    $isDarkMode ? theme.colors.surface[2] : theme.colors.surface[1]};
-  color: ${({ theme, $isDarkMode }) =>
-    $isDarkMode ? theme.colors.primary[1] : theme.colors.primary[5]};
-  border: none;
+  appearance: none;
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.fg};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
   padding: ${({ theme }) => `${theme.spacing(0.6)} ${theme.spacing(1.6)}`};
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
@@ -21,16 +22,20 @@ const ToggleButton = styled.button<BtnProps>`
   transition:
     background 0.23s cubic-bezier(0.48, 0.24, 0.56, 1),
     color 0.19s,
-    box-shadow 0.23s;
-  &:hover,
+    box-shadow 0.23s,
+    border-color 0.23s;
+
+  &:hover {
+    background: ${({ theme }) => theme.semantic.hover};
+  }
+
   &:focus-visible {
-    background: ${({ theme }) => theme.colors.primary.base};
-    color: ${({ theme }) => theme.colors.text.inverse};
-    box-shadow: ${({ theme }) => theme.boxShadow.md};
     outline: none;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 `
-const ThemeToggleButton = () => {
+
+export default function ThemeToggleButton() {
   const { mode, toggleTheme } = useThemeContext()
   const isDark = mode === 'dark'
   return (
@@ -44,4 +49,3 @@ const ThemeToggleButton = () => {
     </ToggleButton>
   )
 }
-export default ThemeToggleButton

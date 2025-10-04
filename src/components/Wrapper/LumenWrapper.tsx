@@ -26,20 +26,19 @@ type ContainerProps = {
   $variant?: LumenVariant
 }
 
-const resolvePadding = ({ $padding }: ContainerProps) =>
-  $padding || 'clamp(1rem, 2.2vw, 1.6rem) clamp(1rem, 2.5vw, 1.6rem)'
-
-const surfaceForVariant = (variant?: LumenVariant) => {
-  switch (variant) {
-    case 'none':
-      return 'none'
-    case 'intense':
-      return 'intense'
-    case 'subtle':
-    default:
-      return 'subtle'
-  }
+const resolveBackground = (
+  theme: any,
+  variant?: LumenVariant,
+  override?: string
+) => {
+  if (override) return override
+  if (variant === 'none') return 'transparent'
+  if (variant === 'intense') return theme.gradients.primary
+  return theme.colors.surface.card
 }
+
+const resolveBorder = (theme: any, variant?: LumenVariant) =>
+  variant === 'none' ? 'none' : `1px solid ${theme.colors.neutral.border}`
 
 const Container = styled.div<ContainerProps>`
   position: relative;
@@ -47,36 +46,15 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   border-radius: ${({ theme, $radius }) =>
     (theme.borderRadius as any)?.[$radius || 'large'] || '1rem'};
-  padding: ${resolvePadding};
-  background: ${({ theme, $backgroundColor, $variant }) => {
-    if ($backgroundColor) return $backgroundColor
-    const mode = surfaceForVariant($variant)
-    if (mode === 'none') return 'transparent'
-    if (mode === 'intense') return theme.gradients.primary
-    return theme.colors.surface.card
-  }};
-  border: ${({ theme, $variant }) =>
-    surfaceForVariant($variant) === 'none'
-      ? 'none'
-      : `1px solid ${theme.colors.neutral.border}`};
-  box-shadow: ${({ theme, $variant }) => {
-    const mode = surfaceForVariant($variant)
-    if (mode === 'none') return 'none'
-    if (mode === 'intense') return theme.boxShadow.md
-    return theme.boxShadow.xs
-  }};
-  will-change: transform, background, box-shadow;
-  transition:
-    background 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
+  padding: ${({ $padding }) => ($padding ? $padding : '0')};
+  background: ${({ theme, $backgroundColor, $variant }) =>
+    resolveBackground(theme, $variant, $backgroundColor)};
+  border: ${({ theme, $variant }) => resolveBorder(theme, $variant)};
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: clamp(0.9rem, 2.2vw, 1.3rem);
     border-radius: ${({ theme }) =>
       (theme.borderRadius as any)?.medium || '0.7rem'};
   }
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: clamp(0.8rem, 2vw, 1rem);
     max-width: 100%;
   }
 `
