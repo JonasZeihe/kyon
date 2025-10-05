@@ -11,7 +11,7 @@ const BarWrap = styled.div`
   right: 0;
   z-index: 10010;
   width: 100%;
-  height: 2.5px;
+  height: 3px;
   pointer-events: none;
 `
 
@@ -27,7 +27,7 @@ const Bar = styled.div<{ $p: number }>`
   transition:
     width 0.12s ease-out,
     opacity 0.18s ease;
-  opacity: ${({ $p }) => ($p > 0 ? 0.3 : 0)};
+  opacity: ${({ $p }) => ($p > 0 ? 0.8 : 0)};
   will-change: width;
 `
 
