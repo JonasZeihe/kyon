@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import styled from 'styled-components'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 
 export type CardProps = {
   href: string
@@ -56,7 +56,7 @@ export default function Card({
             {title}
           </Title>
 
-          {excerpt ? <Excerpt color="text.subtle">{excerpt}</Excerpt> : null}
+          {excerpt ? <Excerpt color="mutedFg">{excerpt}</Excerpt> : null}
 
           <Meta>
             <time dateTime={dateISO}>{dateLabel}</time>
@@ -70,8 +70,8 @@ export default function Card({
 
 const CardWrap = styled.article`
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.card};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   overflow: hidden;
   transition:
@@ -101,7 +101,8 @@ const CardLink = styled(Link)`
   outline: none;
 
   &:focus-visible {
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55 inset;
+    box-shadow: 0 0 0 3px
+      ${({ theme }) => theme.accentFor('accent').focusRing}55 inset;
   }
 `
 
@@ -127,8 +128,8 @@ const Tag = styled.span`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   line-height: 1;
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  color: ${({ theme }) => theme.colors.text.inverse};
-  background: ${({ theme }) => theme.colors.primary.base};
+  color: ${({ theme }) => theme.semantic.bg};
+  background: ${({ theme }) => theme.gradients.primary};
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
 `
 
@@ -151,6 +152,6 @@ const Meta = styled.div`
   gap: 0.5rem;
   align-items: center;
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
-  opacity: 0.8;
+  color: ${({ theme }) => theme.semantic.mutedFg};
+  opacity: 0.9;
 `

@@ -15,7 +15,7 @@ import readingTime from 'reading-time'
 import matter from 'gray-matter'
 import { toPublicAssetUrl } from './helpers/paths'
 import { SITE_URL } from '@/lib/blog/constants'
-import { createSlugger, slugify } from './slug'
+import { createSlugger } from './slug'
 
 export type TOCItem = { id: string; depth: 2 | 3; text: string }
 export type Frontmatter = {
@@ -93,7 +93,7 @@ const isSameOrigin = (href: string) => {
   }
 }
 
-const slugPlugin = () => () => async (tree: Root) => {
+export const createSlugPlugin = () => () => async (tree: Root) => {
   const slugger = createSlugger()
   walk(tree as any, null, (node) => {
     if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
@@ -107,19 +107,20 @@ const slugPlugin = () => () => async (tree: Root) => {
   })
 }
 
-const tocPlugin = (list: TOCItem[]) => () => async (tree: Root) => {
-  walk(tree as any, null, (node) => {
-    if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
-      const depth = Number(node.tagName.slice(1))
-      const id = (node.properties?.id as string) || ''
-      if ((depth === 2 || depth === 3) && id) {
-        list.push({ id, depth: depth as 2 | 3, text: textFrom(node) })
+export const createTocPlugin =
+  (list: TOCItem[]) => () => async (tree: Root) => {
+    walk(tree as any, null, (node) => {
+      if (node.type === 'element' && /^h[1-6]$/.test(node.tagName)) {
+        const depth = Number(node.tagName.slice(1))
+        const id = (node.properties?.id as string) || ''
+        if ((depth === 2 || depth === 3) && id) {
+          list.push({ id, depth: depth as 2 | 3, text: textFrom(node) })
+        }
       }
-    }
-  })
-}
+    })
+  }
 
-const assetsPlugin =
+export const createAssetsPlugin =
   (assetBase?: { category?: string; dirName?: string; baseHref?: string }) =>
   () =>
   async (tree: Root) => {
@@ -195,14 +196,23 @@ const assetsPlugin =
     })
   }
 
+const readingStatsFrom = (raw: string) => {
+  const { content } = matter(raw)
+  const rt = readingTime(content)
+  return {
+    minutesRounded: Math.max(1, Math.round(rt.minutes)),
+    words: rt.words,
+    minutesCeil: Math.ceil(rt.minutes),
+  }
+}
+
 export const renderToHTML = async ({
   source,
   assetBase,
 }: PipelineInput): Promise<HtmlResult> => {
   const raw = typeof source === 'string' ? source : String(source as any)
-  const { content } = matter(raw)
-  const rt = readingTime(content)
   const toc: TOCItem[] = []
+  const stats = readingStatsFrom(raw)
 
   const file = await unified()
     .use(remarkParse)
@@ -211,19 +221,19 @@ export const renderToHTML = async ({
     .use(remarkFrontmatter, ['yaml', 'toml'])
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
-    .use(slugPlugin())
-    .use(rehypeAutolinkHeadings, { behavior: 'append' })
-    .use(tocPlugin(toc))
-    .use(assetsPlugin(assetBase))
+    .use(createSlugPlugin() as any)
+    .use(rehypeAutolinkHeadings as any, { behavior: 'append' })
+    .use(createTocPlugin(toc) as any)
+    .use(createAssetsPlugin(assetBase) as any)
     .use(rehypeStringify)
     .process(raw)
 
   return {
     html: String(file.value || ''),
     toc,
-    readingTime: Math.max(1, Math.round(rt.minutes)),
-    words: rt.words,
-    minutes: Math.ceil(rt.minutes),
+    readingTime: stats.minutesRounded,
+    words: stats.words,
+    minutes: stats.minutesCeil,
   }
 }
 
@@ -232,9 +242,8 @@ export const compileToMdx = async ({
   assetBase,
 }: PipelineInput): Promise<MdxResult> => {
   const raw = typeof source === 'string' ? source : String(source as any)
-  const { content } = matter(raw)
-  const rt = readingTime(content)
   const toc: TOCItem[] = []
+  const stats = readingStatsFrom(raw)
 
   const compiled = await compile(raw, {
     jsx: true,
@@ -245,10 +254,10 @@ export const compileToMdx = async ({
       [remarkFrontmatter as any, ['yaml', 'toml']],
     ],
     rehypePlugins: [
-      [slugPlugin() as any] as any,
+      [createSlugPlugin() as any] as any,
       [rehypeAutolinkHeadings as any, { behavior: 'append' }] as any,
-      [tocPlugin(toc) as any] as any,
-      [assetsPlugin(assetBase) as any] as any,
+      [createTocPlugin(toc) as any] as any,
+      [createAssetsPlugin(assetBase) as any] as any,
     ] as any,
     format: 'mdx',
     providerImportSource: '@mdx-js/react',
@@ -257,8 +266,8 @@ export const compileToMdx = async ({
   return {
     code: String(compiled.value || ''),
     toc,
-    readingTime: Math.max(1, Math.round(rt.minutes)),
-    words: rt.words,
-    minutes: Math.ceil(rt.minutes),
+    readingTime: stats.minutesRounded,
+    words: stats.words,
+    minutes: stats.minutesCeil,
   }
 }

@@ -2,7 +2,7 @@
 
 import styled, { DefaultTheme } from 'styled-components'
 import CardWrapper from '@/components/Wrapper/CardWrapper'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
 
@@ -31,7 +31,7 @@ export default function ProjectCard({ project, onOpen }: ProjectCardProps) {
         <Image src={project.image} alt={project.name} />
       </ImageContainer>
       <Content>
-        <Typography variant="h2" color="primary.main" align="center">
+        <Typography variant="h2" align="center" accent="accent" gutter={false}>
           {project.name}
         </Typography>
         <Typography variant="body" align="center">

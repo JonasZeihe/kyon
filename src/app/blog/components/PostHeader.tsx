@@ -4,8 +4,9 @@
 import styled from 'styled-components'
 import Image from 'next/image'
 import Link from 'next/link'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import Badge from '@/components/badge/Badge'
+import Markdown from '@/components/markdown'
 import type { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
@@ -90,7 +91,13 @@ export default function PostHeader({ post }: Props) {
           </TagsWrap>
         ) : null}
 
-        {post.excerpt ? <Excerpt>{post.excerpt}</Excerpt> : null}
+        {post.excerpt ? (
+          <Excerpt>
+            <Markdown as="div">
+              <p>{post.excerpt}</p>
+            </Markdown>
+          </Excerpt>
+        ) : null}
       </Header>
     </Wrap>
   )
@@ -109,14 +116,14 @@ const Hero = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.large};
   overflow: hidden;
   box-shadow: ${({ theme }) => theme.boxShadow.md};
-  background: ${({ theme }) => theme.colors.surface.card};
+  background: ${({ theme }) => theme.semantic.card};
 `
 
 const HeroMedia = styled.div`
   position: relative;
   width: 100%;
-  aspect-ratio: 21 / 9;
-  background: ${({ theme }) => theme.colors.surface.card};
+  aspect-ratio: var(--post-hero-aspect, 21 / 9);
+  background: ${({ theme }) => theme.semantic.card};
 `
 
 const HeroShade = styled.div`
@@ -142,9 +149,9 @@ const HeroBar = styled.div`
 
 const HeroPlaceholder = styled.div`
   width: 100%;
-  aspect-ratio: 21 / 9;
+  aspect-ratio: var(--post-hero-aspect, 21 / 9);
   border-radius: ${({ theme }) => theme.borderRadius.large};
-  background: ${({ theme }) => theme.colors.surface.card};
+  background: ${({ theme }) => theme.semantic.card};
   box-shadow: ${({ theme }) => theme.boxShadow.md};
 `
 
@@ -165,10 +172,10 @@ const Meta = styled.div`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.2)}`};
   width: fit-content;
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   time {
     color: inherit;
   }
@@ -184,18 +191,14 @@ const TagsWrap = styled.div`
 const TagLink = styled(Link)`
   text-decoration: none;
   display: inline-block;
+  border-radius: ${({ theme }) => theme.borderRadius.pill};
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2px solid ${({ theme }) => theme.semantic.focusRing};
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.accent[2]}55;
-    border-radius: ${({ theme }) => theme.borderRadius.pill};
   }
 `
 
-const Excerpt = styled.p`
+const Excerpt = styled.div`
   max-width: 70ch;
-  font-size: ${({ theme }) => theme.typography.fontSize.body};
-  line-height: ${({ theme }) => theme.typography.lineHeight.relaxed};
-  color: ${({ theme }) => theme.colors.text.main};
   opacity: 0.92;
 `

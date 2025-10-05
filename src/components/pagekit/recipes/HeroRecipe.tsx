@@ -3,15 +3,16 @@
 
 import { ReactNode } from 'react'
 import styled from 'styled-components'
-import HeroWrapper from '@/components/Wrapper/HeroWrapper'
-import ContainerWrapper from '@/components/Wrapper/ContainerWrapper'
-import Typography from '@/styles/Typography'
-import type { AccentKey } from '@/styles/theme'
+import Section from '@/components/primitives/Section'
+import Stack from '@/components/primitives/Stack'
+import Surface from '@/components/primitives/Surface'
+import Typography from '@/design/typography'
+import { AccentKey } from '@/design/theme'
 
 type ContainerSize = 'default' | 'wide' | 'narrow'
 type Variant = 'default' | 'split'
 
-type HeroRecipeProps = {
+type Props = {
   title: ReactNode
   kicker?: ReactNode
   lead?: ReactNode
@@ -38,21 +39,14 @@ const Split = styled.div`
   }
 `
 
-const MediaShell = styled.div<{ $aspect?: string }>`
-  position: relative;
-  border-radius: ${({ theme }) => theme.borderRadius.large};
-  padding: 1px;
-  background: ${({ theme }) => theme.gradients.accent};
-  box-shadow: ${({ theme }) => theme.boxShadow.md};
-  overflow: hidden;
-
-  > .inner {
-    position: relative;
-    border-radius: inherit;
-    background: ${({ theme }) => theme.colors.surface.card};
+const MediaFrame = styled.div<{ $aspect?: string }>`
+  width: 100%;
+  .inner {
+    width: 100%;
+    height: auto;
+    aspect-ratio: ${({ $aspect }) => $aspect || '16 / 9'};
     overflow: hidden;
-    ${({ $aspect }) =>
-      $aspect ? `aspect-ratio: ${$aspect};` : `aspect-ratio: 16/9;`}
+    border-radius: inherit;
   }
 `
 
@@ -67,105 +61,67 @@ export default function HeroRecipe({
   titleId,
   variant = 'default',
   mediaAspect,
-}: HeroRecipeProps) {
-  const size: ContainerSize = container === 'narrow' ? 'narrow' : container
+}: Props) {
   const titleVariant = isPageHeader ? 'h1' : 'h2'
   const titleAs = isPageHeader ? 'h1' : 'h2'
-  const titleColor = accent === 'neutral' ? undefined : `${accent}.main`
+
+  const Head = (
+    <Stack gap={1}>
+      {kicker ? (
+        isPrimitive(kicker) ? (
+          <Typography as="p" variant="caption" color="mutedFg">
+            {kicker}
+          </Typography>
+        ) : (
+          kicker
+        )
+      ) : null}
+      {isPrimitive(title) ? (
+        <Typography
+          as={titleAs}
+          variant={titleVariant as any}
+          accent={accent}
+          id={titleId}
+        >
+          {title}
+        </Typography>
+      ) : (
+        title
+      )}
+      {lead ? (
+        isPrimitive(lead) ? (
+          <Typography as="p" variant="body" color="mutedFg">
+            {lead}
+          </Typography>
+        ) : (
+          lead
+        )
+      ) : null}
+    </Stack>
+  )
+
+  const Media =
+    media != null ? (
+      <Surface tone="elevated" radius="large" bordered padding="1px">
+        <MediaFrame $aspect={mediaAspect}>
+          <div className="inner">{media}</div>
+        </MediaFrame>
+      </Surface>
+    ) : null
 
   return (
-    <HeroWrapper as="section" role="region" aria-labelledby={titleId}>
-      <ContainerWrapper $size={size}>
-        {variant === 'split' ? (
-          <Split>
-            <div>
-              {kicker ? (
-                isPrimitive(kicker) ? (
-                  <Typography as="p" variant="caption" color="text.subtle">
-                    {kicker}
-                  </Typography>
-                ) : (
-                  kicker
-                )
-              ) : null}
-              {isPrimitive(title) ? (
-                <Typography
-                  as={titleAs}
-                  variant={titleVariant as any}
-                  color={titleColor}
-                  id={titleId}
-                >
-                  {title}
-                </Typography>
-              ) : (
-                title
-              )}
-              {lead ? (
-                isPrimitive(lead) ? (
-                  <Typography
-                    as="p"
-                    variant="body"
-                    color="text.subtle"
-                    gutter={false}
-                  >
-                    {lead}
-                  </Typography>
-                ) : (
-                  lead
-                )
-              ) : null}
-            </div>
-            {media ? (
-              <MediaShell $aspect={mediaAspect}>
-                <div className="inner">{media}</div>
-              </MediaShell>
-            ) : null}
-          </Split>
-        ) : (
-          <>
-            {kicker ? (
-              isPrimitive(kicker) ? (
-                <Typography as="p" variant="caption" color="text.subtle">
-                  {kicker}
-                </Typography>
-              ) : (
-                kicker
-              )
-            ) : null}
-            {isPrimitive(title) ? (
-              <Typography
-                as={titleAs}
-                variant={titleVariant as any}
-                color={titleColor}
-                id={titleId}
-              >
-                {title}
-              </Typography>
-            ) : (
-              title
-            )}
-            {lead ? (
-              isPrimitive(lead) ? (
-                <Typography
-                  as="p"
-                  variant="body"
-                  color="text.subtle"
-                  gutter={false}
-                >
-                  {lead}
-                </Typography>
-              ) : (
-                lead
-              )
-            ) : null}
-            {media ? (
-              <MediaShell>
-                <div className="inner">{media}</div>
-              </MediaShell>
-            ) : null}
-          </>
-        )}
-      </ContainerWrapper>
-    </HeroWrapper>
+    <Section container={container} padY>
+      {variant === 'split' ? (
+        <Split>
+          <div>{Head}</div>
+          {Media}
+        </Split>
+      ) : (
+        <Stack gap={1.25}>
+          {Head}
+          {Media}
+        </Stack>
+      )}
+    </Section>
   )
 }

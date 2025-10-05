@@ -2,10 +2,11 @@
 'use client'
 
 import { ReactNode } from 'react'
-import styled from 'styled-components'
-import Typography from '@/styles/Typography'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
+import Typography from '@/design/typography'
 import ListComponent from '@/components/data-display/ListComponent'
-import LumenWrapper from '@/components/Wrapper/LumenWrapper'
+import { AccentKey } from '@/design/theme'
 
 type Item = {
   id?: string | number
@@ -18,6 +19,13 @@ type Props = {
   items: Item[]
   align?: 'left' | 'center' | 'right'
   surface?: 'subtle' | 'intense' | 'none'
+  accent?: AccentKey | 'neutral'
+}
+
+const mapTone = (v: Props['surface']): 'neutral' | 'elevated' | 'accent' => {
+  if (v === 'intense') return 'accent'
+  if (v === 'none') return 'neutral'
+  return 'neutral'
 }
 
 export default function ToolRecipe({
@@ -25,27 +33,30 @@ export default function ToolRecipe({
   items,
   align = 'center',
   surface = 'subtle',
+  accent = 'neutral',
 }: Props) {
+  const tone = mapTone(surface)
   return (
-    <LumenWrapper as="section" variant={surface} radius="large">
-      {title ? (
-        <Header>
-          {typeof title === 'string' ? (
+    <Surface
+      as="section"
+      tone={tone}
+      accent={accent}
+      radius="large"
+      bordered
+      padding="clamp(0.8rem,1.8vw,1.2rem)"
+    >
+      <Stack gap={1}>
+        {title ? (
+          typeof title === 'string' ? (
             <Typography as="h3" variant="h3" align="center">
               {title}
             </Typography>
           ) : (
             title
-          )}
-        </Header>
-      ) : null}
-      <ListComponent items={items} mode="cards" align={align} />
-    </LumenWrapper>
+          )
+        ) : null}
+        <ListComponent items={items} mode="cards" align={align} />
+      </Stack>
+    </Surface>
   )
 }
-
-const Header = styled.header`
-  margin-bottom: ${({ theme }) => theme.spacing(1)};
-  display: grid;
-  justify-items: center;
-`

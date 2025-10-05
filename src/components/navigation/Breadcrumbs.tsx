@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import styled from 'styled-components'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 
 type Crumb = { href?: string; label: string }
 
@@ -79,7 +79,7 @@ const Separator = styled.span`
 `
 
 const CrumbLink = styled(Link)`
-  color: ${({ theme }) => theme.colors.text.subtle};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   text-decoration: none;
   border-radius: ${({ theme }) => theme.borderRadius.small};
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
@@ -93,17 +93,17 @@ const CrumbLink = styled(Link)`
     background 0.16s ease,
     color 0.16s ease;
   &:hover {
-    color: ${({ theme }) => theme.colors.accent.main};
-    background: ${({ theme }) => theme.colors.surface[1]};
+    color: ${({ theme }) => theme.semantic.linkHover};
+    background: ${({ theme }) => theme.semantic.surface};
   }
   &:focus-visible {
-    outline: 2px solid ${({ theme }) => theme.colors.accent.main};
+    outline: 2px solid ${({ theme }) => theme.semantic.link};
     box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 `
 
 const Current = styled.span`
-  color: ${({ theme }) => theme.colors.text.main};
+  color: ${({ theme }) => theme.semantic.fg};
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
   line-height: 1.2;

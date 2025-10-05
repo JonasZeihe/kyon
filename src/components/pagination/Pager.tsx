@@ -3,7 +3,7 @@
 
 import Link from 'next/link'
 import styled from 'styled-components'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 
 type PagerSize = 'sm' | 'md'
 
@@ -14,6 +14,7 @@ type Props = {
   nextHref?: string | null
   ariaLabel?: string
   size?: PagerSize
+  onPageChange?: (page: number) => void
 }
 
 export default function Pager({
@@ -23,36 +24,75 @@ export default function Pager({
   nextHref = null,
   ariaLabel = 'Seitennavigation',
   size = 'md',
+  onPageChange,
 }: Props) {
+  const canPrev = current > 1
+  const canNext = current < pageCount
+
   return (
     <Nav role="navigation" aria-label={ariaLabel}>
-      {prevHref ? (
-        <PagerLink href={prevHref} prefetch={false} rel="prev" $size={size}>
-          ← Zurück
-        </PagerLink>
-      ) : (
-        <PagerGhost aria-disabled="true" $size={size}>
-          ← Zurück
-        </PagerGhost>
-      )}
+      {onPageChange ? (
+        <>
+          <PagerButton
+            type="button"
+            onClick={() => canPrev && onPageChange(current - 1)}
+            disabled={!canPrev}
+            $size={size}
+            aria-label="Zurück"
+          >
+            ← Zurück
+          </PagerButton>
 
-      <Typography
-        as="span"
-        variant="caption"
-        color="text.subtle"
-        gutter={false}
-      >
-        Seite {current} / {pageCount}
-      </Typography>
+          <Typography
+            as="span"
+            variant="caption"
+            color="mutedFg"
+            gutter={false}
+          >
+            Seite {current} / {pageCount}
+          </Typography>
 
-      {nextHref ? (
-        <PagerLink href={nextHref} prefetch={false} rel="next" $size={size}>
-          Weiter →
-        </PagerLink>
+          <PagerButton
+            type="button"
+            onClick={() => canNext && onPageChange(current + 1)}
+            disabled={!canNext}
+            $size={size}
+            aria-label="Weiter"
+          >
+            Weiter →
+          </PagerButton>
+        </>
       ) : (
-        <PagerGhost aria-disabled="true" $size={size}>
-          Weiter →
-        </PagerGhost>
+        <>
+          {prevHref ? (
+            <PagerLink href={prevHref} prefetch={false} rel="prev" $size={size}>
+              ← Zurück
+            </PagerLink>
+          ) : (
+            <PagerGhost aria-disabled="true" $size={size}>
+              ← Zurück
+            </PagerGhost>
+          )}
+
+          <Typography
+            as="span"
+            variant="caption"
+            color="mutedFg"
+            gutter={false}
+          >
+            Seite {current} / {pageCount}
+          </Typography>
+
+          {nextHref ? (
+            <PagerLink href={nextHref} prefetch={false} rel="next" $size={size}>
+              Weiter →
+            </PagerLink>
+          ) : (
+            <PagerGhost aria-disabled="true" $size={size}>
+              Weiter →
+            </PagerGhost>
+          )}
+        </>
       )}
     </Nav>
   )
@@ -70,26 +110,70 @@ const padFor = (s: PagerSize, theme: any) =>
     ? `${theme.spacingHalf(2.5)} ${theme.spacing(1)}`
     : `${theme.spacingHalf(3)} ${theme.spacing(1.25)}`
 
-const PagerLink = styled(Link)<{ $size: PagerSize }>`
+const sharedButton = `
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ theme, $size }) => padFor($size, theme)};
-  border-radius: ${({ theme }) => theme.borderRadius.medium};
-  border: 1px solid ${({ theme }) => theme.colors.neutral.border};
-  background: ${({ theme }) => theme.colors.surface.card};
-  box-shadow: ${({ theme }) => theme.boxShadow.xs};
   text-decoration: none;
   transition:
     transform 0.12s ease,
     box-shadow 0.18s ease,
     filter 0.18s ease;
+`
+
+const focusRing = (theme: any) => `
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px ${theme.semantic.focusRing};
+`
+
+const PagerLink = styled(Link)<{ $size: PagerSize }>`
+  ${sharedButton}
+  padding: ${({ theme, $size }) => padFor($size, theme)};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.card};
+  color: ${({ theme }) => theme.semantic.fg};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+
   &:hover {
     box-shadow: ${({ theme }) => theme.boxShadow.md};
     filter: brightness(1.03);
   }
   &:active {
     transform: translateY(1px);
+  }
+  &:focus-visible {
+    ${({ theme }) => focusRing(theme)}
+  }
+`
+
+const PagerButton = styled.button<{ $size: PagerSize }>`
+  ${sharedButton}
+  padding: ${({ theme, $size }) => padFor($size, theme)};
+  border-radius: ${({ theme }) => theme.borderRadius.medium};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.card};
+  color: ${({ theme }) => theme.semantic.fg};
+  box-shadow: ${({ theme }) => theme.boxShadow.xs};
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    filter: brightness(1.03);
+  }
+  &:active {
+    transform: translateY(1px);
+  }
+  &:focus-visible {
+    ${({ theme }) => focusRing(theme)}
+  }
+
+  &:disabled {
+    border: 1px dashed ${({ theme }) => theme.semantic.border};
+    background: ${({ theme }) => theme.semantic.surface};
+    color: ${({ theme }) => theme.semantic.mutedFg};
+    opacity: 0.6;
+    pointer-events: none;
+    box-shadow: none;
   }
 `
 
@@ -99,9 +183,9 @@ const PagerGhost = styled.span<{ $size: PagerSize }>`
   justify-content: center;
   padding: ${({ theme, $size }) => padFor($size, theme)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  border: 1px dashed ${({ theme }) => theme.colors.surface[4]};
-  background: ${({ theme }) => theme.colors.surface[1]};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  border: 1px dashed ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   opacity: 0.6;
   pointer-events: none;
 `

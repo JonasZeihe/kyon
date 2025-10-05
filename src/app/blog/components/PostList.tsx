@@ -3,14 +3,13 @@ import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import Card from '@/components/blog/Card'
 import type { PostMeta } from '@/lib/blog/types'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 
 type Props = {
   posts: PostMeta[]
   min?: string
   gap?: number
   columns?: number | 'auto'
-  asBento?: boolean
 }
 
 export default function PostList({
@@ -18,10 +17,9 @@ export default function PostList({
   min = '18rem',
   gap = 2,
   columns = 'auto',
-  asBento = false,
 }: Props) {
   if (!posts?.length)
-    return <Typography color="text.subtle">Keine Beiträge gefunden.</Typography>
+    return <Typography color="mutedFg">Keine Beiträge gefunden.</Typography>
 
   return (
     <GridRecipe
@@ -29,7 +27,6 @@ export default function PostList({
       min={min}
       gap={gap}
       columns={columns}
-      asBento={asBento}
       renderItem={(m) => {
         const href = `/blog/${m.category}/${m.slug}`
         const cover = m.cover

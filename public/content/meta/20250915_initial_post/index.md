@@ -1,6 +1,5 @@
 ---
-title: 'Kyon: Ein Blog, der Prozesse zeigt'
-excerpt: 'Hallo Welt – Test Test, ist das Ding an?'
+title: 'Hallo Welt – Test Test, ist das Ding an?'
 date: 2025-09-05
 updated: 2025-09-05
 tags:

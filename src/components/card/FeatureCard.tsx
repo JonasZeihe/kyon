@@ -1,13 +1,13 @@
 // src/components/card/FeatureCard.tsx
 'use client'
 
-import styled, { DefaultTheme } from 'styled-components'
+import styled from 'styled-components'
 import { useCallback } from 'react'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
-import CardWrapper from '@/components/Wrapper/CardWrapper'
+import Card from '@/components/primitives/Card'
 import BadgeGrid from '@/components/badge/BadgeGrid'
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import { useRouter } from 'next/navigation'
 
 type FeatureCardProps = {
@@ -58,10 +58,21 @@ export default function FeatureCard({
   const isExternalLink = !!href && external
 
   return (
-    <CardWrapper gradient={gradient}>
-      <Inner>
+    <Card tone="neutral" radius="large" bordered hover interactive>
+      <Inner
+        style={
+          gradient
+            ? ({ ['--feature-gradient' as any]: gradient } as any)
+            : undefined
+        }
+      >
         <Header>
-          <Typography variant="h2" color="accent.main" align="center">
+          <Typography
+            variant="h2"
+            align="center"
+            accent="accent"
+            gutter={false}
+          >
             {title}
           </Typography>
           <Typography variant="body" align="center">
@@ -75,7 +86,9 @@ export default function FeatureCard({
           {isScroll && (
             <Button
               onClick={handleScroll}
-              customBackground={customBackground}
+              customBackground={
+                customBackground || (gradient as string | undefined)
+              }
               aria-label={ariaLabel || buttonText}
             >
               {buttonText}
@@ -86,7 +99,9 @@ export default function FeatureCard({
             <Button
               onClick={handleInternalNav}
               role="link"
-              customBackground={customBackground}
+              customBackground={
+                customBackground || (gradient as string | undefined)
+              }
               aria-label={ariaLabel || buttonText}
             >
               {buttonText}
@@ -97,7 +112,9 @@ export default function FeatureCard({
             <Button
               onClick={handleExternalNav}
               role="link"
-              customBackground={customBackground}
+              customBackground={
+                customBackground || (gradient as string | undefined)
+              }
               aria-label={ariaLabel || buttonText}
             >
               {buttonText}
@@ -111,7 +128,7 @@ export default function FeatureCard({
           )}
         </ButtonGrid>
       </Inner>
-    </CardWrapper>
+    </Card>
   )
 }
 
@@ -119,14 +136,16 @@ const Inner = styled.section`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }: { theme: DefaultTheme }) => theme.spacing(2)};
+  gap: ${({ theme }) => theme.spacing(2)};
   width: 100%;
-  padding: ${({ theme }: { theme: DefaultTheme }) => theme.spacing(2)};
+  padding: ${({ theme }) => theme.spacing(2)};
+  background: var(--feature-gradient, transparent);
+  border-radius: ${({ theme }) => theme.borderRadius.large};
 `
 
 const Header = styled.header`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }: { theme: DefaultTheme }) => theme.spacing(1)};
+  gap: ${({ theme }) => theme.spacing(1)};
 `

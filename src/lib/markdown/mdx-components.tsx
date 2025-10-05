@@ -157,12 +157,12 @@ const Td: React.FC<React.TdHTMLAttributes<HTMLTableDataCellElement>> = ({
 }) => <td {...r}>{children}</td>
 
 type CalloutProps = {
-  type?: 'info' | 'note' | 'warning' | 'success' | 'tip'
+  type?: 'note' | 'warning' | 'success' | 'tip'
   title?: string
   children?: React.ReactNode
 }
 const Callout: React.FC<CalloutProps> = ({
-  type = 'info',
+  type = 'note',
   title,
   children,
 }) => (
@@ -214,12 +214,14 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ title, lang, children }) => {
   return (
     <div className="codeblock" data-language={language || undefined}>
       {title ? (
-        <div className="codeblock-header">
-          <span className="codeblock-title">{title}</span>
-          {language ? <span className="codeblock-lang">{language}</span> : null}
+        <div className="codeblock__header">
+          <span className="codeblock__title">{title}</span>
+          {language ? (
+            <span className="codeblock__lang">{language}</span>
+          ) : null}
         </div>
       ) : null}
-      <div className="codeblock-body">{content}</div>
+      <div className="codeblock__body">{content}</div>
     </div>
   )
 }

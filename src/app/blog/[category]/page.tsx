@@ -1,5 +1,5 @@
 // src/app/blog/[category]/page.tsx
-import Typography from '@/styles/Typography'
+import Typography from '@/design/typography'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta, getPostsByCategory } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
@@ -8,7 +8,6 @@ import Card from '@/components/blog/Card'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
 import Pager from '@/components/pagination/Pager'
-import { resolveSkin } from '@/components/pagekit/skins'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -45,45 +44,29 @@ export default async function CategoryPage({
   const prevHref = hasPrev ? `/blog/${category}?page=${current - 1}` : null
   const nextHref = hasNext ? `/blog/${category}?page=${current + 1}` : null
 
-  const skin = resolveSkin('blogCategory')
-
   return (
     <main>
       <SectionRecipe
         title={
-          <Typography variant="h1" align="center" color="primary.main" as="h1">
+          <Typography variant="h1" align="center" as="h1" accent="primary">
             {category}
           </Typography>
         }
         intro={
-          <Typography
-            variant="subhead"
-            align="center"
-            color="text.subtle"
-            as="p"
-          >
+          <Typography variant="subtitle" align="center" color="mutedFg" as="p">
             {all.length} Beitrag{all.length === 1 ? '' : 'e'} in „{category}“
           </Typography>
         }
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
+        surface="subtle"
+        accent="primary"
         titleId="category-title"
-      >
-        <></>
-      </SectionRecipe>
-
-      <SectionRecipe
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
       >
         {items.length ? (
           <GridRecipe
             items={items}
-            min={skin.grid?.min || '18rem'}
-            columns={skin.grid?.columns ?? 'auto'}
-            gap={skin.grid?.gap ?? 2}
+            min="18rem"
+            columns="auto"
+            gap={2}
             renderItem={(m) => {
               const href = `/blog/${m.category}/${m.slug}`
               const cover = m.cover
@@ -104,17 +87,11 @@ export default async function CategoryPage({
             }}
           />
         ) : (
-          <Typography align="center" color="text.subtle">
+          <Typography align="center" color="mutedFg">
             Keine Beiträge in dieser Kategorie.
           </Typography>
         )}
-      </SectionRecipe>
 
-      <SectionRecipe
-        surface={skin.surface}
-        rhythm={skin.rhythm}
-        accent={skin.accent as any}
-      >
         <Pager
           current={current}
           pageCount={pageCount}

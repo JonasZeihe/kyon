@@ -11,12 +11,8 @@ export default function ArticleLayout({ children }: Props) {
 }
 
 const Outer = styled.div`
-  --header-height: 74px;
-  --article-scroll-margin: calc(var(--header-height) + 12px);
-  --article-max-width: 86ch;
-  --toc-width: 320px;
-  --article-inline-pad: 0;
+  --article-max-width: var(--article-max-width, 110ch);
+  --toc-width: var(--toc-width, 320px);
   width: 100%;
   max-width: 100%;
-  padding-inline: var(--article-inline-pad);
 `

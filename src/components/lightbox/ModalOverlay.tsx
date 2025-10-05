@@ -1,3 +1,4 @@
+// src/components/lightbox/ModalOverlay.tsx
 'use client'
 
 import React, { useEffect, useRef, ReactNode } from 'react'
@@ -21,8 +22,7 @@ const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   padding: 3vw 2vw;
-  background: ${({ theme }) =>
-    theme.mode === 'dark' ? 'rgba(20,22,34,0.85)' : 'rgba(230,238,255,0.55)'};
+  background: ${({ theme }) => theme.semantic.overlay};
   backdrop-filter: blur(1.5px) saturate(1.02);
   animation: ${fadeIn} 0.22s cubic-bezier(0.55, 0.13, 0.45, 1.05);
   -webkit-tap-highlight-color: transparent;
@@ -36,7 +36,7 @@ const Content = styled.div`
   min-width: 0;
   max-height: 92vh;
   padding: ${({ theme }) => theme.spacing(4)};
-  background: ${({ theme }) => theme.colors.surface.cardAlpha};
+  background: ${({ theme }) => theme.semantic.card};
   border-radius: ${({ theme }) => theme.borderRadius.large};
   box-shadow: ${({ theme }) => theme.boxShadow.lg};
   overflow-y: auto;
@@ -45,20 +45,20 @@ const Content = styled.div`
   animation: ${popIn} 0.25s cubic-bezier(0.61, 0.13, 0.38, 1.15);
   scrollbar-width: thin;
   scrollbar-color: ${({ theme }) =>
-    `${theme.colors.primary[2]} ${theme.colors.surface[1]}`};
+    `${theme.semantic.focusRing} ${theme.semantic.surface}`};
   overscroll-behavior: contain;
 
   &::-webkit-scrollbar {
     width: 8px;
   }
   &::-webkit-scrollbar-track {
-    background: ${({ theme }) => theme.colors.surface[1]};
+    background: ${({ theme }) => theme.semantic.surface};
     border-radius: ${({ theme }) => theme.borderRadius.large};
   }
   &::-webkit-scrollbar-thumb {
-    background-color: ${({ theme }) => theme.colors.primary[2]};
+    background-color: ${({ theme }) => theme.semantic.focusRing};
     border-radius: ${({ theme }) => theme.borderRadius.large};
-    border: 2px solid ${({ theme }) => theme.colors.surface[1]};
+    border: 2px solid ${({ theme }) => theme.semantic.surface};
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -83,8 +83,8 @@ const Close = styled.button`
   height: 44px;
   border: none;
   border-radius: 50%;
-  background: ${({ theme }) => theme.colors.surface[2]};
-  color: ${({ theme }) => theme.colors.text.subtle};
+  background: ${({ theme }) => theme.semantic.hover};
+  color: ${({ theme }) => theme.semantic.mutedFg};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,9 +97,10 @@ const Close = styled.button`
 
   &:hover,
   &:focus-visible {
-    background: ${({ theme }) => theme.colors.primary.main};
-    color: ${({ theme }) => theme.colors.surface[1]};
+    background: ${({ theme }) => theme.semantic.link};
+    color: ${({ theme }) => theme.semantic.surface};
     outline: none;
+    box-shadow: 0 0 0 3px ${({ theme }) => theme.semantic.focusRing};
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {

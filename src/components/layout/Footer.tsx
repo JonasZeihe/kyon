@@ -1,4 +1,4 @@
-// --- src/components/layout/Footer.tsx ---
+// src/components/layout/Footer.tsx
 'use client'
 
 import React from 'react'
@@ -85,12 +85,12 @@ export default function Footer() {
   )
 }
 
-const textColor = ({ theme }: { theme: any }) => theme.colors.text.main
+const textColor = ({ theme }: { theme: any }) => theme.semantic.fg
 
 const FooterWrapper = styled.footer`
-  background: ${({ theme }) => theme.colors.neutral.surface};
+  background: ${({ theme }) => theme.semantic.surface};
   color: ${textColor};
-  border-top: 1px solid ${({ theme }) => theme.colors.neutral.border};
+  border-top: 1px solid ${({ theme }) => theme.semantic.border};
   padding: ${({ theme }) => theme.spacing(5)} ${({ theme }) => theme.spacing(2)};
   width: 100%;
   display: flex;
@@ -153,7 +153,7 @@ const ContactAnchor = styled.a`
   transition: color 0.2s ease;
   &:hover,
   &:focus-visible {
-    color: ${({ theme }) => theme.colors.accent.main};
+    color: ${({ theme }) => theme.semantic.linkHover};
     outline: none;
   }
 `
@@ -171,7 +171,7 @@ const IconAnchor = styled.a`
     transform 0.15s ease;
   &:hover,
   &:focus-visible {
-    color: ${({ theme }) => theme.colors.accent.main};
+    color: ${({ theme }) => theme.semantic.linkHover};
     transform: scale(1.13);
     outline: none;
   }
@@ -196,8 +196,8 @@ const FooterLink = styled(Link)`
   border-radius: ${({ theme }) => theme.borderRadius.small};
   &:hover,
   &:focus-visible {
-    color: ${({ theme }) => theme.colors.accent.main};
-    background: ${({ theme }) => theme.colors.surface[1]};
+    color: ${({ theme }) => theme.semantic.linkHover};
+    background: ${({ theme }) => theme.semantic.hover};
     outline: none;
   }
 `
@@ -221,9 +221,9 @@ const Copyright = styled.p`
 `
 
 const ScrollToTopButton = styled.button`
-  background: ${({ theme }) => theme.colors.primary.main};
-  color: ${({ theme }) => theme.colors.text.inverse};
-  border: none;
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.link};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
   border-radius: 50%;
   width: 2.5rem;
   height: 2.5rem;
@@ -235,12 +235,13 @@ const ScrollToTopButton = styled.button`
   box-shadow: ${({ theme }) => theme.boxShadow.xs};
   transition:
     background 0.18s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    box-shadow 0.18s ease;
   &:hover,
   &:focus-visible {
-    background: ${({ theme }) =>
-      theme.colors.accent[4] || theme.colors.accent.main};
+    background: ${({ theme }) => theme.semantic.hover};
     transform: scale(1.08);
     outline: none;
+    box-shadow: ${({ theme }) => theme.boxShadow.sm};
   }
 `
