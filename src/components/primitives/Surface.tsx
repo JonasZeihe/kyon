@@ -2,7 +2,7 @@
 'use client'
 
 import styled from 'styled-components'
-import { ReactNode, forwardRef } from 'react'
+import { ReactNode, forwardRef, useMemo } from 'react'
 import { AccentKey } from '@/design/theme'
 import useAccent from '@/design/hooks/useAccent'
 
@@ -36,7 +36,7 @@ const Base = styled.div<{
   box-shadow: ${({ $shadow }) => $shadow || 'none'};
 `
 
-const Surface = forwardRef<HTMLDivElement, Props>(function Surface(
+export default forwardRef<HTMLDivElement, Props>(function Surface(
   {
     tone = 'neutral',
     accent = 'neutral',
@@ -49,20 +49,45 @@ const Surface = forwardRef<HTMLDivElement, Props>(function Surface(
   ref
 ) {
   const a = useAccent(accent)
+  const computed = useMemo(() => {
+    const t = (rest as any).theme
+    return t
+  }, [rest])
+
+  const bg = useMemo(() => {
+    const theme = (rest as any).theme
+    if (!theme) return 'transparent'
+    if (tone === 'accent') return theme.semantic.surface
+    if (tone === 'elevated') return theme.semantic.card
+    return theme.semantic.card
+  }, [rest, tone])
+
+  const borderColor = useMemo(() => {
+    const theme = (rest as any).theme
+    if (!theme) return a.border
+    if (tone === 'accent') return a.border
+    return theme.semantic.border
+  }, [rest, tone, a.border])
+
+  const shadow = useMemo(() => {
+    const theme = (rest as any).theme
+    if (!theme) return undefined
+    if (tone === 'elevated') return theme.boxShadow.sm
+    return undefined
+  }, [rest, tone])
+
   return (
     <Base
       ref={ref}
       $radius={radius}
       $padding={padding}
-      $bg={(rest.style?.background as string) ?? 'transparent'}
+      $bg={bg}
       $bordered={bordered}
-      $borderColor={tone === 'accent' ? a.border : a.border}
-      $shadow={tone === 'elevated' ? undefined : undefined}
+      $borderColor={borderColor}
+      $shadow={shadow}
       {...rest}
     >
       {children}
     </Base>
   )
 })
-
-export default Surface

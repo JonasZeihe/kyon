@@ -22,9 +22,10 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
       .filter(Boolean) as HTMLElement[]
 
     const getOffset = () => {
-      const v = getComputedStyle(document.documentElement).getPropertyValue(
-        '--article-scroll-margin'
-      )
+      const v =
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--article-scroll-margin'
+        ) || '88'
       const n = parseFloat(v)
       return Number.isFinite(n) && n > 0 ? n : 88
     }
@@ -52,8 +53,8 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
       },
       {
         root: null,
-        rootMargin: `-${offset}px 0px -60% 0px`,
-        threshold: [0, 0.25, 0.5, 1],
+        rootMargin: `-${offset}px 0px -40% 0px`,
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
       }
     )
 
@@ -64,9 +65,9 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
   if (!ids.length) return null
 
   return (
-    <Wrap $embedded={embedded}>
+    <Wrap $embedded={embedded} data-article-toc>
       {!embedded && <Header>Inhalt</Header>}
-      <List>
+      <List role="list">
         {filtered.map((i) => {
           const active = activeId === i.id
           return (
@@ -75,6 +76,7 @@ export default function ArticleTOC({ items, embedded = false }: Props) {
                 href={`#${i.id}`}
                 title={i.value}
                 aria-current={active ? 'true' : undefined}
+                tabIndex={0}
               >
                 {i.value}
               </a>
@@ -129,6 +131,7 @@ const Item = styled.li<{ $depth: number; $active: boolean }>`
     transition:
       background 0.15s ease,
       opacity 0.15s ease;
+    cursor: pointer;
   }
   a:hover,
   a:focus-visible {

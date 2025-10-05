@@ -72,21 +72,30 @@ export default function Header({ navSections = [] }: HeaderProps) {
     const el = headerRef.current as HTMLElement
     const applyVars = () => {
       const h = el.offsetHeight || 74
-      const scrollMargin = h + 12
+      const gap = 12
+      const progress = 3
+      const scrollMargin = h + gap
+      const stickyOffset = h + gap + progress
       document.documentElement.style.setProperty('--header-height', `${h}px`)
       document.documentElement.style.setProperty('--header-offset', `${h}px`)
       document.documentElement.style.setProperty(
         '--article-scroll-margin',
         `${scrollMargin}px`
       )
+      document.documentElement.style.setProperty(
+        '--sticky-offset',
+        `${stickyOffset}px`
+      )
     }
     applyVars()
     const obs = new ResizeObserver(applyVars)
     obs.observe(el)
     window.addEventListener('resize', applyVars)
+    window.addEventListener('load', applyVars)
     return () => {
       obs.disconnect()
       window.removeEventListener('resize', applyVars)
+      window.removeEventListener('load', applyVars)
     }
   }, [])
 

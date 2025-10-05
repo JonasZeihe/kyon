@@ -2,22 +2,33 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const BarWrap = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  position: fixed;
+  top: var(--header-offset, var(--header-height, 74px));
+  left: 0;
+  right: 0;
+  z-index: 10010;
   width: 100%;
-  height: 4px;
-  background: transparent;
+  height: 2.5px;
+  pointer-events: none;
+`
+
+const gradient = css`
+  background: ${({ theme }) =>
+    `linear-gradient(90deg, ${theme.accentFor('primary').color}, ${theme.accentFor('accent').color})`};
 `
 
 const Bar = styled.div<{ $p: number }>`
   width: ${({ $p }) => `${$p}%`};
   height: 100%;
-  background: ${({ theme }) => theme.semantic.focusRing};
-  transition: width 0.1s linear;
+  ${gradient};
+  transition:
+    width 0.12s ease-out,
+    opacity 0.18s ease;
+  opacity: ${({ $p }) => ($p > 0 ? 0.3 : 0)};
+  will-change: width;
 `
 
 export default function ProgressIsland({
@@ -29,22 +40,49 @@ export default function ProgressIsland({
 
   useEffect(() => {
     const root = document.querySelector(rootSelector) as HTMLElement | null
-    const onScroll = () => {
-      const el = root || document.documentElement
+
+    const getScrollTop = () =>
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0
+
+    const getTopFromDoc = (el: HTMLElement) => {
       const rect = el.getBoundingClientRect()
-      const total = el.scrollHeight - el.clientHeight
-      const scrolled = root ? el.scrollTop : window.scrollY
-      const pct =
-        total > 0 ? Math.min(100, Math.max(0, (scrolled / total) * 100)) : 0
-      setP(pct)
+      const docTop = getScrollTop()
+      return rect.top + docTop
     }
-    onScroll()
-    const target = root ? root : window
-    target.addEventListener('scroll', onScroll, { passive: true } as any)
-    if (!root) window.addEventListener('resize', onScroll)
+
+    const update = () => {
+      const doc = document.documentElement
+      const viewportH = window.innerHeight || doc.clientHeight
+      const scrollY = getScrollTop()
+
+      if (root) {
+        const top = getTopFromDoc(root)
+        const total = Math.max(0, root.scrollHeight - viewportH)
+        const current = Math.max(0, Math.min(scrollY - top, total))
+        const pct = total > 0 ? (current / total) * 100 : 0
+        setP(pct)
+        return
+      }
+
+      const totalDoc = Math.max(0, doc.scrollHeight - viewportH)
+      const pctDoc = totalDoc > 0 ? (scrollY / totalDoc) * 100 : 0
+      setP(pctDoc)
+    }
+
+    update()
+    const onScroll = () => update()
+    const onResize = () => update()
+    window.addEventListener('scroll', onScroll, { passive: true } as any)
+    window.addEventListener('resize', onResize, { passive: true } as any)
+    window.addEventListener('load', update)
+
     return () => {
-      target.removeEventListener('scroll', onScroll as any)
-      if (!root) window.removeEventListener('resize', onScroll)
+      window.removeEventListener('scroll', onScroll as any)
+      window.removeEventListener('resize', onResize as any)
+      window.removeEventListener('load', update as any)
     }
   }, [rootSelector])
 

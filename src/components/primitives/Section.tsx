@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import Container from './Container'
 
 type ContainerSize = 'narrow' | 'default' | 'wide' | 'full'
+type RhythmKey = 'compact' | 'default' | 'spacious'
 
 type Props = {
   container?: ContainerSize
@@ -14,18 +15,19 @@ type Props = {
   footer?: ReactNode
   ariaLabel?: string
   titleId?: string
+  rhythm?: RhythmKey
   children?: ReactNode
 } & Omit<React.ComponentPropsWithoutRef<'section'>, 'children'>
 
-const Outer = styled.section`
+const Outer = styled.section<{ $rhythm: RhythmKey }>`
   width: 100%;
-  margin-block: ${({ theme }) => theme.rhythm.default.sectionGap};
+  margin-block: ${({ theme, $rhythm }) => theme.rhythm[$rhythm].sectionGap};
 `
 
-const Inner = styled.div<{ $padY?: boolean }>`
+const Inner = styled.div<{ $padY?: boolean; $rhythm: RhythmKey }>`
   width: 100%;
-  ${({ $padY, theme }) =>
-    $padY ? `padding-block: ${theme.rhythm.default.sectionPad};` : ''}
+  ${({ $padY, theme, $rhythm }) =>
+    $padY ? `padding-block: ${theme.rhythm[$rhythm].sectionPad};` : ''}
 `
 
 export default function Section({
@@ -35,6 +37,7 @@ export default function Section({
   footer,
   ariaLabel,
   titleId,
+  rhythm = 'default',
   children,
   ...rest
 }: Props) {
@@ -43,9 +46,10 @@ export default function Section({
       role="region"
       aria-label={ariaLabel}
       aria-labelledby={titleId}
+      $rhythm={rhythm}
       {...rest}
     >
-      <Inner $padY={padY}>
+      <Inner $padY={padY} $rhythm={rhythm}>
         <Container max={container}>
           {header ?? null}
           {children}

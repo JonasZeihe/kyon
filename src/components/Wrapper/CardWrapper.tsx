@@ -2,9 +2,8 @@
 'use client'
 
 import styled from 'styled-components'
-import LumenWrapper from './LumenWrapper'
 
-const CardWrapper = styled(LumenWrapper).attrs({ variant: 'subtle' as const })`
+const CardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0;
