@@ -172,7 +172,8 @@ const Meta = styled.div`
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1.2)}`};
   width: fit-content;
   border-radius: ${({ theme }) => theme.borderRadius.pill};
-  background: ${({ theme }) => theme.semantic.surface};
+  background: ${({ theme }) =>
+    theme.mode === 'dark' ? theme.semantic.surfaceAlt : theme.semantic.surface};
   border: 1px solid ${({ theme }) => theme.semantic.border};
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   color: ${({ theme }) => theme.semantic.mutedFg};

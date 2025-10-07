@@ -1,30 +1,30 @@
 // src/components/markdown/MarkdownBase.tsx
 'use client'
 
-import styled, { css } from 'styled-components'
+import styled, { css, DefaultTheme } from 'styled-components'
 
 const scrollVars = css`
   --md-max-width: var(--article-max-width, 84ch);
   --md-scroll-margin: var(--article-scroll-margin, var(--header-height, 74px));
 `
 
-const headingBase = (t: any) => css`
+const headingBase = (t: DefaultTheme) => css`
   line-height: ${t.typography.lineHeight.tight};
-  margin-block: 1.4rem 0.85rem;
+  margin-block: ${t.spacing(2)} ${t.spacing(1)};
   font-weight: ${t.typography.fontWeight.bold};
   letter-spacing: ${t.typography.letterSpacing.tight};
   color: ${t.semantic.fg};
 `
 
-const listBase = css`
-  margin: 0.9rem 0 0.9rem 1.25rem;
+const listBase = (t: DefaultTheme) => css`
+  margin: ${t.spacing(1)} 0 ${t.spacing(1)} ${t.spacing(1.5)};
   padding: 0;
 `
 
-const tableBase = (t: any) => css`
+const tableBase = (t: DefaultTheme) => css`
   width: 100%;
   border-collapse: collapse;
-  margin: 1.1rem 0;
+  margin: ${t.spacing(1.25)} 0;
   font-size: 0.96rem;
   display: block;
   overflow-x: auto;
@@ -32,7 +32,7 @@ const tableBase = (t: any) => css`
 
   th,
   td {
-    padding: 0.6rem 0.7rem;
+    padding: ${t.spacingHalf(2)} ${t.spacing(0.9)};
     text-align: left;
     vertical-align: top;
     border-bottom: 1px solid ${t.semantic.border};
@@ -44,44 +44,29 @@ const tableBase = (t: any) => css`
   }
 `
 
-const mediaBase = (t: any) => css`
+const mediaBase = (t: DefaultTheme) => css`
   display: block;
   max-width: 100%;
   height: auto;
-  margin: 1.1rem auto;
+  margin: ${t.spacing(1.25)} auto;
   border-radius: ${t.borderRadius.medium};
   box-shadow: ${t.boxShadow.xs};
   background: ${t.semantic.surface};
 `
 
-const blockquoteBase = (t: any) => css`
-  margin: 1.1rem 0;
-  padding: 0.9rem 1rem;
+const blockquoteBase = (t: DefaultTheme) => css`
+  margin: ${t.spacing(1.25)} 0;
+  padding: ${t.spacing(1)} ${t.spacing(1.25)};
   border-left: 0.28rem solid ${t.semantic.focusRing};
   border-radius: ${t.borderRadius.medium};
   background: ${t.semantic.surface};
+  color: ${t.semantic.fg};
 `
 
-const linkBase = (t: any) => css`
-  color: ${t.semantic.link};
-  text-decoration: underline;
-  text-underline-offset: 0.16em;
-  text-decoration-thickness: 0.06em;
-  transition:
-    color 0.18s ease,
-    opacity 0.18s ease;
-  overflow-wrap: anywhere;
-
-  &:hover,
-  &:focus-visible {
-    color: ${t.semantic.linkHover};
-  }
-`
-
-const hrBase = (t: any) => css`
+const hrBase = (t: DefaultTheme) => css`
   border: none;
   height: 1px;
-  margin: 1.4rem 0;
+  margin: ${t.spacing(1.5)} 0;
   background: ${t.semantic.border};
 `
 
@@ -138,16 +123,12 @@ const MarkdownBase = styled.div`
   }
 
   p {
-    margin-block: 0.9rem;
-  }
-
-  a {
-    ${({ theme }) => linkBase(theme)};
+    margin-block: ${({ theme }) => theme.spacing(1)};
   }
 
   ul,
   ol {
-    ${listBase};
+    ${({ theme }) => listBase(theme)};
   }
 
   ul {
@@ -157,20 +138,19 @@ const MarkdownBase = styled.div`
     list-style: decimal;
   }
   li {
-    margin: 0.3rem 0;
+    margin: ${({ theme }) => theme.spacingHalf(3)} 0;
   }
   li > ul {
     list-style: circle;
-    margin-top: 0.28rem;
+    margin-top: ${({ theme }) => theme.spacingHalf(3)};
   }
   li > ol {
     list-style: lower-alpha;
-    margin-top: 0.28rem;
+    margin-top: ${({ theme }) => theme.spacingHalf(3)};
   }
 
   blockquote {
     ${({ theme }) => blockquoteBase(theme)};
-    color: ${({ theme }) => theme.semantic.fg};
   }
 
   table {
@@ -178,12 +158,12 @@ const MarkdownBase = styled.div`
   }
 
   figure {
-    margin: 1.1rem auto;
+    margin: ${({ theme }) => theme.spacing(1.25)} auto;
     max-width: 100%;
     text-align: center;
   }
   figcaption {
-    margin-top: 0.5rem;
+    margin-top: ${({ theme }) => theme.spacingHalf(3)};
     font-size: ${({ theme }) => theme.typography.fontSize.small};
     color: ${({ theme }) => theme.semantic.mutedFg};
   }

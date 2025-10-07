@@ -2,6 +2,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+import styled from 'styled-components'
 import Section from '@/components/primitives/Section'
 import Surface from '@/components/primitives/Surface'
 import Stack from '@/components/primitives/Stack'
@@ -34,6 +35,14 @@ const mapTone = (v: SurfaceVariant): 'neutral' | 'elevated' | 'accent' => {
 const widthFor = (w: BodyWidth) =>
   w === 'wide' ? '110ch' : w === 'narrow' ? '70ch' : '90ch'
 
+const Gap = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing(1)};
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    gap: ${({ theme }) => theme.spacing(0.75)};
+  }
+`
+
 export default function ArticleRecipe({
   header,
   body,
@@ -57,35 +66,38 @@ export default function ArticleRecipe({
     >
       <ArticleLayout>
         <ArticleGrid aside={asideMeta}>
-          <Surface
-            tone={tone}
-            accent={accent}
-            radius="large"
-            bordered
-            padding="clamp(1rem, 2vw, 1.4rem)"
-            data-toc-anchor
-          >
-            <Stack gap={1}>
-              {typeof header === 'string' ? (
-                <Typography as="h2" variant="h2" accent={accent}>
-                  {header}
-                </Typography>
-              ) : (
-                header
-              )}
-            </Stack>
-          </Surface>
-          <Surface
-            tone={tone}
-            accent={accent}
-            radius="large"
-            bordered
-            padding="clamp(1rem, 2vw, 1.4rem)"
-            data-reading-root
-            style={{ ['--article-max-width' as any]: widthToken }}
-          >
-            {body}
-          </Surface>
+          <Gap>
+            <Surface
+              tone={tone}
+              accent={accent}
+              radius="large"
+              bordered
+              padding="clamp(0.7rem, 2vw, 1.4rem)"
+              data-toc-anchor
+            >
+              <Stack gap={1}>
+                {typeof header === 'string' ? (
+                  <Typography as="h2" variant="h2" accent={accent}>
+                    {header}
+                  </Typography>
+                ) : (
+                  header
+                )}
+              </Stack>
+            </Surface>
+
+            <Surface
+              tone={tone}
+              accent={accent}
+              radius="large"
+              bordered
+              padding="clamp(0.7rem, 2vw, 1.4rem)"
+              data-reading-root
+              style={{ ['--article-max-width' as any]: widthToken }}
+            >
+              {body}
+            </Surface>
+          </Gap>
         </ArticleGrid>
       </ArticleLayout>
     </Section>

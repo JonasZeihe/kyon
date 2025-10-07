@@ -9,6 +9,8 @@ import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
 import Pager from '@/components/pagination/Pager'
 import { resolveSkin } from '@/components/pagekit/skins'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
 
 export const dynamic = 'force-static'
 
@@ -51,48 +53,58 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
             Gedanken, Notizen und Systembau – ruhig, präzise, nützlich.
           </Typography>
         }
-        surface={skin.surfaceTone}
+        surface="none"
         accent={skin.accentKey}
         titleId="blog-title"
       >
-        {items.length ? (
-          <GridRecipe
-            items={items}
-            min={skin.gridProps?.min || '18rem'}
-            columns={skin.gridProps?.columns ?? 'auto'}
-            gap={skin.gridProps?.gap ?? 2}
-            renderItem={(m) => {
-              const href = `/blog/${m.category}/${m.slug}`
-              const cover = m.cover
-                ? toPublicAssetUrl(m.category, m.dirName, m.cover)
-                : undefined
-              return (
-                <Card
-                  key={m.id}
-                  href={href}
-                  title={m.title}
-                  cover={cover}
-                  date={m.updated || m.date}
-                  readingTime={m.readingTime}
-                  excerpt={m.excerpt}
-                  tag={m.category}
-                />
-              )
-            }}
-          />
-        ) : (
-          <Typography align="center" color="mutedFg">
-            Keine Beiträge gefunden.
-          </Typography>
-        )}
+        <Stack gap={1.25}>
+          <Surface
+            tone="accent"
+            accent={skin.accentKey}
+            radius="large"
+            bordered
+            padding="clamp(0.9rem, 2.2vw, 1.25rem)"
+          >
+            {items.length ? (
+              <GridRecipe
+                items={items}
+                min={skin.gridProps?.min}
+                columns={skin.gridProps?.columns}
+                gap={skin.gridProps?.gap}
+                renderItem={(m) => {
+                  const href = `/blog/${m.category}/${m.slug}`
+                  const cover = m.cover
+                    ? toPublicAssetUrl(m.category, m.dirName, m.cover)
+                    : undefined
+                  return (
+                    <Card
+                      key={m.id}
+                      href={href}
+                      title={m.title}
+                      cover={cover}
+                      date={m.updated || m.date}
+                      readingTime={m.readingTime}
+                      excerpt={m.excerpt}
+                      tag={m.category}
+                    />
+                  )
+                }}
+              />
+            ) : (
+              <Typography align="center" color="mutedFg">
+                Keine Beiträge gefunden.
+              </Typography>
+            )}
+          </Surface>
 
-        <Pager
-          current={current}
-          pageCount={pageCount}
-          prevHref={prevHref}
-          nextHref={nextHref}
-          ariaLabel="Seitennavigation"
-        />
+          <Pager
+            current={current}
+            pageCount={pageCount}
+            prevHref={prevHref}
+            nextHref={nextHref}
+            ariaLabel="Seitennavigation"
+          />
+        </Stack>
       </SectionRecipe>
     </main>
   )

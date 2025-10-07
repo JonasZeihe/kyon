@@ -1,0 +1,44 @@
+Starting Build Process...
+========================
+2025-10-08T01-14
+========================
+Running npm run build...
+
+> kyon@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.2
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 3.3s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/10) ...
+   Generating static pages (2/10) 
+   Generating static pages (4/10) 
+   Generating static pages (7/10) 
+ ✓ Generating static pages (10/10)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    2.01 kB         127 kB
+├ ○ /_not-found                            994 B         103 kB
+├ ○ /about                                4.7 kB         123 kB
+├ ○ /blog                                1.26 kB         126 kB
+├ ● /blog/[category]                     1.26 kB         126 kB
+├   └ /blog/meta
+├ ● /blog/[category]/[slug]              9.44 kB         141 kB
+├   └ /blog/meta/initial-post
+├ ○ /impressum                           2.73 kB         119 kB
+└ ○ /search                              5.13 kB         122 kB
++ First Load JS shared by all             102 kB
+  ├ chunks/255-aad41205a3563def.js       45.8 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  └ other shared chunks (total)          1.98 kB
+
+
+○  (Static)  prerendered as static content
+●  (SSG)     prerendered as static HTML (uses generateStaticParams)
+
+Build completed successfully!

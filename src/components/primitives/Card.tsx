@@ -22,16 +22,21 @@ const StyledCard = styled(Surface)<{ $hover: boolean; $interactive: boolean }>`
   flex-direction: column;
   overflow: hidden;
   width: 100%;
+
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+
   cursor: ${({ $interactive }) => ($interactive ? 'pointer' : 'default')};
+
   &:hover,
   &:focus-within {
-    transform: ${({ $hover }) => ($hover ? 'translateY(-2px)' : 'none')};
+    transform: ${({ $hover, theme }) =>
+      $hover ? `translateY(-${theme.spacingHalf(1)})` : 'none'};
     box-shadow: ${({ theme, $hover }) =>
       $hover ? theme.boxShadow.md : 'none'};
   }
+
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     &:hover,
     &:focus-within {
@@ -39,6 +44,10 @@ const StyledCard = styled(Surface)<{ $hover: boolean; $interactive: boolean }>`
       box-shadow: ${({ theme, $hover }) =>
         $hover ? theme.boxShadow.xs : 'none'};
     }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `
 

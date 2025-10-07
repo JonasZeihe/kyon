@@ -49,7 +49,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
         color: ${semantic.fg};
-        margin-bottom: ${gutter ? spacing(5) : 0};
+        margin-bottom: ${gutter ? spacing(4) : 0};
       `
     case 'h2':
       return css`
@@ -58,7 +58,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.tight};
         letter-spacing: ${letterSpacing.tight};
         color: ${semantic.fg};
-        margin-bottom: ${gutter ? spacing(4) : 0};
+        margin-bottom: ${gutter ? spacing(3) : 0};
       `
     case 'h3':
       return css`
@@ -67,7 +67,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         line-height: ${lineHeight.normal};
         letter-spacing: ${letterSpacing.normal};
         color: ${semantic.fg};
-        margin-bottom: ${gutter ? spacing(3) : 0};
+        margin-bottom: ${gutter ? spacing(2) : 0};
       `
     case 'subtitle':
       return css`
@@ -75,7 +75,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.medium};
         line-height: ${lineHeight.normal};
         color: ${semantic.fg};
-        margin-bottom: ${gutter ? spacing(2) : 0};
+        margin-bottom: ${gutter ? spacing(1.5) : 0};
       `
     case 'caption':
       return css`
@@ -91,7 +91,7 @@ const variantCSS = (v: Variant, t: DefaultTheme, gutter: boolean) => {
         font-weight: ${fontWeight.regular};
         line-height: ${lineHeight.normal};
         color: ${semantic.fg};
-        margin-bottom: ${gutter ? spacing(2) : 0};
+        margin-bottom: ${gutter ? spacing(1.5) : 0};
       `
   }
 }

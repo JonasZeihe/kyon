@@ -9,21 +9,22 @@ import {
   TYPOGRAPHY,
   Mode,
   AccentKey,
+  type PaletteMode,
 } from './tokens'
 import { buildSemantic } from './semantic'
 
-const GRADIENTS = {
-  rainbow: 'linear-gradient(90deg, #c41f2a, #0ea5ff, #ca21b6, #ffd200)',
-  primary: 'linear-gradient(135deg, #ea6a78, #c41f2a)',
-  secondary: 'linear-gradient(135deg, #59bfff, #0ea5ff)',
-  accent: 'linear-gradient(135deg, #db7ad1, #ca21b6)',
-  highlight: 'linear-gradient(135deg, #ffe37a, #ffd200)',
-}
-
 const createTheme = (mode: Mode) => {
   const semantic = buildSemantic(mode)
-  const boxShadow = (SHADOWS as any)[mode]
-  const palette: any = (PALETTE as any)[mode]
+  const boxShadow = SHADOWS[mode]
+  const palette: PaletteMode = PALETTE[mode]
+
+  const gradients = {
+    rainbow: `linear-gradient(90deg, ${palette.primary.main}, ${palette.secondary.main}, ${palette.accent.main}, ${palette.highlight.main})`,
+    primary: `linear-gradient(135deg, ${palette.primary[3]}, ${palette.primary.main})`,
+    secondary: `linear-gradient(135deg, ${palette.secondary[3]}, ${palette.secondary.main})`,
+    accent: `linear-gradient(135deg, ${palette.accent[3]}, ${palette.accent.main})`,
+    highlight: `linear-gradient(135deg, ${palette.highlight[3]}, ${palette.highlight.main})`,
+  } as const
 
   const rhythm = {
     compact: { sectionGap: SPACING(1.5), sectionPad: SPACING(1.5) },
@@ -47,7 +48,7 @@ const createTheme = (mode: Mode) => {
         color: palette.text.main,
         border: palette.neutral.border,
         surfaceVariant: 'subtle' as const,
-        focusRing: palette.accent[2] || palette.secondary[2],
+        focusRing: palette.secondary[2],
       }
     }
     const group = palette[k]
@@ -55,7 +56,7 @@ const createTheme = (mode: Mode) => {
       color: group.main,
       border: group.border ?? palette.neutral.border,
       surfaceVariant: 'subtle' as const,
-      focusRing: palette.accent[2] || palette.secondary[2],
+      focusRing: palette.secondary[2],
     }
   }
 
@@ -71,7 +72,7 @@ const createTheme = (mode: Mode) => {
       shadows: SHADOWS,
     },
     semantic,
-    gradients: GRADIENTS,
+    gradients,
     boxShadow,
     typography: TYPOGRAPHY,
     spacing: SPACING,

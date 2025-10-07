@@ -1,8 +1,8 @@
 // src/components/pagekit/islands/ProgressIsland.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import styled, { css } from 'styled-components'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import styled from 'styled-components'
 
 const BarWrap = styled.div`
   position: fixed;
@@ -15,15 +15,10 @@ const BarWrap = styled.div`
   pointer-events: none;
 `
 
-const gradient = css`
-  background: ${({ theme }) =>
-    `linear-gradient(90deg, ${theme.accentFor('primary').color}, ${theme.accentFor('accent').color})`};
-`
-
 const Bar = styled.div<{ $p: number }>`
   width: ${({ $p }) => `${$p}%`};
   height: 100%;
-  ${gradient};
+  background: ${({ theme }) => theme.gradients.rainbow};
   transition:
     width 0.12s ease-out,
     opacity 0.18s ease;
@@ -38,53 +33,99 @@ export default function ProgressIsland({
 }) {
   const [p, setP] = useState(0)
 
-  useEffect(() => {
+  const rootRef = useRef<HTMLElement | null>(null)
+  const rootTopRef = useRef(0)
+  const totalRef = useRef(0)
+  const docModeRef = useRef(false)
+
+  const tickingRef = useRef(false)
+  const latestScrollYRef = useRef(0)
+
+  const readScrollY = () =>
+    window.pageYOffset ||
+    document.documentElement.scrollTop ||
+    (document.body ? document.body.scrollTop : 0) ||
+    0
+
+  const measure = useCallback(() => {
     const root = document.querySelector(rootSelector) as HTMLElement | null
+    rootRef.current = root
 
-    const getScrollTop = () =>
-      window.pageYOffset ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop ||
-      0
+    const docEl = document.documentElement
+    const viewportH = window.innerHeight || docEl.clientHeight
 
-    const getTopFromDoc = (el: HTMLElement) => {
-      const rect = el.getBoundingClientRect()
-      const docTop = getScrollTop()
-      return rect.top + docTop
+    if (root) {
+      const rect = root.getBoundingClientRect()
+      const scrollTop =
+        window.pageYOffset ||
+        docEl.scrollTop ||
+        (document.body ? document.body.scrollTop : 0) ||
+        0
+
+      rootTopRef.current = rect.top + scrollTop
+      totalRef.current = Math.max(0, root.scrollHeight - viewportH)
+      docModeRef.current = false
+    } else {
+      const totalDoc = Math.max(0, docEl.scrollHeight - viewportH)
+      rootTopRef.current = 0
+      totalRef.current = totalDoc
+      docModeRef.current = true
+    }
+  }, [rootSelector])
+
+  const onScroll = useCallback(() => {
+    latestScrollYRef.current = readScrollY()
+    if (tickingRef.current) return
+    tickingRef.current = true
+    requestAnimationFrame(() => {
+      const total = totalRef.current
+      const top = rootTopRef.current
+      const y = latestScrollYRef.current
+
+      const current = Math.max(
+        0,
+        Math.min(docModeRef.current ? y : y - top, total)
+      )
+      const pct = total > 0 ? (current / total) * 100 : 0
+      setP(pct)
+      tickingRef.current = false
+    })
+  }, [])
+
+  useEffect(() => {
+    measure()
+
+    let ro: ResizeObserver | null = null
+    if (rootRef.current && 'ResizeObserver' in window) {
+      ro = new ResizeObserver(() => {
+        measure()
+        onScroll()
+      })
+      ro.observe(rootRef.current)
     }
 
-    const update = () => {
-      const doc = document.documentElement
-      const viewportH = window.innerHeight || doc.clientHeight
-      const scrollY = getScrollTop()
-
-      if (root) {
-        const top = getTopFromDoc(root)
-        const total = Math.max(0, root.scrollHeight - viewportH)
-        const current = Math.max(0, Math.min(scrollY - top, total))
-        const pct = total > 0 ? (current / total) * 100 : 0
-        setP(pct)
-        return
-      }
-
-      const totalDoc = Math.max(0, doc.scrollHeight - viewportH)
-      const pctDoc = totalDoc > 0 ? (scrollY / totalDoc) * 100 : 0
-      setP(pctDoc)
+    const onResize = () => {
+      measure()
+      onScroll()
     }
 
-    update()
-    const onScroll = () => update()
-    const onResize = () => update()
-    window.addEventListener('scroll', onScroll, { passive: true } as any)
+    window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onResize, { passive: true } as any)
-    window.addEventListener('load', update)
+    const onLoad = () => {
+      measure()
+      onScroll()
+    }
+    window.addEventListener('load', onLoad)
+
+    onScroll()
 
     return () => {
       window.removeEventListener('scroll', onScroll as any)
       window.removeEventListener('resize', onResize as any)
-      window.removeEventListener('load', update as any)
+      window.removeEventListener('load', onLoad as any)
+      if (ro) ro.disconnect()
     }
-  }, [rootSelector])
+  }, [measure, onScroll])
 
   return (
     <BarWrap aria-hidden="true">

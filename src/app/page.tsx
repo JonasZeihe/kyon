@@ -58,7 +58,7 @@ export default async function HomePage() {
             Neu &amp; lesenswert
           </Typography>
         }
-        surface={skin.surfaceTone}
+        surface="intense"
         accent={skin.accentKey}
         titleId="home-latest"
       >
@@ -69,9 +69,9 @@ export default async function HomePage() {
         ) : (
           <GridRecipe
             items={latest}
-            min={skin.gridProps?.min || '18rem'}
-            columns={skin.gridProps?.columns ?? 'auto'}
-            gap={skin.gridProps?.gap ?? 2}
+            min={skin.gridProps?.min}
+            columns={skin.gridProps?.columns}
+            gap={skin.gridProps?.gap}
             renderItem={(p) => {
               const href = `/blog/${p.category}/${p.slug}`
               const cover = p.cover

@@ -27,7 +27,7 @@ const Outer = styled.section<{ $rhythm: RhythmKey }>`
 const Inner = styled.div<{ $padY?: boolean; $rhythm: RhythmKey }>`
   width: 100%;
   ${({ $padY, theme, $rhythm }) =>
-    $padY ? `padding-block: ${theme.rhythm[$rhythm].sectionPad};` : ''}
+    $padY ? `padding-block: ${theme.rhythm[$rhythm].sectionPad};` : ''};
 `
 
 export default function Section({
