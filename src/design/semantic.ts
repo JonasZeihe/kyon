@@ -1,5 +1,5 @@
 // src/design/semantic.ts
-import { PALETTE, Mode } from './tokens'
+import { PALETTE, Mode, type PaletteMode } from './tokens'
 
 export type Semantic = {
   bg: string
@@ -20,22 +20,22 @@ export type Semantic = {
 }
 
 export const buildSemantic = (mode: Mode): Semantic => {
-  const c: any = (PALETTE as any)[mode]
+  const p: PaletteMode = PALETTE[mode]
   return {
-    bg: c.neutral.background,
-    fg: c.text.main,
-    mutedFg: c.text.subtle,
-    card: c.surface.card,
-    surface: c.surface[1],
-    surfaceAlt: c.surface[2],
-    border: c.neutral.border,
-    hover: c.surface.hover,
-    focusRing: c.accent[2] || c.secondary[2],
-    link: c.primary.main,
-    linkHover: c.accent.main,
-    success: c.secondary.main,
-    warning: c.highlight.main,
-    danger: c.primary.main,
+    bg: p.neutral.background,
+    fg: p.text.main,
+    mutedFg: p.text.subtle,
+    card: p.surface.card,
+    surface: p.surface[1],
+    surfaceAlt: p.surface[2],
+    border: p.neutral.border,
+    hover: p.surface.hover,
+    focusRing: p.secondary[2],
+    link: p.primary.main,
+    linkHover: p.accent.main,
+    success: p.secondary.main,
+    warning: p.highlight.main,
+    danger: p.danger.main,
     overlay: 'rgba(0,0,0,0.5)',
   }
 }

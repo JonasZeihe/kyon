@@ -1,13 +1,16 @@
 // src/app/blog/[category]/page.tsx
 import Typography from '@/design/typography'
+import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
+import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
+import Pager from '@/components/pagination/Pager'
 import { POSTS_PER_PAGE } from '@/lib/blog/constants'
 import { getAllPostMeta, getPostsByCategory } from '@/lib/blog/indexer'
 import { getPageParamFromSearchParams, paginate } from '@/lib/blog/pagination'
 import { toPublicAssetUrl } from '@/lib/content/helpers/paths'
 import Card from '@/components/blog/Card'
-import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
-import GridRecipe from '@/components/pagekit/recipes/GridRecipe'
-import Pager from '@/components/pagination/Pager'
+import { resolveSkin } from '@/components/pagekit/skins'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -31,6 +34,7 @@ export default async function CategoryPage({
   const { category } = await params
   const sp = (await searchParams) || {}
   const page = getPageParamFromSearchParams(sp)
+  const skin = resolveSkin('blogCategory')
 
   const all = getPostsByCategory(category)
   const {
@@ -48,57 +52,78 @@ export default async function CategoryPage({
     <main>
       <SectionRecipe
         title={
-          <Typography variant="h1" align="center" as="h1" accent="primary">
+          <Typography
+            as="h1"
+            variant="h1"
+            align="center"
+            accent={skin.accentKey}
+          >
             {category}
           </Typography>
         }
         intro={
-          <Typography variant="subtitle" align="center" color="mutedFg" as="p">
+          <Typography
+            as="p"
+            variant="subtitle"
+            align="center"
+            color="fg"
+            style={{ opacity: 0.88 }}
+          >
             {all.length} Beitrag{all.length === 1 ? '' : 'e'} in „{category}“
           </Typography>
         }
-        surface="subtle"
-        accent="primary"
+        surface="none"
+        accent={skin.accentKey}
         titleId="category-title"
       >
-        {items.length ? (
-          <GridRecipe
-            items={items}
-            min="18rem"
-            columns="auto"
-            gap={2}
-            renderItem={(m) => {
-              const href = `/blog/${m.category}/${m.slug}`
-              const cover = m.cover
-                ? toPublicAssetUrl(m.category, m.dirName, m.cover)
-                : undefined
-              return (
-                <Card
-                  key={m.id}
-                  href={href}
-                  title={m.title}
-                  cover={cover}
-                  date={m.updated || m.date}
-                  readingTime={m.readingTime}
-                  excerpt={m.excerpt}
-                  tag={m.category}
-                />
-              )
-            }}
-          />
-        ) : (
-          <Typography align="center" color="mutedFg">
-            Keine Beiträge in dieser Kategorie.
-          </Typography>
-        )}
+        <Stack gap={1.5}>
+          <Surface
+            tone="elevated"
+            accent={skin.accentKey}
+            radius="large"
+            bordered
+            padding="clamp(1rem, 2vw, 1.4rem)"
+          >
+            {items.length ? (
+              <GridRecipe
+                items={items}
+                min={skin.gridProps?.min}
+                columns={skin.gridProps?.columns}
+                gap={skin.gridProps?.gap}
+                renderItem={(m) => {
+                  const href = `/blog/${m.category}/${m.slug}`
+                  const cover = m.cover
+                    ? toPublicAssetUrl(m.category, m.dirName, m.cover)
+                    : undefined
+                  return (
+                    <Card
+                      key={m.id}
+                      href={href}
+                      title={m.title}
+                      cover={cover}
+                      date={m.updated || m.date}
+                      readingTime={m.readingTime}
+                      excerpt={m.excerpt}
+                      tag={m.category}
+                    />
+                  )
+                }}
+              />
+            ) : (
+              <Typography align="center" color="mutedFg">
+                Keine Beiträge in dieser Kategorie.
+              </Typography>
+            )}
+          </Surface>
 
-        <Pager
-          current={current}
-          pageCount={pageCount}
-          prevHref={prevHref}
-          nextHref={nextHref}
-          ariaLabel="Seitennavigation"
-        />
+          <Pager
+            current={current}
+            pageCount={pageCount}
+            prevHref={prevHref}
+            nextHref={nextHref}
+            ariaLabel="Seitennavigation"
+          />
+        </Stack>
       </SectionRecipe>
     </main>
   )

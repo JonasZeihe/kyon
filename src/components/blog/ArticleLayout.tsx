@@ -11,8 +11,12 @@ export default function ArticleLayout({ children }: Props) {
 }
 
 const Outer = styled.div`
-  --article-max-width: var(--article-max-width, 110ch);
-  --toc-width: var(--toc-width, 320px);
+  --article-max-width: clamp(24em, 90vw, 90ch);
+  --toc-width: clamp(260px, 22vw, 340px);
   width: 100%;
   max-width: 100%;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    --toc-width: 0px;
+  }
 `

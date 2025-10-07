@@ -36,7 +36,7 @@ export default function Page() {
             Du suchst – und findest. Ohne Reibung.
           </Typography>
         }
-        surface={skin.surfaceTone}
+        surface="none"
         accent={skin.accentKey}
         titleId="search-title"
         ariaLabel="Suche"

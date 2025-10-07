@@ -37,8 +37,18 @@ const GlobalStyles = createGlobalStyle`
   }
 
   a {
-    color: inherit;
-    text-decoration: none;
+    color: ${({ theme }) => theme.semantic.link};
+    text-decoration: underline;
+    text-underline-offset: 0.16em;
+    text-decoration-thickness: 0.06em;
+    transition:
+      color 0.18s ease,
+      opacity 0.18s ease;
+  }
+
+  a:hover,
+  a:focus-visible {
+    color: ${({ theme }) => theme.semantic.linkHover};
   }
 
   img, svg, video, canvas, audio, iframe, embed, object {
@@ -49,6 +59,15 @@ const GlobalStyles = createGlobalStyle`
   button, input, select, textarea {
     font: inherit;
     color: inherit;
+  }
+
+  button {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  input, select, textarea {
     background: transparent;
     border: 1px solid ${({ theme }) => theme.semantic.border};
     border-radius: ${({ theme }) => theme.borderRadius.small};

@@ -23,15 +23,20 @@ const isPrimitive = (n: ReactNode): n is string | number =>
 export default function GridRecipe<T>({
   items,
   renderItem,
-  min = '18rem',
-  columns = 'auto',
-  gap = 2,
+  min,
+  columns,
+  gap,
   title,
   subtitle,
-  padY = false,
+  padY = true,
   wide = false,
 }: Props<T>) {
+  const resolvedMin = min ?? '18rem'
+  const resolvedColumns = columns ?? 'auto'
+  const resolvedGap = gap ?? 2
+
   const children = items.map((it, i) => renderItem(it, i))
+
   return (
     <Section container={wide ? 'wide' : 'default'} padY={padY}>
       {(title || subtitle) && (
@@ -56,7 +61,12 @@ export default function GridRecipe<T>({
           ) : null}
         </Stack>
       )}
-      <Grid columns={columns} min={min} gap={gap} switchAt="md">
+      <Grid
+        columns={resolvedColumns}
+        min={resolvedMin}
+        gap={resolvedGap}
+        switchAt="md"
+      >
         {children}
       </Grid>
     </Section>

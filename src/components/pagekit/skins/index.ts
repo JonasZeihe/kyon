@@ -40,7 +40,7 @@ export const pageSkins: Record<SkinKey, PageSkin> = {
   },
   blogPost: {
     accentKey: 'primary',
-    surfaceTone: 'subtle',
+    surfaceTone: 'intense',
     rhythm: 'spacious',
     gridProps: { min: '18rem', gap: 2, columns: 'auto' },
   },

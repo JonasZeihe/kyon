@@ -128,8 +128,25 @@ export const PALETTE = {
       5: '#a87100',
       6: '#664200',
     },
+    danger: {
+      base: '#e03131',
+      hover: '#c92a2a',
+      active: '#a51111',
+      disabled: '#ffb3b3',
+      border: '#ffa8a8',
+      surface: '#fff1f1',
+      contrast: '#1d0a0a',
+      0: '#fff5f5',
+      1: '#ffe3e3',
+      2: '#ffa8a8',
+      3: '#ff8787',
+      main: '#e03131',
+      4: '#c92a2a',
+      5: '#a51111',
+      6: '#6b0f0f',
+    },
     neutral: {
-      background: '#f7f8fb',
+      background: '#f2f4f8',
       surface: '#ffffff',
       border: '#e4e7ee',
       text: '#16171d',
@@ -231,9 +248,26 @@ export const PALETTE = {
       5: '#a27000',
       6: '#664700',
     },
+    danger: {
+      base: '#ff6b6b',
+      hover: '#fa5252',
+      active: '#e03131',
+      disabled: '#ffb3b3',
+      border: '#ff8787',
+      surface: '#2a1414',
+      contrast: '#fff5f5',
+      0: '#ffc9c9',
+      1: '#ffa8a8',
+      2: '#ff8787',
+      3: '#ff6b6b',
+      main: '#fa5252',
+      4: '#e03131',
+      5: '#c92a2a',
+      6: '#a51111',
+    },
     neutral: {
       background: '#0f1116',
-      surface: '#171821',
+      surface: '#191b25',
       border: '#232536',
       text: '#f3f6fc',
       textSubtle: '#8f94ab',
@@ -241,14 +275,14 @@ export const PALETTE = {
       backdrop: '#0b0c10',
     },
     surface: {
-      0: '#0f1116',
-      1: '#13141c',
-      2: '#171821',
-      main: '#171821',
-      4: '#232536',
+      0: '#13141c',
+      1: '#1a1c26',
+      2: '#1f2130',
+      main: '#1f2130',
+      4: '#2a2d3a',
       5: '#2f333d',
-      card: '#1b1c22',
-      hover: '#22232f',
+      card: '#232634',
+      hover: '#272a36',
       backdrop: '#0b0c10',
     },
     depth: {
@@ -264,7 +298,9 @@ export const PALETTE = {
     },
     text: { main: '#f3f6fc', inverse: '#181926', subtle: '#8f94ab' },
   },
-}
+} as const
 
 export type Mode = 'light' | 'dark'
 export type AccentKey = 'primary' | 'secondary' | 'accent' | 'highlight'
+export type Palette = typeof PALETTE
+export type PaletteMode = Palette['light'] | Palette['dark']

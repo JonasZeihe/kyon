@@ -28,12 +28,8 @@ export default function ArticleGrid({ children, aside }: Props) {
 }
 
 const Grid = styled.div`
-  --gap: clamp(
-    ${({ theme }) => theme.spacing(2)},
-    2vw,
-    ${({ theme }) => theme.spacing(4)}
-  );
-  --content: var(--article-max-width, 110ch);
+  --gap: ${({ theme }) => theme.rhythm.default.sectionGap};
+  --content: var(--article-max-width, 90ch);
   --toc: var(--toc-width, 320px);
 
   display: grid;
@@ -44,10 +40,12 @@ const Grid = styled.div`
     minmax(0, 3fr)
     minmax(0, var(--toc));
   column-gap: var(--gap);
-  row-gap: var(--gap);
+  row-gap: calc(var(--gap) * 0.75);
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     grid-template-columns: minmax(0, 1fr);
+    column-gap: ${({ theme }) => theme.spacing(1)};
+    row-gap: ${({ theme }) => theme.spacing(1)};
   }
 
   &[data-has-aside='false'] {
@@ -91,11 +89,13 @@ const Aside = styled.aside`
 
 const AsideSticky = styled.div`
   position: sticky;
-  top: var(--sticky-offset, calc(var(--header-height, 74px) + 12px + 3px));
+  top: calc(var(--header-height, 74px) + var(--progress-height, 3px) + 0.5rem);
 `
 
 const AsideScroll = styled.div`
-  max-height: calc(100vh - var(--sticky-offset, 84px) - 0.5rem);
+  max-height: calc(
+    100vh - (var(--header-height, 74px) + var(--progress-height, 3px) + 0.5rem)
+  );
   overflow: auto;
   pointer-events: auto;
 `

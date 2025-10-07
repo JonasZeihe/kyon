@@ -18,6 +18,9 @@ import PageMeta from '@/components/pagekit/islands/PageMeta'
 import Breadcrumbs from '@/components/navigation/Breadcrumbs'
 import Container from '@/components/primitives/Container'
 import ProgressIsland from '@/components/pagekit/islands/ProgressIsland'
+import Typography from '@/design/typography'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
 
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -46,7 +49,6 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const raw = fs.readFileSync(meta.sourcePath, 'utf8')
   const { content } = matter(raw)
-
   const mdx = await compileToMdx({
     source: raw,
     assetBase: { category: meta.category, dirName: meta.dirName },
@@ -82,12 +84,34 @@ export default async function BlogPostPage({ params }: PageProps) {
       <Container max="default">
         <Breadcrumbs items={breadcrumbs} />
       </Container>
+
       <ArticleRecipe
         header={<PostHeader post={post.meta} />}
         body={
           <>
             <HeadingEnhancer />
             <PostBody post={post as any} />
+            <Stack gap={2} style={{ marginTop: 'clamp(2rem, 5vw, 3rem)' }}>
+              <Surface
+                tone="neutral"
+                bordered
+                radius="large"
+                padding="clamp(0.9rem, 2vw, 1.25rem)"
+              >
+                <Typography as="p" variant="body" align="center">
+                  💬 Fragen oder Gedanken? Schreib mir gern an{' '}
+                  <a
+                    href="mailto:jonaszeihe@gmail.com"
+                    style={{
+                      textDecoration: 'underline',
+                      color: 'inherit',
+                    }}
+                  >
+                    jonaszeihe@gmail.com
+                  </a>
+                </Typography>
+              </Surface>
+            </Stack>
           </>
         }
         asideMeta={
@@ -100,7 +124,9 @@ export default async function BlogPostPage({ params }: PageProps) {
           ) : null
         }
         surface="subtle"
+        accent="primary"
         narrow={false}
+        bodyWidth="default"
       />
     </main>
   )

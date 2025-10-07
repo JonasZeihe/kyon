@@ -1,7 +1,7 @@
 // src/components/layout/Header.tsx
 'use client'
 
-import React, { useEffect, useReducer, useRef, useState } from 'react'
+import React, { useEffect, useReducer, useRef } from 'react'
 import styled from 'styled-components'
 import Link from 'next/link'
 import {
@@ -17,7 +17,6 @@ import ThemeToggleButton from '@/components/button/ThemeToggleButton'
 import Section from '@/components/primitives/Section'
 import Inline from '@/components/primitives/Inline'
 import Stack from '@/components/primitives/Stack'
-import Typography from '@/design/typography'
 
 type NavChild = { id: string; label: string }
 type NavSection = { id: string; label: string; children?: NavChild[] }
@@ -39,18 +38,12 @@ const PRIMARY_LINKS = [
   },
 ]
 
-const ARTICLE_REGEX = /^\/blog\/[^/]+\/[^/]+\/?$/
-
 export default function Header({ navSections = [] }: HeaderProps) {
   const pathname = usePathname() || '/'
   const router = useRouter()
 
   const headerRef = useRef<HTMLElement | null>(null)
-  const lastYRef = useRef(0)
-
-  const [compact, setCompact] = useState(false)
-  const [hidden, setHidden] = useState(false)
-  const [activeSection, setActiveSection] = useState<string | null>(null)
+  const menuContainerRef = useRef<HTMLDivElement | null>(null)
 
   const initial: State = { menuOpen: false, openSubNav: null }
   const reducer = (s: State, a: Action): State =>
@@ -62,26 +55,16 @@ export default function Header({ navSections = [] }: HeaderProps) {
   const [state, dispatch] = useReducer(reducer, initial)
 
   useEffect(() => {
-    const onScroll = () => {
-      const offsets = navSections.map((v) => ({
-        id: v.id,
-        offsetTop: document.getElementById(v.id)?.offsetTop || 0,
-      }))
-      const y = window.scrollY + window.innerHeight / 2
-      const current = offsets.filter((v) => y >= v.offsetTop).pop()
-      if (current?.id !== activeSection) setActiveSection(current?.id ?? null)
-    }
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [activeSection, navSections])
-
-  useEffect(() => {
     if (!headerRef.current) return
     const el = headerRef.current as HTMLElement
     const applyVars = () => {
       const h = el.offsetHeight || 64
       const gap = 12
-      const progress = 3
+      const progress = Number(
+        getComputedStyle(document.documentElement)
+          .getPropertyValue('--progress-height')
+          .trim() || '3'
+      )
       const scrollMargin = h + gap
       const stickyOffset = h + gap + progress
       document.documentElement.style.setProperty('--header-height', `${h}px`)
@@ -105,37 +88,50 @@ export default function Header({ navSections = [] }: HeaderProps) {
       window.removeEventListener('resize', applyVars)
       window.removeEventListener('load', applyVars)
     }
-  }, [compact, hidden])
+  }, [])
 
   useEffect(() => {
-    const isArticle = ARTICLE_REGEX.test(pathname)
-    const onScroll = () => {
-      const y = window.scrollY || 0
-      const last = lastYRef.current || 0
-      lastYRef.current = y
-
-      const enter = 96
-      const exit = 48
-
-      if (y > enter && !compact) setCompact(true)
-      if (y < exit && compact) setCompact(false)
-
-      if (!isArticle && compact && y < exit) setCompact(false)
-
-      const maxFade = 0.15
-      const fadeStart = 80
-      const fadeRange = 240
-      const fadeProgress = Math.max(0, Math.min(1, (y - fadeStart) / fadeRange))
-      const alpha = 1 - fadeProgress * maxFade
-      document.documentElement.style.setProperty(
-        '--header-alpha',
-        alpha.toFixed(3)
+    const doc = document.documentElement
+    if (state.menuOpen) {
+      const prev = doc.style.overflow
+      doc.style.overflow = 'hidden'
+      const first = menuContainerRef.current?.querySelector<HTMLElement>(
+        'a, button, [tabindex]:not([tabindex="-1"])'
       )
+      first?.focus()
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          dispatch({ type: 'CLOSE_MENU' })
+        }
+        if (e.key === 'Tab' && menuContainerRef.current) {
+          const focusables = Array.from(
+            menuContainerRef.current.querySelectorAll<HTMLElement>(
+              'a,button,select,textarea,input,[tabindex]:not([tabindex="-1"])'
+            )
+          ).filter(
+            (el) =>
+              !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden')
+          )
+          if (focusables.length) {
+            const firstEl = focusables[0]
+            const lastEl = focusables[focusables.length - 1]
+            if (e.shiftKey && document.activeElement === firstEl) {
+              lastEl.focus()
+              e.preventDefault()
+            } else if (!e.shiftKey && document.activeElement === lastEl) {
+              firstEl.focus()
+              e.preventDefault()
+            }
+          }
+        }
+      }
+      window.addEventListener('keydown', onKey)
+      return () => {
+        doc.style.overflow = prev
+        window.removeEventListener('keydown', onKey)
+      }
     }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [pathname, compact])
+  }, [state.menuOpen])
 
   const onLogoClick = () => {
     if (pathname === '/') {
@@ -149,7 +145,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
   const renderSectionChildren = (children: NavChild[]) =>
     children.map((c) => (
       <SmoothScroller key={c.id} targetId={c.id}>
-        <SubNavItem $isActive={activeSection === c.id}>{c.label}</SubNavItem>
+        <SubNavItem>{c.label}</SubNavItem>
       </SmoothScroller>
     ))
 
@@ -162,8 +158,8 @@ export default function Header({ navSections = [] }: HeaderProps) {
             <NavLink
               key={l.href}
               href={l.href}
-              $active={active}
               aria-current={active ? 'page' : undefined}
+              $active={active}
             >
               {l.label}
             </NavLink>
@@ -180,9 +176,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
           {navSections.map((s) => (
             <NavItemWrapper key={s.id}>
               <SmoothScroller targetId={s.id}>
-                <SectionItem $isActive={activeSection === s.id}>
-                  {s.label}
-                </SectionItem>
+                <SectionItem>{s.label}</SectionItem>
               </SmoothScroller>
               {!!s.children?.length && (
                 <SubNav>{renderSectionChildren(s.children)}</SubNav>
@@ -198,6 +192,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
       id="site-mobile-menu"
       role="navigation"
       aria-label="Mobiles Menü"
+      ref={menuContainerRef}
     >
       <Stack gap={1}>
         <Stack gap={0.6}>
@@ -221,9 +216,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
               <React.Fragment key={s.id}>
                 <MobileNavItem>
                   <SmoothScroller targetId={s.id}>
-                    <SectionItem $isActive={activeSection === s.id}>
-                      {s.label}
-                    </SectionItem>
+                    <SectionItem>{s.label}</SectionItem>
                   </SmoothScroller>
                   {!!s.children?.length && (
                     <DropdownToggle
@@ -259,15 +252,9 @@ export default function Header({ navSections = [] }: HeaderProps) {
   )
 
   return (
-    <HeaderShell
-      ref={headerRef as any}
-      data-compact={compact ? 'true' : 'false'}
-      data-hidden={hidden ? 'true' : 'false'}
-      role="banner"
-      aria-label="Seitenkopf"
-    >
+    <HeaderShell ref={headerRef as any} role="banner" aria-label="Seitenkopf">
       <Section container="default" padY={false}>
-        <HeaderInner data-compact={compact ? 'true' : 'false'}>
+        <HeaderInner>
           <Inline justify="between" align="center" gap={1.25}>
             <Inline align="center" gap={0.75}>
               <LogoButton
@@ -275,9 +262,7 @@ export default function Header({ navSections = [] }: HeaderProps) {
                 onClick={onLogoClick}
                 aria-label="Zur Startseite"
               >
-                <LogoText data-compact={compact ? 'true' : 'false'}>
-                  Kyon
-                </LogoText>
+                <LogoText>Kyon</LogoText>
               </LogoButton>
             </Inline>
 
@@ -329,39 +314,12 @@ const HeaderShell = styled.header`
   z-index: 1000;
   background: ${({ theme }) => theme.semantic.surface};
   border-bottom: 1px solid ${({ theme }) => theme.semantic.border};
-  box-shadow: ${({ theme }) => theme.boxShadow.sm};
-  transform: translateY(0);
-  transition:
-    transform 0.22s ease,
-    background 0.22s ease,
-    box-shadow 0.22s ease;
-
-  &[data-hidden='true'] {
-    transform: translateY(-100%);
-  }
-
-  &[data-compact='true'] {
-    box-shadow: ${({ theme }) => theme.boxShadow.md};
-    background: ${({ theme }) => theme.semantic.card};
-  }
 `
 
 const HeaderInner = styled.div`
-  padding: ${({ theme }) => `${theme.spacing(0.9)} 0`};
-  transition:
-    padding 0.2s ease,
-    transform 0.2s ease;
-
+  padding: ${({ theme }) => `${theme.spacing(0.8)} 0`};
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => `${theme.spacing(1.1)} 0`};
-  }
-
-  &[data-compact='true'] {
-    padding: ${({ theme }) => `${theme.spacing(0.5)} 0`};
-
-    @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-      padding: ${({ theme }) => `${theme.spacing(0.7)} 0`};
-    }
+    padding: ${({ theme }) => `${theme.spacing(1)} 0`};
   }
 `
 
@@ -386,20 +344,13 @@ const NavItemWrapper = styled.div`
   }
 `
 
-const SectionItem = styled.div<{ $isActive?: boolean }>`
+const SectionItem = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
-  font-weight: ${({ $isActive, theme }) =>
-    $isActive
-      ? theme.typography.fontWeight.medium
-      : theme.typography.fontWeight.regular};
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.accentFor('primary').color : theme.semantic.fg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
+  color: ${({ theme }) => theme.semantic.fg};
   cursor: pointer;
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacingHalf(3)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  transition:
-    color 0.16s ease,
-    background 0.16s ease;
   &:hover,
   &:focus-visible {
     background: ${({ theme }) => theme.semantic.surface};
@@ -414,24 +365,19 @@ const SubNav = styled.div`
   min-width: 13rem;
   padding: ${({ theme }) => theme.spacing(1)};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  box-shadow: ${({ theme }) => theme.boxShadow.md};
   background: ${({ theme }) => theme.semantic.surface};
   border: 1px solid ${({ theme }) => theme.semantic.border};
   display: none;
   z-index: 2;
 `
 
-const SubNavItem = styled.div<{ $isActive?: boolean }>`
+const SubNavItem = styled.div`
   font-size: ${({ theme }) => theme.typography.fontSize.small};
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.accentFor('primary').color : theme.semantic.fg};
+  color: ${({ theme }) => theme.semantic.fg};
   cursor: pointer;
   padding: ${({ theme }) => `${theme.spacing(1)} ${theme.spacing(1.25)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  transition:
-    background 0.14s ease,
-    color 0.16s ease;
   &:hover,
   &:focus-visible {
     background: ${({ theme }) => theme.semantic.surface};
@@ -450,9 +396,6 @@ const NavLink = styled(Link)<{ $active?: boolean }>`
   text-decoration: none;
   padding: ${({ theme }) => `${theme.spacingHalf(2)} ${theme.spacing(1)}`};
   border-radius: ${({ theme }) => theme.borderRadius.small};
-  transition:
-    color 0.16s ease,
-    background 0.16s ease;
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.semantic.linkHover};
@@ -479,15 +422,6 @@ const LogoText = styled.span`
   padding: 0 ${({ theme }) => theme.spacingHalf(2)};
   display: inline-block;
   line-height: 1;
-  transition:
-    transform 0.18s ease,
-    opacity 0.18s ease;
-
-  &[data-compact='true'] {
-    transform: scale(0.92);
-    opacity: 0.92;
-  }
-
   @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
     font-size: ${({ theme }) => theme.typography.fontSize.h3};
   }
@@ -500,9 +434,6 @@ const IconLink = styled(Link)`
   padding: ${({ theme }) => theme.spacingHalf(2)};
   border-radius: ${({ theme }) => theme.borderRadius.pill};
   color: ${({ theme }) => theme.accentFor('primary').color};
-  transition:
-    background 0.14s ease,
-    color 0.14s ease;
   &:hover,
   &:focus-visible {
     color: ${({ theme }) => theme.semantic.linkHover};
@@ -521,10 +452,6 @@ const MobileMenuButton = styled.button`
   color: ${({ theme }) => theme.accentFor('primary').color};
   display: inline-flex;
   align-items: center;
-  transition:
-    background 0.14s ease,
-    color 0.14s ease,
-    border-color 0.14s ease;
   background: transparent;
   &:hover,
   &:focus-visible {
@@ -541,7 +468,6 @@ const MobileMenu = styled.div`
   background: ${({ theme }) => theme.semantic.surface};
   border-bottom: 1px solid ${({ theme }) => theme.semantic.border};
   padding: ${({ theme }) => theme.spacing(1)};
-  box-shadow: ${({ theme }) => theme.boxShadow.md};
   z-index: 10;
 `
 
@@ -556,10 +482,6 @@ const MobileLink = styled(Link)<{ $active?: boolean }>`
   background: transparent;
   border: 1px solid
     ${({ $active, theme }) => ($active ? theme.semantic.border : 'transparent')};
-  transition:
-    background 0.14s ease,
-    color 0.16s ease,
-    border-color 0.16s ease;
   &:hover,
   &:focus-visible {
     background: ${({ theme }) => theme.semantic.surface};
@@ -582,10 +504,6 @@ const DropdownToggle = styled.button`
   padding: ${({ theme }) =>
     `${theme.spacingHalf(1.2)} ${theme.spacingHalf(2)}`};
   font-size: 1rem;
-  transition:
-    background 0.14s ease,
-    color 0.14s ease,
-    border-color 0.14s ease;
   background: transparent;
   &:hover,
   &:focus-visible {
@@ -596,10 +514,6 @@ const DropdownToggle = styled.button`
 
 const MobileSubNav = styled.div<{ $isOpen: boolean }>`
   overflow: hidden;
-  transition:
-    max-height 0.28s cubic-bezier(0.4, 0.2, 0.6, 1),
-    opacity 0.25s ease,
-    padding 0.2s ease;
   max-height: ${({ $isOpen }) => ($isOpen ? '320px' : '0')};
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
   pointer-events: ${({ $isOpen }) => ($isOpen ? 'auto' : 'none')};

@@ -41,6 +41,8 @@ const Split = styled.div`
 
 const MediaFrame = styled.div<{ $aspect?: string }>`
   width: 100%;
+  background: ${({ theme }) => theme.semantic.surface};
+  border-radius: inherit;
   .inner {
     width: 100%;
     height: auto;
@@ -48,6 +50,15 @@ const MediaFrame = styled.div<{ $aspect?: string }>`
     overflow: hidden;
     border-radius: inherit;
   }
+`
+
+const GradientBar = styled.div`
+  height: 6px;
+  width: 100%;
+  border-bottom-left-radius: ${({ theme }) => theme.borderRadius.large};
+  border-bottom-right-radius: ${({ theme }) => theme.borderRadius.large};
+  background: ${({ theme }) => theme.gradients.rainbow};
+  opacity: 0.9;
 `
 
 export default function HeroRecipe({
@@ -62,6 +73,9 @@ export default function HeroRecipe({
   variant = 'default',
   mediaAspect,
 }: Props) {
+  const effectiveAccent: AccentKey | 'neutral' = isPageHeader
+    ? 'neutral'
+    : accent
   const titleVariant = isPageHeader ? 'h1' : 'h2'
   const titleAs = isPageHeader ? 'h1' : 'h2'
 
@@ -80,7 +94,7 @@ export default function HeroRecipe({
         <Typography
           as={titleAs}
           variant={titleVariant as any}
-          accent={accent}
+          accent={effectiveAccent}
           id={titleId}
         >
           {title}
@@ -106,6 +120,7 @@ export default function HeroRecipe({
         <MediaFrame $aspect={mediaAspect}>
           <div className="inner">{media}</div>
         </MediaFrame>
+        <GradientBar />
       </Surface>
     ) : null
 
