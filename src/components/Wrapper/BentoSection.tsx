@@ -2,7 +2,7 @@
 'use client'
 
 import { ReactNode, Children } from 'react'
-import styled from 'styled-components'
+import styled, { useTheme } from 'styled-components'
 import Section from '@/components/primitives/Section'
 import Grid from '@/components/primitives/Grid'
 import Typography from '@/design/typography'
@@ -32,14 +32,19 @@ export default function BentoSection({
   subtitle,
   cta,
   children,
-  min = '18rem',
-  gap = 2,
-  columns = 'auto',
+  min,
+  gap,
+  columns,
   padY = true,
   wide = false,
   layout = [],
   dense = false,
 }: Props) {
+  const theme = useTheme()
+  const fallbackMin = min ?? theme.grid.defaults.min
+  const fallbackGap = gap ?? theme.grid.defaults.gap
+  const fallbackCols = columns ?? theme.grid.defaults.columns
+
   return (
     <Section container={wide ? 'wide' : 'default'} padY={padY}>
       {(title || subtitle || cta) && (
@@ -69,9 +74,9 @@ export default function BentoSection({
       )}
 
       <Grid
-        columns={columns}
-        min={min}
-        gap={gap}
+        columns={fallbackCols}
+        min={fallbackMin}
+        gap={fallbackGap}
         dense={dense}
         switchAt="md"
         aria-label="Bento Section"

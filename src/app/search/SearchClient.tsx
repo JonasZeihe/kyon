@@ -1,7 +1,7 @@
 // src/app/search/SearchClient.tsx
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useId } from 'react'
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import styled from 'styled-components'
 import Link from 'next/link'
@@ -84,8 +84,8 @@ const Card = styled.article`
     background 0.2s ease;
   &:hover,
   &:focus-within {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.boxShadow.md};
+    transform: translateY(-1px);
+    box-shadow: ${({ theme }) => theme.boxShadow.sm};
   }
   h2 a {
     text-decoration: none;
@@ -176,8 +176,9 @@ function SearchInput({
   setValue: (v: string) => void
   total: number
 }) {
+  const labelId = useId()
   return (
-    <Header role="search" aria-labelledby="searchbox-label">
+    <Header role="search" aria-labelledby={labelId}>
       <SearchRow>
         <SearchBox
           id="searchbox"
@@ -197,7 +198,7 @@ function SearchInput({
           </ClearBtn>
         ) : null}
       </SearchRow>
-      <Typography as="p" variant="caption" color="mutedFg" id="searchbox-label">
+      <Typography as="p" variant="caption" color="mutedFg" id={labelId}>
         {value.trim()
           ? `${total} Ergebnis(se) für „${value.trim()}“`
           : `${total} Beiträge`}
@@ -398,7 +399,6 @@ export default function SearchClient({ metas }: Props) {
   return (
     <Wrap>
       <SearchInput value={input} setValue={setInput} total={filtered.length} />
-
       {!filtered.length ? (
         <EmptyResults
           topTags={topTags}
