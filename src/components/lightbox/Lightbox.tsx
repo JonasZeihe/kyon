@@ -17,7 +17,10 @@ type LightboxProps = {
   onClose: () => void
 }
 
-const fadeIn = keyframes`from{opacity:0}to{opacity:1}`
+const fadeIn = keyframes`
+  from { opacity: 0 }
+  to { opacity: 1 }
+`
 
 const Overlay = styled.div`
   position: fixed;
@@ -26,8 +29,8 @@ const Overlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.9);
-  animation: ${fadeIn} 0.3s ease-out;
+  background: ${({ theme }) => theme.semantic.overlay};
+  animation: ${fadeIn} 0.2s ease-out;
 `
 
 const Frame = styled.div`
@@ -36,6 +39,11 @@ const Frame = styled.div`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: ${({ theme }) => theme.spacing(0.5)};
+  border-radius: ${({ theme }) => theme.borderRadius.large};
+  background: ${({ theme }) => theme.semantic.card};
+  box-shadow: ${({ theme }) => theme.boxShadow.lg};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
 `
 
 const StyledVideo = styled.video`
@@ -44,58 +52,52 @@ const StyledVideo = styled.video`
   display: block;
   object-fit: contain;
   border-radius: ${({ theme }) => theme.borderRadius.medium};
-  background: #000;
+  background: ${({ theme }) => theme.semantic.surface};
 `
 
-const CloseButton = styled.button`
+const ControlBase = styled.button`
   position: fixed;
-  top: 20px;
-  right: 20px;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  font-size: 1.3rem;
-  display: flex;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border-radius: ${({ theme }) => theme.borderRadius.pill};
+  border: 1px solid ${({ theme }) => theme.semantic.border};
+  background: ${({ theme }) => theme.semantic.surface};
+  color: ${({ theme }) => theme.semantic.fg};
+  box-shadow: ${({ theme }) => theme.boxShadow.sm};
   cursor: pointer;
-  z-index: 15100;
-  background: rgba(255, 255, 255, 0.92);
   transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    background 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease;
   &:hover {
-    background: rgba(231, 76, 60, 0.95);
-    transform: scale(1.05);
+    background: ${({ theme }) => theme.semantic.hover};
+    box-shadow: ${({ theme }) => theme.boxShadow.md};
+  }
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.semantic.focusRing};
+    outline-offset: 2px;
   }
 `
 
-const NavButton = styled.button<{ $direction: 'left' | 'right' }>`
-  position: fixed;
+const CloseButton = styled(ControlBase)`
+  top: ${({ theme }) => theme.spacing(1.5)};
+  right: ${({ theme }) => theme.spacing(1.5)};
+  z-index: 15100;
+`
+
+const NavButton = styled(ControlBase)<{ $direction: 'left' | 'right' }>`
   top: 50%;
-  ${({ $direction }) =>
-    $direction === 'left' ? 'left: 20px;' : 'right: 20px;'}
+  ${({ $direction, theme }) =>
+    $direction === 'left'
+      ? `left: ${theme.spacing(1.5)};`
+      : `right: ${theme.spacing(1.5)};`}
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  font-size: 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  cursor: pointer;
   z-index: 15100;
-  background: rgba(0, 0, 0, 0.6);
-  color: #fff;
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
-  &:hover {
-    background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.05);
-  }
 `
 
 export default function Lightbox({
@@ -212,7 +214,7 @@ export default function Lightbox({
       </Frame>
 
       <CloseButton ref={closeRef} onClick={onClose} aria-label="Close dialog">
-        <FaTimes size={20} />
+        <FaTimes size={18} />
       </CloseButton>
 
       {isCarousel && (
@@ -225,7 +227,7 @@ export default function Lightbox({
             }}
             aria-label="Previous media"
           >
-            <FaChevronLeft size={20} />
+            <FaChevronLeft size={18} />
           </NavButton>
           <NavButton
             $direction="right"
@@ -235,7 +237,7 @@ export default function Lightbox({
             }}
             aria-label="Next media"
           >
-            <FaChevronRight size={20} />
+            <FaChevronRight size={18} />
           </NavButton>
         </>
       )}

@@ -214,14 +214,12 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ title, lang, children }) => {
   return (
     <div className="codeblock" data-language={language || undefined}>
       {title ? (
-        <div className="codeblock__header">
-          <span className="codeblock__title">{title}</span>
-          {language ? (
-            <span className="codeblock__lang">{language}</span>
-          ) : null}
+        <div className="codeblock-header">
+          <span className="codeblock-title">{title}</span>
+          {language ? <span className="codeblock-lang">{language}</span> : null}
         </div>
       ) : null}
-      <div className="codeblock__body">{content}</div>
+      <div className="codeblock-body">{content}</div>
     </div>
   )
 }
@@ -247,21 +245,25 @@ const getMDXComponents = (assetBaseUrl?: string) => ({
   th: Th,
   td: Td,
   a: A,
-  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <MediaDisplay
-      mdxInline
-      base={assetBaseUrl}
-      media={[
-        {
-          type: 'image',
-          src: String(props.src || ''),
-          alt: String(props.alt || ''),
-          caption:
-            typeof props.title === 'string' ? String(props.title) : undefined,
-        },
-      ]}
-    />
-  ),
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => {
+    const src = String(props.src || '')
+    if (!src) return null
+    return (
+      <MediaDisplay
+        mdxInline
+        base={assetBaseUrl}
+        media={[
+          {
+            type: 'image',
+            src,
+            alt: String(props.alt || ''),
+            caption:
+              typeof props.title === 'string' ? String(props.title) : undefined,
+          },
+        ]}
+      />
+    )
+  },
   Badge,
   BadgeGrid,
   Button,

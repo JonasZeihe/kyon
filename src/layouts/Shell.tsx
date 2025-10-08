@@ -1,7 +1,7 @@
 // src/layouts/Shell.tsx
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -9,6 +9,17 @@ import Footer from '@/components/layout/Footer'
 type Props = { children: React.ReactNode }
 
 export default function Shell({ children }: Props) {
+  useEffect(() => {
+    const root = document.documentElement
+    const get = (n: string) => root.style.getPropertyValue(n)
+    const set = (n: string, v: string) => root.style.setProperty(n, v)
+
+    if (!get('--header-height')) set('--header-height', '74px')
+    if (!get('--header-offset')) set('--header-offset', '74px')
+    if (!get('--article-scroll-margin')) set('--article-scroll-margin', '86px')
+    if (!get('--sticky-offset')) set('--sticky-offset', '89px')
+  }, [])
+
   return (
     <Outer>
       <SkipLink href="#main">Zum Inhalt springen</SkipLink>
@@ -44,14 +55,15 @@ const SkipLink = styled.a`
   padding: ${({ theme }) => `${theme.spacingHalf(3)} ${theme.spacing(1)}`};
   background: ${({ theme }) => theme.semantic.card};
   color: ${({ theme }) => theme.semantic.fg};
-  border: 1px solid ${({ theme }) => theme.semantic.border};
+  border: 1px solid ${({ theme }) => theme.semantic.border}};
   border-radius: ${({ theme }) => theme.borderRadius.medium};
   z-index: 10000;
-  &:focus {
+  &:focus-visible {
     left: 8px;
     top: 8px;
-    outline: none;
-    box-shadow: ${({ theme }) => theme.boxShadow.sm};
+    outline: 2px solid ${({ theme }) => theme.semantic.focusRing};
+    outline-offset: 2px;
+    box-shadow: none;
   }
 `
 

@@ -5,6 +5,8 @@ import Typography from '@/design/typography'
 import SectionRecipe from '@/components/pagekit/recipes/SectionRecipe'
 import SearchClient from './SearchClient'
 import { resolveSkin } from '@/components/pagekit/skins'
+import Surface from '@/components/primitives/Surface'
+import Stack from '@/components/primitives/Stack'
 
 export const dynamic = 'force-static'
 export const revalidate = false
@@ -41,7 +43,17 @@ export default function Page() {
         titleId="search-title"
         ariaLabel="Suche"
       >
-        <SearchClient metas={metas} />
+        <Stack gap={1.25}>
+          <Surface
+            tone="accent"
+            accent={skin.accentKey}
+            radius="large"
+            bordered
+            padding="clamp(0.9rem, 2.2vw, 1.25rem)"
+          >
+            <SearchClient metas={metas} />
+          </Surface>
+        </Stack>
       </SectionRecipe>
     </main>
   )
