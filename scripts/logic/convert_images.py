@@ -14,7 +14,6 @@ except Exception:
     sys.exit(1)
 
 SUPPORTED_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
-OUTPUT_SUFFIX = "_opt"
 WEBP_QUALITY = int(os.environ.get("WEBP_QUALITY", "82"))
 WEBP_METHOD = int(os.environ.get("WEBP_METHOD", "6"))
 WEBP_LOSSLESS = os.environ.get("WEBP_LOSSLESS", "").lower() in {"1", "true", "yes"}
@@ -27,7 +26,6 @@ def supports_color() -> bool:
 
 
 B = "\033[1m" if supports_color() else ""
-DIM = "\033[2m" if supports_color() else ""
 OK = "\033[32m" if supports_color() else ""
 ERR = "\033[31m" if supports_color() else ""
 CY = "\033[36m" if supports_color() else ""
@@ -38,15 +36,15 @@ def hr() -> str:
     return "-" * 62
 
 
-def banner(cwd: pathlib.Path) -> None:
+def banner(out_dir: pathlib.Path) -> None:
     print()
     print(f"{B}Image Optimizer - WebP converter{RST}")
     print(hr())
     print("Drag & drop files or folders into this window, then press Enter.")
-    print(f"Outputs will be written to: {CY}{cwd}{RST}")
+    print(f"Outputs will be written to: {CY}{out_dir}{RST}")
     print(hr())
     exts = ", ".join(sorted([e.lstrip(".") for e in SUPPORTED_EXTS]))
-    print(f"{DIM}Tips:{RST} Drop multiple paths at once | Supported: {exts}")
+    print(f"Supported formats: {exts}")
     print()
 
 
@@ -54,9 +52,8 @@ def parse_dropped_paths(line: str) -> List[pathlib.Path]:
     parts = shlex.split(line, posix=False)
     paths: List[pathlib.Path] = []
     for p in parts:
-        if not p:
-            continue
-        paths.append(pathlib.Path(p).expanduser())
+        if p:
+            paths.append(pathlib.Path(p).expanduser())
     return paths
 
 
@@ -68,16 +65,7 @@ def collect_supported(paths: Iterable[pathlib.Path]) -> List[pathlib.Path]:
                 files.extend(sorted(p.glob(f"*{ext}")))
         elif p.is_file():
             files.append(p)
-    files = [f for f in files if f.suffix.lower() in SUPPORTED_EXTS]
-    seen = set()
-    unique: List[pathlib.Path] = []
-    for f in files:
-        key = str(f.resolve())
-        if key in seen:
-            continue
-        seen.add(key)
-        unique.append(f)
-    return unique
+    return [f for f in files if f.suffix.lower() in SUPPORTED_EXTS]
 
 
 def normalize_mode(img: Image.Image) -> Image.Image:
@@ -91,9 +79,7 @@ def normalize_mode(img: Image.Image) -> Image.Image:
 def next_available_path(base: pathlib.Path) -> pathlib.Path:
     if not base.exists():
         return base
-    stem = base.stem
-    suffix = base.suffix
-    parent = base.parent
+    stem, suffix, parent = base.stem, base.suffix, base.parent
     i = 1
     while True:
         cand = parent / f"{stem}({i}){suffix}"
@@ -108,21 +94,27 @@ def optimize_to_webp(
     with Image.open(src) as im:
         im = ImageOps.exif_transpose(im)
         im = normalize_mode(im)
-        out_name = f"{src.stem}{OUTPUT_SUFFIX}.webp"
+
+        out_name = f"{src.stem}.webp"
         out_path = next_available_path(out_dir / out_name)
+
         save_kwargs = {
             "format": "WEBP",
             "quality": WEBP_QUALITY,
             "method": WEBP_METHOD,
             "lossless": WEBP_LOSSLESS,
         }
+
         icc = im.info.get("icc_profile")
         if isinstance(icc, (bytes, bytearray)):
             save_kwargs["icc_profile"] = icc
+
         exif = im.info.get("exif")
         if isinstance(exif, (bytes, bytearray)):
             save_kwargs["exif"] = exif
+
         im.save(out_path, **save_kwargs)
+
     in_size = src.stat().st_size if src.exists() else 0
     out_size = out_path.stat().st_size if out_path.exists() else 0
     return out_path, in_size, out_size
@@ -173,6 +165,10 @@ def process_once(
     if not inputs:
         print("No supported image files found.\n")
         return
+
+    if not out_dir.exists():
+        out_dir.mkdir(parents=True, exist_ok=True)
+
     print(f"{B}Processing {len(inputs)} file(s)...{RST}")
     results: List[Tuple[pathlib.Path, int, int]] = []
     for src in inputs:
@@ -186,6 +182,7 @@ def process_once(
             line = f"{ERR}ERROR{RST} {src} — {e}"
             print(line)
             log_lines.append(line + "\n")
+
     summary = summarize(results)
     print(summary, end="")
     log_lines.append(summary)
@@ -194,12 +191,15 @@ def process_once(
 
 def main() -> None:
     cwd = pathlib.Path.cwd()
-    banner(cwd)
+    out_dir = cwd / "output"
+    banner(out_dir)
+
     log_lines: List[str] = []
     initial_args = [pathlib.Path(a) for a in sys.argv[1:] if a.strip()]
+
     if initial_args:
         files = collect_supported(initial_args)
-        process_once(files, cwd, log_lines)
+        process_once(files, out_dir, log_lines)
     else:
         while True:
             line = input(
@@ -213,10 +213,11 @@ def main() -> None:
             if not files:
                 print("No supported images detected. Try again.\n")
                 continue
-            process_once(files, cwd, log_lines)
+            process_once(files, out_dir, log_lines)
             if ask_yes_no("Process more files?", default_no=True):
                 continue
             break
+
     if ask_yes_no("Save a session log file in the current directory?", default_no=True):
         ts = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
         log_path = cwd / f"image_opt_{ts}.log"
