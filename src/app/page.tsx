@@ -12,6 +12,7 @@ import Card from '@/components/blog/Card'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
 import { resolveSkin } from '@/components/pagekit/skins'
+import { withBase } from '@/lib/content/helpers/paths'
 
 export const dynamic = 'force-static'
 
@@ -42,7 +43,7 @@ export default async function HomePage() {
         mediaAspect="16/9"
         media={
           <Image
-            src="/og-default.png"
+            src={withBase('/og-default.webp')}
             alt="Kyon – klare, ruhige Oberfläche"
             fill
             sizes="(max-width: 768px) 100vw, 1200px"

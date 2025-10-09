@@ -10,6 +10,7 @@ import BentoSection from '@/components/Wrapper/BentoSection'
 import Surface from '@/components/primitives/Surface'
 import Stack from '@/components/primitives/Stack'
 import { resolveSkin } from '@/components/pagekit/skins'
+import { withBase } from '@/lib/content/helpers/paths'
 
 export const dynamic = 'force-static'
 
@@ -33,7 +34,7 @@ export default function AboutPage() {
         }
         media={
           <Image
-            src="/og-default.png"
+            src={withBase('/og-default.webp')}
             alt="Kyon – ruhige, opake Flächen mit klarer Typografie"
             fill
             sizes="(max-width: 768px) 100vw, 1200px"

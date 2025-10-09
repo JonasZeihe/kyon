@@ -16,14 +16,7 @@ const Container = styled.div<{ max?: Max }>`
   max-width: ${({ max = 'default' }) =>
     max === 'full' ? 'none' : widths[max]};
   margin-inline: auto;
-  padding-inline: clamp(1rem, 3vw, 1.5rem);
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding-inline: clamp(0.75rem, 4vw, 1.25rem);
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding-inline: clamp(0.75rem, 5vw, 1rem);
-  }
+  padding-inline: clamp(0.5rem, 2vw, 1rem);
 `
 
 export default Container

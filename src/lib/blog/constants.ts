@@ -47,7 +47,7 @@ export const ASSET_PREFIX = (
 
 export const DEFAULT_OG_IMAGE = path.posix.join(
   ASSET_PREFIX || '/',
-  'og-default.png'
+  'og-default.webp'
 )
 
 export const CONTENT_PUBLIC_BASE = path.posix.join(
