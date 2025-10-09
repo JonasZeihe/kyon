@@ -34,15 +34,15 @@ export default function AboutPage() {
         }
         media={
           <Image
-            src={withBase('/og-default.webp')}
+            src={withBase('/about_cover.webp')}
             alt="Kyon – ruhige, opake Flächen mit klarer Typografie"
-            fill
-            sizes="(max-width: 768px) 100vw, 1200px"
-            style={{ objectFit: 'cover' }}
+            width={0}
+            height={0}
+            sizes="100vw"
+            style={{ display: 'block', width: '100%', height: 'auto' }}
             priority
           />
         }
-        mediaAspect="4/3"
         container="wide"
         accent={skin.accentKey}
       />

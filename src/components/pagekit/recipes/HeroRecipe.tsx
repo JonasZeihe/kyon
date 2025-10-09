@@ -44,11 +44,11 @@ const MediaFrame = styled.div<{ $aspect?: string }>`
   background: ${({ theme }) => theme.semantic.surface};
   border-radius: inherit;
   .inner {
+    position: relative;
     width: 100%;
-    height: auto;
-    aspect-ratio: ${({ $aspect }) => $aspect || '16 / 9'};
     overflow: hidden;
     border-radius: inherit;
+    ${({ $aspect }) => ($aspect ? `aspect-ratio: ${$aspect};` : '')}
   }
 `
 
