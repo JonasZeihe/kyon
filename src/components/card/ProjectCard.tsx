@@ -1,3 +1,4 @@
+// src/components/card/ProjectCard.tsx
 'use client'
 
 import styled, { DefaultTheme } from 'styled-components'
@@ -5,6 +6,7 @@ import CardWrapper from '@/components/Wrapper/CardWrapper'
 import Typography from '@/design/typography'
 import Button from '@/components/button/Button'
 import ButtonGrid from '@/components/button/ButtonGrid'
+import { withBase } from '@/lib/content/helpers/paths'
 
 type ProjectButton = {
   text: string
@@ -24,11 +26,18 @@ type ProjectCardProps = {
   onOpen: () => void
 }
 
+const resolveImage = (src: string) => {
+  if (!src) return src
+  if (/^([a-z]+:)?\/\//i.test(src)) return src
+  return src.startsWith('/') ? withBase(src) : src
+}
+
 export default function ProjectCard({ project, onOpen }: ProjectCardProps) {
+  const imgSrc = resolveImage(project.image)
   return (
     <CardWrapper onClick={onOpen} style={{ cursor: 'pointer' }}>
       <ImageContainer>
-        <Image src={project.image} alt={project.name} />
+        <Image src={imgSrc} alt={project.name} />
       </ImageContainer>
       <Content>
         <Typography variant="h2" align="center" accent="accent" gutter={false}>

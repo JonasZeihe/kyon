@@ -5,6 +5,7 @@ import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import Image from 'next/image'
 import Lightbox from '../lightbox/Lightbox'
+import { withBase } from '@/lib/content/helpers/paths'
 
 type ImageMedia = { type: 'image'; src: string; alt?: string; caption?: string }
 type VideoMedia = {
@@ -31,12 +32,15 @@ const join = (b: string, r: string) =>
     '/'
   )
 
-const resolveSrc = (s: string, base?: string) =>
-  !s || /^([a-z]+:)?\/\//i.test(s) || s.startsWith('/')
-    ? s
-    : base
-      ? join(base, s)
-      : s
+const isAbsUrl = (s: string) => /^([a-z]+:)?\/\//i.test(s)
+
+const resolveSrc = (s: string, base?: string) => {
+  if (!s) return s
+  if (isAbsUrl(s)) return s
+  if (s.startsWith('/')) return withBase(s)
+  const joined = base ? join(base, s) : s
+  return joined.startsWith('/') ? withBase(joined) : joined
+}
 
 const MediaGrid = styled.div<{ $variant: Variant }>`
   display: grid;
@@ -190,6 +194,7 @@ function MediaDisplay({
     () => normalized.filter((m): m is ImageMedia => m.type === 'image'),
     [normalized]
   )
+
   const imageIndices = useMemo(
     () =>
       normalized.reduce<number[]>((acc, item, idx) => {
@@ -229,7 +234,6 @@ function MediaDisplay({
           </InlineImgButton>
           {item.caption ? <InlineCaption>{item.caption}</InlineCaption> : null}
         </InlineWrapper>
-
         {lightboxOpen && images.length > 0 && (
           <Lightbox
             media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
@@ -302,7 +306,6 @@ function MediaDisplay({
           )
         })}
       </MediaGrid>
-
       {lightboxOpen && images.length > 0 && (
         <Lightbox
           media={images.map(({ src, alt }) => ({ type: 'image', src, alt }))}
