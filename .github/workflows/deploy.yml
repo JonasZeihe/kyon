@@ -18,7 +18,13 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - name: Build static export with base path
+        run: npm run build
+        env:
+          DEPLOY_TARGET: gh
+          STATIC_EXPORT: true
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_ASSET_PREFIX: /${{ github.event.repository.name }}
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

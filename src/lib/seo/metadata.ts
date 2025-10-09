@@ -2,12 +2,12 @@
 import type { Metadata } from 'next'
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '../blog/constants'
 import { PostMeta } from '../blog/types'
-import { abs, toPublicAssetUrl } from '@/lib/content/helpers/paths'
+import { abs, withBase, toPublicAssetUrl } from '@/lib/content/helpers/paths'
 
 const coverFor = (meta: PostMeta) => {
   const path = meta.cover
     ? toPublicAssetUrl(meta.category, meta.dirName, meta.cover)
-    : DEFAULT_OG_IMAGE
+    : withBase(DEFAULT_OG_IMAGE)
   return abs(path)
 }
 
@@ -21,8 +21,9 @@ export const buildPostMetadata = (meta: PostMeta): Metadata => {
       : abs(meta.canonicalUrl)
     : url
 
+  const ogImageUrl = coverFor(meta)
   const images = [
-    { url: coverFor(meta), width: 1200, height: 630, alt: meta.title },
+    { url: ogImageUrl, width: 1200, height: 630, alt: meta.title },
   ]
 
   return {
@@ -42,7 +43,7 @@ export const buildPostMetadata = (meta: PostMeta): Metadata => {
       card: 'summary_large_image',
       title,
       description,
-      images,
+      images: [ogImageUrl],
     },
     metadataBase: new URL(SITE_URL),
   }

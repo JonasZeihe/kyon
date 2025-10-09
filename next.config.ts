@@ -11,7 +11,6 @@ const basePath =
   process.env.NEXT_PUBLIC_BASE_PATH ?? (isGhTarget ? inferredBase : '')
 const assetPrefix = process.env.NEXT_PUBLIC_ASSET_PREFIX ?? basePath
 
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   compiler: { styledComponents: true },
